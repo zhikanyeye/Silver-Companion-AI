@@ -13,11 +13,13 @@ void main() {
     test('returns false for normal daily conversation', () {
       expect(ScamRules.containsRisk('今天天气不错，想去散步'), isFalse);
       expect(ScamRules.containsRisk('晚饭吃面条还是米饭'), isFalse);
+      expect(ScamRules.containsRisk('The designer shared a wireframe.'), isFalse);
     });
 
     test('is case and spacing tolerant', () {
       expect(ScamRules.containsRisk('请  立刻  转 账 到 安全 账户'), isTrue);
       expect(ScamRules.containsRisk('Please TRANSFER money now'), isTrue);
+      expect(ScamRules.containsRisk('请立刻【转-账】到“安全，账户”'), isTrue);
     });
   });
 }
