@@ -23,4 +23,39 @@ void main() {
     expect(messages[2]['role'], 'user');
     expect(messages[2]['content'], '我想去散步');
   });
+
+  test('returns only system message when history is empty', () {
+    const builder = PromptBuilder();
+
+    final messages = builder.build(history: const [], maxHistory: 5);
+
+    expect(messages, hasLength(1));
+    expect(messages.first['role'], 'system');
+  });
+
+  test('returns only system message when maxHistory is zero', () {
+    const builder = PromptBuilder();
+    final history = <ChatMessage>[
+      const ChatMessage(role: ChatRole.user, content: '你好'),
+      const ChatMessage(role: ChatRole.assistant, content: '您好'),
+    ];
+
+    final messages = builder.build(history: history, maxHistory: 0);
+
+    expect(messages, hasLength(1));
+    expect(messages.first['role'], 'system');
+  });
+
+  test('maps system role explicitly', () {
+    const builder = PromptBuilder();
+    final history = <ChatMessage>[
+      const ChatMessage(role: ChatRole.system, content: '系统提示'),
+    ];
+
+    final messages = builder.build(history: history, maxHistory: 1);
+
+    expect(messages, hasLength(2));
+    expect(messages[1]['role'], 'system');
+    expect(messages[1]['content'], '系统提示');
+  });
 }

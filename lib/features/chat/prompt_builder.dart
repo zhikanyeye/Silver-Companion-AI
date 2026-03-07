@@ -7,6 +7,7 @@ class PromptBuilder {
     required List<ChatMessage> history,
     required int maxHistory,
   }) {
+    final safeMaxHistory = maxHistory < 0 ? 0 : maxHistory;
     final messages = <Map<String, String>>[
       {
         'role': 'system',
@@ -14,13 +15,18 @@ class PromptBuilder {
       },
     ];
 
-    final start = history.length > maxHistory
-        ? history.length - maxHistory
+    final start = history.length > safeMaxHistory
+        ? history.length - safeMaxHistory
         : 0;
 
     for (final message in history.sublist(start)) {
+      final role = switch (message.role) {
+        ChatRole.user => 'user',
+        ChatRole.assistant => 'assistant',
+        ChatRole.system => 'system',
+      };
       messages.add({
-        'role': message.role == ChatRole.user ? 'user' : 'assistant',
+        'role': role,
         'content': message.content,
       });
     }
