@@ -1,9 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-const String _openRouterApiKey =
-    String.fromEnvironment('OPENROUTER_API_KEY', defaultValue: '');
+const String _openRouterApiKeyZoneKey = 'openrouter_api_key';
+
+String _resolveOpenRouterApiKey() {
+  final zoneValue = Zone.current[_openRouterApiKeyZoneKey];
+  if (zoneValue is String) {
+    return zoneValue;
+  }
+
+  return const String.fromEnvironment('OPENROUTER_API_KEY', defaultValue: '');
+}
 
 class OpenRouterClient {
   OpenRouterClient({http.Client? client}) : _client = client ?? http.Client();
@@ -14,11 +23,16 @@ class OpenRouterClient {
     required String model,
     required List<Map<String, String>> messages,
   }) async {
+    final apiKey = _resolveOpenRouterApiKey();
+    if (apiKey.isEmpty) {
+      throw StateError('OPENROUTER_API_KEY is required for OpenRouter requests');
+    }
+
     final response = await _client.post(
       Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $_openRouterApiKey',
+        'Authorization': 'Bearer $apiKey',
       },
       body: jsonEncode({
         'model': model,
@@ -27,7 +41,9 @@ class OpenRouterClient {
     );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw StateError('OpenRouter request failed: ${response.statusCode}');
+      throw StateError(
+        'OpenRouter request failed: ${response.statusCode} ${response.body}',
+      );
     }
 
     final payload = jsonDecode(response.body) as Map<String, dynamic>;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -26,14 +27,20 @@ void main() {
       );
     });
 
-    final client = OpenRouterClient(client: mockClient);
-    final result = await client.createChatCompletion(
-      model: 'test-model',
-      messages: const [
-        {'role': 'user', 'content': 'hi'},
-        {'role': 'assistant', 'content': 'hello'},
-      ],
+    final result = await runZoned(
+      () async {
+        final client = OpenRouterClient(client: mockClient);
+        return client.createChatCompletion(
+          model: 'test-model',
+          messages: const [
+            {'role': 'user', 'content': 'hi'},
+            {'role': 'assistant', 'content': 'hello'},
+          ],
+        );
+      },
+      zoneValues: const {'openrouter_api_key': 'test-key'},
     );
+
 
     expect(capturedRequest.method, 'POST');
     expect(
@@ -48,5 +55,71 @@ void main() {
     expect(firstMessage['role'], 'user');
     expect(firstMessage['content'], 'hi');
     expect(result, 'response text');
+  });
+
+  test('throws StateError when API key is empty', () async {
+    final mockClient = MockClient((request) async {
+      throw StateError('Request should not be sent');
+    });
+
+    await runZoned(
+      () async {
+        final client = OpenRouterClient(client: mockClient);
+
+        expect(
+          () => client.createChatCompletion(
+            model: 'test-model',
+            messages: const [
+              {'role': 'user', 'content': 'hi'},
+            ],
+          ),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              contains('OPENROUTER_API_KEY'),
+            ),
+          ),
+        );
+      },
+      zoneValues: const {'openrouter_api_key': ''},
+    );
+
+  });
+
+  test('includes status and body in non-2xx errors', () async {
+    final mockClient = MockClient((request) async {
+      return http.Response('bad response body', 500);
+    });
+
+    await runZoned(
+      () async {
+        final client = OpenRouterClient(client: mockClient);
+
+        expect(
+          () => client.createChatCompletion(
+            model: 'test-model',
+            messages: const [
+              {'role': 'user', 'content': 'hi'},
+            ],
+          ),
+          throwsA(
+            isA<StateError>()
+                .having(
+                  (error) => error.message,
+                  'message',
+                  contains('500'),
+                )
+                .having(
+                  (error) => error.message,
+                  'message',
+                  contains('bad response body'),
+                ),
+          ),
+        );
+      },
+      zoneValues: const {'openrouter_api_key': 'test-key'},
+    );
+
   });
 }
