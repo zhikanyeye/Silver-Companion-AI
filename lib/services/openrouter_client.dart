@@ -48,9 +48,13 @@ class OpenRouterClient {
 
     Map<String, dynamic> payload;
     try {
-      payload = jsonDecode(response.body) as Map<String, dynamic>;
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException('invalid JSON shape');
+      }
+      payload = decoded;
     } on FormatException {
-      throw StateError('OpenRouter response invalid JSON');
+      throw StateError('OpenRouter response invalid JSON shape');
     }
 
     final choices = payload['choices'];

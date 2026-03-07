@@ -153,6 +153,39 @@ void main() {
     );
   });
 
+  test('throws StateError when response JSON is not a map', () async {
+    final mockClient = MockClient((request) async {
+      return http.Response(
+        jsonEncode(['not', 'a', 'map']),
+        200,
+        headers: {'content-type': 'application/json'},
+      );
+    });
+
+    await runZoned(
+      () async {
+        final client = OpenRouterClient(client: mockClient);
+
+        expect(
+          () => client.createChatCompletion(
+            model: 'test-model',
+            messages: const [
+              {'role': 'user', 'content': 'hi'},
+            ],
+          ),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              contains('invalid JSON shape'),
+            ),
+          ),
+        );
+      },
+      zoneValues: const {'openrouter_api_key': 'test-key'},
+    );
+  });
+
   test('throws StateError when response choices are empty', () async {
     final mockClient = MockClient((request) async {
       return http.Response(
