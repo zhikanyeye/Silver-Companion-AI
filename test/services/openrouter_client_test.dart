@@ -47,6 +47,7 @@ void main() {
       capturedRequest.url.toString(),
       'https://openrouter.ai/api/v1/chat/completions',
     );
+    expect(capturedRequest.headers['Authorization'], 'Bearer test-key');
     final payload = jsonDecode(capturedRequest.body) as Map<String, dynamic>;
     expect(payload['model'], 'test-model');
     expect(payload['messages'], isA<List<dynamic>>());
@@ -121,5 +122,143 @@ void main() {
       zoneValues: const {'openrouter_api_key': 'test-key'},
     );
 
+  });
+
+  test('throws StateError when response JSON is invalid', () async {
+    final mockClient = MockClient((request) async {
+      return http.Response('not-json', 200);
+    });
+
+    await runZoned(
+      () async {
+        final client = OpenRouterClient(client: mockClient);
+
+        expect(
+          () => client.createChatCompletion(
+            model: 'test-model',
+            messages: const [
+              {'role': 'user', 'content': 'hi'},
+            ],
+          ),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              contains('invalid JSON'),
+            ),
+          ),
+        );
+      },
+      zoneValues: const {'openrouter_api_key': 'test-key'},
+    );
+  });
+
+  test('throws StateError when response choices are empty', () async {
+    final mockClient = MockClient((request) async {
+      return http.Response(
+        jsonEncode({'choices': []}),
+        200,
+        headers: {'content-type': 'application/json'},
+      );
+    });
+
+    await runZoned(
+      () async {
+        final client = OpenRouterClient(client: mockClient);
+
+        expect(
+          () => client.createChatCompletion(
+            model: 'test-model',
+            messages: const [
+              {'role': 'user', 'content': 'hi'},
+            ],
+          ),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              contains('missing choices'),
+            ),
+          ),
+        );
+      },
+      zoneValues: const {'openrouter_api_key': 'test-key'},
+    );
+  });
+
+  test('throws StateError when response message is missing', () async {
+    final mockClient = MockClient((request) async {
+      return http.Response(
+        jsonEncode({
+          'choices': [
+            {},
+          ],
+        }),
+        200,
+        headers: {'content-type': 'application/json'},
+      );
+    });
+
+    await runZoned(
+      () async {
+        final client = OpenRouterClient(client: mockClient);
+
+        expect(
+          () => client.createChatCompletion(
+            model: 'test-model',
+            messages: const [
+              {'role': 'user', 'content': 'hi'},
+            ],
+          ),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              contains('missing message'),
+            ),
+          ),
+        );
+      },
+      zoneValues: const {'openrouter_api_key': 'test-key'},
+    );
+  });
+
+  test('throws StateError when response content is missing', () async {
+    final mockClient = MockClient((request) async {
+      return http.Response(
+        jsonEncode({
+          'choices': [
+            {
+              'message': {},
+            },
+          ],
+        }),
+        200,
+        headers: {'content-type': 'application/json'},
+      );
+    });
+
+    await runZoned(
+      () async {
+        final client = OpenRouterClient(client: mockClient);
+
+        expect(
+          () => client.createChatCompletion(
+            model: 'test-model',
+            messages: const [
+              {'role': 'user', 'content': 'hi'},
+            ],
+          ),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              contains('missing content'),
+            ),
+          ),
+        );
+      },
+      zoneValues: const {'openrouter_api_key': 'test-key'},
+    );
   });
 }

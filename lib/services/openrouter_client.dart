@@ -46,10 +46,28 @@ class OpenRouterClient {
       );
     }
 
-    final payload = jsonDecode(response.body) as Map<String, dynamic>;
-    final choices = payload['choices'] as List<dynamic>;
-    final firstChoice = choices.first as Map<String, dynamic>;
-    final message = firstChoice['message'] as Map<String, dynamic>;
+    Map<String, dynamic> payload;
+    try {
+      payload = jsonDecode(response.body) as Map<String, dynamic>;
+    } on FormatException {
+      throw StateError('OpenRouter response invalid JSON');
+    }
+
+    final choices = payload['choices'];
+    if (choices is! List<dynamic> || choices.isEmpty) {
+      throw StateError('OpenRouter response missing choices');
+    }
+
+    final firstChoice = choices.first;
+    if (firstChoice is! Map<String, dynamic>) {
+      throw StateError('OpenRouter response missing message');
+    }
+
+    final message = firstChoice['message'];
+    if (message is! Map<String, dynamic>) {
+      throw StateError('OpenRouter response missing message');
+    }
+
     final content = message['content'];
     if (content is String) {
       return content;
