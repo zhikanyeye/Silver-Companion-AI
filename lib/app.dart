@@ -18,17 +18,34 @@ class HomeSelectorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Who is this for?'),
+        title: const Text('为谁服务？'),
       ),
-      body: ListView(
-        children: const [
-          ListTile(
-            title: Text('Elderly'),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ListView(
+            children: [
+              Semantics(
+                label: '选择长者',
+                button: true,
+                child: ListTile(
+                  title: const Text('长者'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {},
+                ),
+              ),
+              Semantics(
+                label: '选择儿童',
+                button: true,
+                child: ListTile(
+                  title: const Text('儿童'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {},
+                ),
+              ),
+            ],
           ),
-          ListTile(
-            title: Text('Child'),
-          ),
-        ],
+        ),
       ),
     );
   }
