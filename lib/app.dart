@@ -28,6 +28,7 @@ class HomeSelectorScreen extends StatelessWidget {
               Semantics(
                 label: '选择长者',
                 button: true,
+                onTap: () {},
                 child: ListTile(
                   title: const Text('长者'),
                   trailing: const Icon(Icons.chevron_right),
@@ -37,6 +38,7 @@ class HomeSelectorScreen extends StatelessWidget {
               Semantics(
                 label: '选择儿童',
                 button: true,
+                onTap: () {},
                 child: ListTile(
                   title: const Text('儿童'),
                   trailing: const Icon(Icons.chevron_right),

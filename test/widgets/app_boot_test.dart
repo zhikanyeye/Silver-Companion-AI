@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:yinling_zhiban_demo/app.dart';
@@ -7,6 +8,7 @@ void main() {
   testWidgets('shows localized home selector entries with tap affordances',
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
+    final semantics = tester.ensureSemantics();
 
     expect(find.text('为谁服务？'), findsOneWidget);
     expect(find.text('长者'), findsOneWidget);
@@ -21,5 +23,13 @@ void main() {
     for (final tile in tiles) {
       expect(tile.onTap, isNotNull);
     }
+
+    final elderNode = tester.getSemantics(find.bySemanticsLabel('选择长者'));
+    expect(elderNode.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+
+    final childNode = tester.getSemantics(find.bySemanticsLabel('选择儿童'));
+    expect(childNode.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+
+    semantics.dispose();
   });
 }
