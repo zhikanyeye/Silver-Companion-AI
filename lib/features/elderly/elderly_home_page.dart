@@ -34,7 +34,7 @@ class ElderlyHomePage extends StatelessWidget {
             _ActionEntry(
               title: '社区互助',
               icon: Icons.groups_outlined,
-              onTap: () => _showComingSoon(context),
+              onTap: () => Navigator.of(context).pushNamed(communityRoute),
             ),
             const SizedBox(height: 12),
             _ActionEntry(
