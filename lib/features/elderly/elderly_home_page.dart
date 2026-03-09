@@ -5,6 +5,12 @@ import 'package:yinling_zhiban_demo/routes.dart';
 class ElderlyHomePage extends StatelessWidget {
   const ElderlyHomePage({super.key});
 
+  void _showComingSoon(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('功能即将开放')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,25 +22,25 @@ class ElderlyHomePage extends StatelessWidget {
             _ActionEntry(
               title: 'AI陪伴',
               icon: Icons.forum_outlined,
-              onTap: () {},
+              onTap: () => _showComingSoon(context),
             ),
             const SizedBox(height: 12),
             _ActionEntry(
               title: '一键求助',
               icon: Icons.sos_outlined,
-              onTap: () {},
+              onTap: () => _showComingSoon(context),
             ),
             const SizedBox(height: 12),
             _ActionEntry(
               title: '社区互助',
               icon: Icons.groups_outlined,
-              onTap: () {},
+              onTap: () => _showComingSoon(context),
             ),
             const SizedBox(height: 12),
             _ActionEntry(
               title: '活动',
               icon: Icons.celebration_outlined,
-              onTap: () {},
+              onTap: () => _showComingSoon(context),
             ),
             const SizedBox(height: 16),
             Semantics(

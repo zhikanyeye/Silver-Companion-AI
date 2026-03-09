@@ -25,4 +25,17 @@ void main() {
     expect(find.byKey(const Key('chatInputField')), findsOneWidget);
     expect(find.byKey(const Key('sendMessageButton')), findsOneWidget);
   });
+
+  testWidgets('elderly AI companion action shows coming soon feedback',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const App());
+
+    await tester.tap(find.text('长者'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('AI陪伴'));
+    await tester.pump();
+
+    expect(find.text('功能即将开放'), findsOneWidget);
+  });
 }

@@ -37,6 +37,10 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _sendCurrentText() async {
     final text = _inputController.text;
+    if (_controller.isLoading || text.trim().isEmpty) {
+      return;
+    }
+
     _inputController.clear();
     await _controller.sendText(text);
   }
@@ -116,13 +120,17 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   IconButton(
                     key: const Key('startVoiceButton'),
-                    onPressed: _controller.startRecognition,
+                    onPressed: _controller.isSpeechSupported
+                        ? _controller.startRecognition
+                        : null,
                     icon: const Icon(Icons.mic),
                     tooltip: '开始识别',
                   ),
                   IconButton(
                     key: const Key('stopVoiceButton'),
-                    onPressed: _controller.stopRecognition,
+                    onPressed: _controller.isSpeechSupported
+                        ? _controller.stopRecognition
+                        : null,
                     icon: const Icon(Icons.stop_circle_outlined),
                     tooltip: '停止识别',
                   ),

@@ -69,6 +69,12 @@ class ChatController extends ChangeNotifier {
   }
 
   void startRecognition() {
+    if (!isSpeechSupported) {
+      isRecognizing = false;
+      notifyListeners();
+      return;
+    }
+
     _speechService.startRecognition();
     isRecognizing = true;
     notifyListeners();
