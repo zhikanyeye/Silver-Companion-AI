@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:yinling_zhiban_demo/services/web_speech_bridge.dart';
 
 typedef BoolCallback = bool Function();
 typedef VoidCallback0 = void Function();
@@ -12,10 +13,10 @@ class WebSpeechService {
     VoidCallback0? stopRecognitionOnWeb,
     SpeakCallback? speakOnWeb,
   })  : _isWeb = isWeb ?? (() => kIsWeb),
-        _isSpeechSupportedOnWeb = isSpeechSupportedOnWeb ?? (() => false),
-        _startRecognitionOnWeb = startRecognitionOnWeb ?? (() {}),
-        _stopRecognitionOnWeb = stopRecognitionOnWeb ?? (() {}),
-        _speakOnWeb = speakOnWeb ?? ((_) {});
+        _isSpeechSupportedOnWeb = isSpeechSupportedOnWeb ?? speechIsSupportedOnWebBridge,
+        _startRecognitionOnWeb = startRecognitionOnWeb ?? speechStartRecognitionOnWebBridge,
+        _stopRecognitionOnWeb = stopRecognitionOnWeb ?? speechStopRecognitionOnWebBridge,
+        _speakOnWeb = speakOnWeb ?? speechSpeakTextOnWebBridge;
 
   final BoolCallback _isWeb;
   final BoolCallback _isSpeechSupportedOnWeb;
