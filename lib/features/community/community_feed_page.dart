@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:yinling_zhiban_demo/features/community/mock_posts.dart';
 
 class CommunityFeedPage extends StatelessWidget {
-  const CommunityFeedPage({super.key});
+  const CommunityFeedPage({super.key, this.posts = mockPosts});
+
+  final List<CommunityPost> posts;
 
   @override
   Widget build(BuildContext context) {
@@ -12,9 +14,9 @@ class CommunityFeedPage extends StatelessWidget {
       body: SafeArea(
         child: ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: mockPosts.length,
+          itemCount: posts.length,
           itemBuilder: (context, index) {
-            final post = mockPosts[index];
+            final post = posts[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Card(
