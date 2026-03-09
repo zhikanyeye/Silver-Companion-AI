@@ -63,6 +63,17 @@ class HomeSelectorScreen extends StatelessWidget {
                   },
                 ),
               ),
+              Semantics(
+                label: '打开设置',
+                button: true,
+                child: ListTile(
+                  title: const Text('设置'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).pushNamed(settingsRoute);
+                  },
+                ),
+              ),
             ],
           ),
         ),
