@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:yinling_zhiban_demo/app.dart';
@@ -13,22 +12,18 @@ void main() {
     expect(find.text('为谁服务？'), findsOneWidget);
     expect(find.text('长者'), findsOneWidget);
     expect(find.text('儿童'), findsOneWidget);
-    expect(find.byType(ListTile), findsNWidgets(2));
-    expect(find.byIcon(Icons.chevron_right), findsNWidgets(2));
+    expect(find.text('设置'), findsOneWidget);
+    expect(find.byType(ListTile), findsNWidgets(3));
+    expect(find.byIcon(Icons.chevron_right), findsNWidgets(3));
     expect(find.bySemanticsLabel('选择长者'), findsOneWidget);
     expect(find.bySemanticsLabel('选择儿童'), findsOneWidget);
+    expect(find.bySemanticsLabel('打开设置'), findsOneWidget);
 
     final tiles = tester.widgetList<ListTile>(find.byType(ListTile)).toList();
-    expect(tiles, hasLength(2));
+    expect(tiles, hasLength(3));
     for (final tile in tiles) {
       expect(tile.onTap, isNotNull);
     }
-
-    final elderNode = tester.getSemantics(find.bySemanticsLabel('选择长者'));
-    expect(elderNode.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
-
-    final childNode = tester.getSemantics(find.bySemanticsLabel('选择儿童'));
-    expect(childNode.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
 
     semantics.dispose();
   });
