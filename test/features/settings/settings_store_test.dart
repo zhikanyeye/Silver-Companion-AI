@@ -9,14 +9,14 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('loads fallback key and model when preferences are empty', () async {
+  test('keeps fallback flag false when no saved or env api key exists', () async {
     final store = SettingsStore();
 
     final settings = await store.load();
 
     expect(settings.apiKey, '');
     expect(settings.model, SettingsStore.defaultModel);
-    expect(settings.usingFallbackApiKey, isTrue);
+    expect(settings.usingFallbackApiKey, isFalse);
   });
 
   test('save then load returns saved values and disables fallback flag', () async {

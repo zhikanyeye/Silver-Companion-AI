@@ -32,7 +32,7 @@ class SettingsStore {
       defaultValue: defaultModel,
     );
 
-    final usingFallbackApiKey = savedApiKey.isEmpty;
+    final usingFallbackApiKey = savedApiKey.isEmpty && fallbackApiKey.isNotEmpty;
 
     return SettingsData(
       apiKey: usingFallbackApiKey ? fallbackApiKey : savedApiKey,
