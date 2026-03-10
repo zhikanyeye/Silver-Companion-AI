@@ -126,11 +126,7 @@ class HomeSelectorScreen extends StatelessWidget {
                 backgroundColor: const Color(0xFFFFFBF7),
                 iconColor: const Color(0xFFB85B42),
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (context) => const _PlatformPlaceholderScreen(),
-                    ),
-                  );
+                  Navigator.of(context).pushNamed(platformRoute);
                 },
               ),
             ],
@@ -221,20 +217,6 @@ class _RoleEntryCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _PlatformPlaceholderScreen extends StatelessWidget {
-  const _PlatformPlaceholderScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('平台端')),
-      body: const Center(
-        child: Text('平台端演示功能即将开放'),
       ),
     );
   }

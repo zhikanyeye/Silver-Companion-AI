@@ -19,14 +19,14 @@ final Map<String, WidgetBuilder> appRoutes = {
   homeRoute: (context) => const HomeSelectorScreen(),
   elderlyRoute: (context) => const ElderlyHomePage(),
   childRoute: (context) => const ChildHomePage(),
-  platformRoute: (context) => const _PlatformPlaceholderPage(),
+  platformRoute: (context) => const PlatformPlaceholderPage(),
   chatRoute: (context) => const ChatPage(),
   communityRoute: (context) => const CommunityFeedPage(),
   settingsRoute: (context) => const SettingsPage(),
 };
 
-class _PlatformPlaceholderPage extends StatelessWidget {
-  const _PlatformPlaceholderPage();
+class PlatformPlaceholderPage extends StatelessWidget {
+  const PlatformPlaceholderPage({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:yinling_zhiban_demo/app.dart';
+import 'package:yinling_zhiban_demo/routes.dart';
 
 void main() {
   testWidgets('respects system text scaling above app minimum',
@@ -37,6 +38,23 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('子女端'), findsOneWidget);
+    expect(find.byType(AppBar), findsOneWidget);
+  });
+
+  testWidgets('navigates to platform route from home selector',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const App());
+
+    await tester.ensureVisible(find.text('平台端'));
+    await tester.tap(find.text('平台端'));
+    await tester.pumpAndSettle();
+
+    final route = ModalRoute.of(
+      tester.element(find.text('平台端演示功能即将开放')),
+    );
+
+    expect(route?.settings.name, platformRoute);
+    expect(find.text('平台端演示功能即将开放'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 }
