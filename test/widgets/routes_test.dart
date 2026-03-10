@@ -22,10 +22,10 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.text('长者'));
+    await tester.tap(find.text('老人端'));
     await tester.pumpAndSettle();
 
-    expect(find.text('长者服务'), findsOneWidget);
+    expect(find.text('老人端'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 
@@ -33,10 +33,10 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.text('儿童'));
+    await tester.tap(find.text('子女端'));
     await tester.pumpAndSettle();
 
-    expect(find.text('儿童服务'), findsOneWidget);
+    expect(find.text('子女端'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 }

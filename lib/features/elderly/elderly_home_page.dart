@@ -14,7 +14,7 @@ class ElderlyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('长者服务')),
+      appBar: AppBar(title: const Text('老人端')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),

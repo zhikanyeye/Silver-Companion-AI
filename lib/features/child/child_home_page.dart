@@ -8,7 +8,7 @@ class ChildHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('儿童服务')),
+      appBar: AppBar(title: const Text('子女端')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),

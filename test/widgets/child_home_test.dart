@@ -8,10 +8,10 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.text('儿童'));
+    await tester.tap(find.text('子女端'));
     await tester.pumpAndSettle();
 
-    expect(find.text('儿童服务'), findsOneWidget);
+    expect(find.text('子女端'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
 
     expect(find.text('今日活跃'), findsOneWidget);

@@ -8,10 +8,10 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.text('长者'));
+    await tester.tap(find.text('老人端'));
     await tester.pumpAndSettle();
 
-    expect(find.text('长者服务'), findsOneWidget);
+    expect(find.text('老人端'), findsOneWidget);
     expect(find.text('AI陪伴'), findsOneWidget);
     expect(find.text('一键求助'), findsOneWidget);
     expect(find.text('社区互助'), findsOneWidget);
@@ -30,7 +30,7 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.text('长者'));
+    await tester.tap(find.text('老人端'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('AI陪伴'));
