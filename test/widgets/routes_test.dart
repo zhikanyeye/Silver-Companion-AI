@@ -45,13 +45,20 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    await tester.ensureVisible(find.text('平台端'));
-    await tester.tap(find.text('平台端'));
+    final platformCard = find.widgetWithText(Card, '平台端');
+
+    expect(platformCard, findsOneWidget);
+
+    await tester.ensureVisible(platformCard);
+    await tester.pumpAndSettle();
+    await tester.tap(platformCard);
     await tester.pumpAndSettle();
 
-    final route = ModalRoute.of(
-      tester.element(find.text('平台端演示功能即将开放')),
-    );
+    final platformPage = find.byType(PlatformPlaceholderPage);
+
+    expect(platformPage, findsOneWidget);
+
+    final route = ModalRoute.of(tester.element(platformPage));
 
     expect(route?.settings.name, platformRoute);
     expect(find.text('平台端演示功能即将开放'), findsOneWidget);
