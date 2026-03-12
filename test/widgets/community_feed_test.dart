@@ -10,13 +10,14 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.text('长者'));
+    await tester.tap(find.text('老人端'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('社区互助'));
     await tester.pumpAndSettle();
 
     expect(find.text('社区互助'), findsOneWidget);
+    expect(find.text('邻里互助，温暖就在身边'), findsOneWidget);
     expect(find.byKey(const Key('communityPostCard_0')), findsOneWidget);
     expect(find.byKey(const Key('communityPostCard_1')), findsOneWidget);
     expect(find.byType(Card), findsAtLeastNWidgets(2));
@@ -47,7 +48,9 @@ void main() {
       const MaterialApp(home: CommunityFeedPage(posts: customPosts)),
     );
 
+    expect(find.text('邻里互助，温暖就在身边'), findsOneWidget);
     expect(find.text('这是注入的数据'), findsOneWidget);
-    expect(find.byType(Card), findsOneWidget);
+    expect(find.byKey(const Key('communityPostCard_0')), findsOneWidget);
+    expect(find.byType(Card), findsAtLeastNWidgets(1));
   });
 }

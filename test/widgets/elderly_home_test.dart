@@ -12,9 +12,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('老人端'), findsOneWidget);
+    expect(find.text('今天也有人陪你慢慢聊'), findsOneWidget);
     expect(find.text('AI陪伴'), findsOneWidget);
     expect(find.text('一键求助'), findsOneWidget);
     expect(find.text('社区互助'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('活动'), 200);
+    await tester.pumpAndSettle();
+
     expect(find.text('活动'), findsOneWidget);
     expect(find.byKey(const Key('childAvatarEntry')), findsOneWidget);
 

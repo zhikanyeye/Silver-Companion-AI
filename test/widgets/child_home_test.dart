@@ -13,9 +13,13 @@ void main() {
 
     expect(find.text('子女端'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
+    expect(find.text('家人近况一眼安心'), findsOneWidget);
 
     expect(find.text('今日活跃'), findsOneWidget);
     expect(find.text('情绪趋势'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('20:00 睡前阅读'), 200);
+    await tester.pumpAndSettle();
 
     expect(find.text('提醒时间线'), findsOneWidget);
     expect(find.text('按时喝水提醒'), findsOneWidget);
