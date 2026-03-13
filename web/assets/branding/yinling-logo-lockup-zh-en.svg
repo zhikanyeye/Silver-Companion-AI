@@ -1,0 +1,20 @@
+<svg width="1200" height="320" viewBox="0 0 1200 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="296" y2="296" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF9F6E"/>
+      <stop offset="1" stop-color="#FF6A6A"/>
+    </linearGradient>
+    <linearGradient id="heart" x1="118" y1="116" x2="202" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FFE9D9"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="16" y="16" width="288" height="288" rx="76" fill="url(#bg)"/>
+  <path d="M78 138C78 113.699 97.6995 94 122 94H198C222.301 94 242 113.699 242 138V164C242 188.301 222.301 208 198 208H160L126 234V208H122C97.6995 208 78 188.301 78 164V138Z" fill="white" fill-opacity="0.18"/>
+  <path d="M160 190C159.726 190 159.458 189.916 159.228 189.759C154.84 186.593 140.474 175.775 130.94 166.506C122.768 158.569 118.1 150.235 118.1 141.877C118.1 126.109 131.229 112.86 147.047 112.86C152.822 112.86 158.373 114.656 162.923 117.979C167.473 114.656 173.024 112.86 178.799 112.86C194.617 112.86 207.746 126.109 207.746 141.877C207.746 150.235 203.078 158.569 194.906 166.506C185.372 175.775 171.006 186.593 166.618 189.759C166.388 189.916 166.12 190 165.846 190H160Z" fill="url(#heart)"/>
+
+  <text x="344" y="150" fill="#1E1E1E" font-size="88" font-weight="700" font-family="'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif">银龄智伴</text>
+  <text x="344" y="220" fill="#5A5A5A" font-size="46" font-weight="500" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">Silver Companion</text>
+  <text x="344" y="270" fill="#8A8A8A" font-size="30" font-weight="400" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">AI Companion + Community Care</text>
+</svg>

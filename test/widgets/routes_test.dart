@@ -45,13 +45,16 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    final platformCard = find.widgetWithText(Card, '平台端');
-
-    expect(platformCard, findsOneWidget);
-
-    await tester.ensureVisible(platformCard);
+    final platformText = find.text('平台端');
+    await tester.scrollUntilVisible(
+      platformText,
+      200,
+      scrollable: find.byType(Scrollable),
+    );
     await tester.pumpAndSettle();
-    await tester.tap(platformCard);
+
+    expect(platformText, findsOneWidget);
+    await tester.tap(platformText);
     await tester.pumpAndSettle();
 
     final platformPage = find.byType(PlatformPlaceholderPage);
