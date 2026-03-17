@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/app.dart';
+import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
 import 'package:yinling_zhiban_demo/features/child/child_home_page.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_page.dart';
 import 'package:yinling_zhiban_demo/features/community/community_feed_page.dart';
 import 'package:yinling_zhiban_demo/features/elderly/elderly_home_page.dart';
+import 'package:yinling_zhiban_demo/features/landing/landing_page.dart';
+import 'package:yinling_zhiban_demo/features/role/role_select_page.dart';
 import 'package:yinling_zhiban_demo/features/settings/settings_page.dart';
 
-const String homeRoute = '/';
+const String landingRoute = '/';
+const String authRoute = '/auth';
+const String roleSelectRoute = '/role-select';
 const String elderlyRoute = '/elderly';
 const String childRoute = '/child';
 const String platformRoute = '/platform';
@@ -16,7 +20,9 @@ const String communityRoute = '/community';
 const String settingsRoute = '/settings';
 
 final Map<String, WidgetBuilder> appRoutes = {
-  homeRoute: (context) => const HomeSelectorScreen(),
+  landingRoute: (context) => const LandingPage(),
+  authRoute: (context) => const AuthPage(),
+  roleSelectRoute: (context) => const RoleSelectPage(),
   elderlyRoute: (context) => const ElderlyHomePage(),
   childRoute: (context) => const ChildHomePage(),
   platformRoute: (context) => const PlatformPlaceholderPage(),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:yinling_zhiban_demo/features/chat/chat_controller.dart';
+import 'package:yinling_zhiban_demo/config/config_loader.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
+import 'package:yinling_zhiban_demo/theme/app_theme.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -12,12 +14,15 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   late final ChatController _controller;
+  final ConfigLoader _configLoader = ConfigLoader();
   final TextEditingController _inputController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _controller = ChatController()..addListener(_onControllerChanged);
+    _loadConfig();
   }
 
   @override
@@ -26,12 +31,26 @@ class _ChatPageState extends State<ChatPage> {
       ..removeListener(_onControllerChanged)
       ..dispose();
     _inputController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   void _onControllerChanged() {
     if (mounted) {
       setState(() {});
+      _scrollToBottom();
+    }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
     }
   }
 
@@ -45,102 +64,406 @@ class _ChatPageState extends State<ChatPage> {
     await _controller.sendText(text);
   }
 
+  Future<void> _loadConfig() async {
+    final cfg = await _configLoader.load();
+    if (cfg != null) {
+      _controller.applyConfig(cfg);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AI陪伴聊天')),
-      body: SafeArea(
-        child: Column(
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        title: Row(
           children: [
-            if (_controller.hasRiskWarning)
-              const Padding(
-                padding: EdgeInsets.fromLTRB(12, 10, 12, 0),
-                child: Text(
-                  '风险提示：请勿转账、勿透露验证码，遇事先联系家人。',
-                  style: TextStyle(color: Colors.red),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFB88C), Color(0xFFE89A7A)],
                 ),
-              ),
-            if (_controller.error != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                child: Text(
-                  _controller.error!,
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(12),
-                itemCount: _controller.messages.length,
-                itemBuilder: (context, index) {
-                  final message = _controller.messages[index];
-                  final isUser = message.role == ChatRole.user;
-                  return Align(
-                    alignment:
-                        isUser ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isUser
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(message.content),
-                    ),
-                  );
-                },
-              ),
-            ),
-            if (_controller.isLoading)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8),
-                child: CircularProgressIndicator(),
-              ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      key: const Key('chatInputField'),
-                      controller: _inputController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: '输入想说的话',
-                      ),
-                      onSubmitted: (_) => _sendCurrentText(),
-                    ),
-                  ),
-                  IconButton(
-                    key: const Key('startVoiceButton'),
-                    onPressed: _controller.isSpeechSupported
-                        ? _controller.startRecognition
-                        : null,
-                    icon: const Icon(Icons.mic),
-                    tooltip: '开始识别',
-                  ),
-                  IconButton(
-                    key: const Key('stopVoiceButton'),
-                    onPressed: _controller.isSpeechSupported
-                        ? _controller.stopRecognition
-                        : null,
-                    icon: const Icon(Icons.stop_circle_outlined),
-                    tooltip: '停止识别',
-                  ),
-                  IconButton(
-                    key: const Key('sendMessageButton'),
-                    onPressed: _controller.isLoading ? null : _sendCurrentText,
-                    icon: const Icon(Icons.send),
-                    tooltip: '发送',
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFE89A7A).withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
+              ),
+              child: const Icon(
+                Icons.smart_toy_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'AI智能助手',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  '在线',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF333333)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {
+              // TODO: Show options menu
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Risk warning banner
+          if (_controller.hasRiskWarning)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              color: const Color(0xFFFFF3E0),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Color(0xFFE65100),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '风险提示：请勿转账、勿透露验证码，遇事先联系家人。',
+                      style: TextStyle(
+                        color: const Color(0xFFE65100),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          
+          // Error message
+          if (_controller.error != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              color: const Color(0xFFFFEBEE),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Color(0xFFC62828),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _controller.error!,
+                      style: const TextStyle(
+                        color: Color(0xFFC62828),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          
+          // Chat messages
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: _controller.messages.length,
+              itemBuilder: (context, index) {
+                final message = _controller.messages[index];
+                final isUser = message.role == ChatRole.user;
+                final showAvatar = !isUser;
+                
+                return _buildMessageCard(
+                  message: message,
+                  isUser: isUser,
+                  showAvatar: showAvatar,
+                  index: index,
+                );
+              },
+            ),
+          ),
+          
+          // Loading indicator
+          if (_controller.isLoading)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'AI思考中...',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF666666),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          
+          // Input area
+          _buildInputArea(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageCard({
+    required ChatMessage message,
+    required bool isUser,
+    required bool showAvatar,
+    required int index,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          // Avatar for AI
+          if (showAvatar) ...[
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFB88C), Color(0xFFE89A7A)],
+                ),
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFE89A7A).withOpacity(0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.smart_toy_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+          
+          // Message bubble
+          Flexible(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.75,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: isUser
+                    ? const LinearGradient(
+                        colors: [Color(0xFFFFB88C), Color(0xFFE89A7A)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                color: isUser ? null : Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(isUser ? 20 : 4),
+                  topRight: Radius.circular(isUser ? 4 : 20),
+                  bottomLeft: const Radius.circular(20),
+                  bottomRight: const Radius.circular(20),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isUser
+                        ? const Color(0xFFE89A7A).withOpacity(0.3)
+                        : Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                message.content,
+                style: TextStyle(
+                  color: isUser ? Colors.white : const Color(0xFF333333),
+                  fontSize: 15,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ),
+          
+          // Spacer for user messages
+          if (isUser) const SizedBox(width: 44),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInputArea() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            // Voice button
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: _controller.isRecognizing
+                    ? const Color(0xFFFFE4E1)
+                    : const Color(0xFFF5F7FA),
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: IconButton(
+                key: const Key('voiceButton'),
+                onPressed: _controller.isSpeechSupported
+                    ? () {
+                        if (_controller.isRecognizing) {
+                          _controller.stopRecognition();
+                        } else {
+                          _controller.startRecognition();
+                        }
+                      }
+                    : null,
+                icon: Icon(
+                  _controller.isRecognizing ? Icons.mic_off : Icons.mic,
+                  color: _controller.isRecognizing
+                      ? const Color(0xFFE74C3C)
+                      : const Color(0xFF666666),
+                ),
+                tooltip: _controller.isRecognizing ? '停止识别' : '语音输入',
+              ),
+            ),
+            const SizedBox(width: 8),
+            
+            // Text input
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F7FA),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: const Color(0xFFE0E0E0),
+                    width: 1,
+                  ),
+                ),
+                child: TextField(
+                  key: const Key('chatInputField'),
+                  controller: _inputController,
+                  decoration: InputDecoration(
+                    hintText: _controller.isRecognizing ? '正在听您说话...' : '输入想说的话',
+                    hintStyle: const TextStyle(
+                      color: Color(0xFF999999),
+                      fontSize: 15,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  style: const TextStyle(fontSize: 15),
+                  onSubmitted: (_) => _sendCurrentText(),
+                  enabled: !_controller.isRecognizing,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            
+            // Send button
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFB88C), Color(0xFFE89A7A)],
+                ),
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFE89A7A).withOpacity(0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                key: const Key('sendMessageButton'),
+                onPressed: _controller.isLoading ? null : _sendCurrentText,
+                icon: const Icon(
+                  Icons.send,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                tooltip: '发送',
               ),
             ),
           ],

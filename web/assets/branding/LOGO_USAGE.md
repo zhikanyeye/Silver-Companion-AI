@@ -1,19 +1,16 @@
 # Logo Usage
 
-Files:
+## Primary Assets (2026-03)
+
+- `yinling-logo-primary.png` - Main logo artwork (2048x2048, high-res)
+- `yinling-logo-symbol.png` - Simplified square symbol (512x512, derived from primary)
+
+## Legacy Assets
 
 - `yinling-logo-mark.svg` - Square icon mark (app icon/social avatar)
 - `yinling-logo-lockup-zh-en.svg` - Horizontal lockup with CN+EN text
 
-Recommended usage:
+## Recommended Usage
 
-- Website header/logo area: use `yinling-logo-lockup-zh-en.svg`
-- Favicon/app icon/social card icon: use `yinling-logo-mark.svg`
-
-Export PNG (optional):
-
-Use any SVG tool (Figma, Inkscape, Illustrator) to export sizes:
-
-- 512x512 (icon)
-- 1024x1024 (store/social)
-- 1200x320 (website header)
+- **Website header / Home hero**: use `yinling-logo-primary.png`
+- **Favicon / PWA icons**: use `yinling-logo-symbol.png` (resized as needed)

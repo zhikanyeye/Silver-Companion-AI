@@ -1,11 +1,11 @@
 {
-    "name": "yinling_zhiban_demo",
-    "short_name": "yinling_zhiban_demo",
+    "name": "银龄智伴 Demo",
+    "short_name": "银龄智伴",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFF4EA",
+    "theme_color": "#C96A43",
+    "description": "银龄智伴：AI虚拟家人 + 社区互助的智慧养老平台 Demo。",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

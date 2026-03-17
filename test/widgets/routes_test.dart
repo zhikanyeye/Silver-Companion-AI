@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:yinling_zhiban_demo/app.dart';
+import 'package:yinling_zhiban_demo/features/landing/landing_page.dart';
 import 'package:yinling_zhiban_demo/routes.dart';
+
+import 'support/app_flow_test_helper.dart';
 
 void main() {
   testWidgets('respects system text scaling above app minimum',
@@ -13,49 +16,36 @@ void main() {
     });
 
     await tester.pumpWidget(const App());
+    await tester.pumpAndSettle();
 
-    final context = tester.element(find.byType(HomeSelectorScreen));
+    final context = tester.element(find.byType(LandingPage));
     final scale = MediaQuery.textScalerOf(context).scale(1.0);
     expect(scale, greaterThanOrEqualTo(1.4));
   });
 
-  testWidgets('navigates to elderly route from home selector',
+  testWidgets('navigates to elderly route from landing auth and role flow',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const App());
-
-    await tester.tap(find.text('老人端'));
-    await tester.pumpAndSettle();
+    await pumpAppToElderlyHome(tester);
 
     expect(find.text('老人端'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 
-  testWidgets('navigates to child route from home selector',
+  testWidgets('navigates to child route from landing auth and role flow',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const App());
-
-    await tester.tap(find.text('子女端'));
-    await tester.pumpAndSettle();
+    await pumpAppToChildHome(tester);
 
     expect(find.text('子女端'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 
-  testWidgets('navigates to platform route from home selector',
+  testWidgets('navigates to platform route when launched on platform route',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const App());
+    await tester.pumpWidget(const App(initialRoute: platformRoute));
+    await tester.pumpAndSettle();
 
     final platformText = find.text('平台端');
-    await tester.scrollUntilVisible(
-      platformText,
-      200,
-      scrollable: find.byType(Scrollable),
-    );
-    await tester.pumpAndSettle();
-
     expect(platformText, findsOneWidget);
-    await tester.tap(platformText);
-    await tester.pumpAndSettle();
 
     final platformPage = find.byType(PlatformPlaceholderPage);
 
