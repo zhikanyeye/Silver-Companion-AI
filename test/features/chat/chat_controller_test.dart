@@ -1,7 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:yinling_zhiban_demo/features/chat/chat_controller.dart';
+import 'package:yinling_zhiban_demo/features/chat/memory_store.dart';
 import 'package:yinling_zhiban_demo/services/web_speech_service.dart';
+
+class _TestMemoryStore extends MemoryStore {
+  @override
+  Future<List<String>> load() async => <String>[];
+
+  @override
+  Future<void> save(List<String> memory) async {}
+}
 
 void main() {
   test('startRecognition keeps recognizing false when unsupported', () {
@@ -11,7 +20,10 @@ void main() {
         throw StateError('should not be called when unsupported');
       },
     );
-    final controller = ChatController(speechService: speechService);
+    final controller = ChatController(
+      speechService: speechService,
+      memoryStore: _TestMemoryStore(),
+    );
 
     controller.startRecognition();
 
@@ -31,7 +43,10 @@ void main() {
         stopCalls += 1;
       },
     );
-    final controller = ChatController(speechService: speechService);
+    final controller = ChatController(
+      speechService: speechService,
+      memoryStore: _TestMemoryStore(),
+    );
 
     controller.startRecognition();
     expect(controller.isRecognizing, isTrue);

@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/app.dart';
+import 'support/app_flow_test_helper.dart';
 
 void main() {
   testWidgets('child route shows dashboard status cards and alerts',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const App());
-
-    await tester.tap(find.text('子女端'));
-    await tester.pumpAndSettle();
+    await pumpAppToChildHome(tester);
 
     expect(find.text('子女端'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);

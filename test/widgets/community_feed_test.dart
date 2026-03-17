@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/app.dart';
 import 'package:yinling_zhiban_demo/features/community/community_feed_page.dart';
 import 'package:yinling_zhiban_demo/features/community/mock_posts.dart';
+
+import 'support/app_flow_test_helper.dart';
 
 void main() {
   testWidgets('opens community feed and shows post cards with publish action',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const App());
-
-    await tester.tap(find.text('老人端'));
-    await tester.pumpAndSettle();
+    await pumpAppToElderlyHome(tester);
 
     await tester.tap(find.text('社区互助'));
     await tester.pumpAndSettle();
