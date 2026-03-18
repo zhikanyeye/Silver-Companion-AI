@@ -54,7 +54,7 @@ void main() {
     final route = ModalRoute.of(tester.element(platformPage));
 
     expect(route?.settings.name, platformRoute);
-    expect(find.text('平台端演示功能即将开放'), findsOneWidget);
+    expect(find.text('平台服务正在准备中'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 }

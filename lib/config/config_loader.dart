@@ -10,7 +10,7 @@ class ConfigLoader {
         final data = json.decode(res.body) as Map<String, dynamic>;
         return AppConfig.fromJson(data);
       }
-    } catch (e) {
+    } catch (_) {
       // Ignore and return null to fallback to defaults
     }
     return null;

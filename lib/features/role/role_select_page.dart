@@ -81,7 +81,7 @@ class _RoleSelectPageState extends State<RoleSelectPage> {
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
-                              '完成认证后继续',
+                              '身份确认',
                               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                 color: AppTheme.accent,
                                 fontWeight: FontWeight.w800,

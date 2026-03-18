@@ -35,6 +35,6 @@ void main() {
     await tester.tap(find.text('AI陪伴'));
     await tester.pump();
 
-    expect(find.text('功能即将开放'), findsOneWidget);
+    expect(find.text('服务正在完善中'), findsOneWidget);
   });
 }

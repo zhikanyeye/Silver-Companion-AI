@@ -21,6 +21,10 @@ void main() {
     expect(find.text('我是子女'), findsNothing);
     expect(find.text('老人端'), findsNothing);
     expect(find.text('子女端'), findsNothing);
+    expect(find.text('安心开始'), findsOneWidget);
+    expect(find.text('一步完成'), findsOneWidget);
+    expect(find.text('品牌优先'), findsNothing);
+    expect(find.text('入口统一'), findsNothing);
   });
 
   testWidgets('landing login action routes to auth', (WidgetTester tester) async {

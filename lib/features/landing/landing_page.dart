@@ -178,17 +178,17 @@ class _HeroSupportPanel extends StatelessWidget {
           Text('更简单地开始陪伴', style: theme.textTheme.titleLarge),
           const SizedBox(height: 12),
           Text(
-            '首页先展示品牌与产品价值，认证完成后再进入角色分流，帮助首次访问者更快理解银龄智伴。',
+            '从首次访问到开始使用，流程更清晰，让长辈与家人都能更快进入服务。',
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 18),
           const _SupportPoint(
-            title: '品牌优先',
-            detail: '先建立可信赖感，再进入后续登录与注册流程。',
+            title: '安心开始',
+            detail: '以清晰的信息和熟悉的关怀，帮助您更安心地开始使用。',
           ),
           const SizedBox(height: 14),
           const _SupportPoint(
-            title: '入口统一',
+            title: '一步完成',
             detail: '登录和注册都在同一入口完成，减少来回跳转，让长辈和家人都更容易上手。',
           ),
         ],

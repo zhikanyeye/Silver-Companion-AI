@@ -8,7 +8,7 @@ class ElderlyHomePage extends StatelessWidget {
 
   void _showComingSoon(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('功能即将开放')),
+      const SnackBar(content: Text('服务正在完善中')),
     );
   }
 

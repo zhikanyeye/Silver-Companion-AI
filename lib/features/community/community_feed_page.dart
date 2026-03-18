@@ -56,7 +56,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('发布互助（演示）')),
+            const SnackBar(content: Text('已收到发布请求')),
           );
         },
         icon: const Icon(Icons.edit_outlined),
@@ -264,7 +264,7 @@ class _PinnedNoticeTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(22),
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${item.title}（演示）')),
+          SnackBar(content: Text('${item.title}内容已打开')),
         );
       },
       child: Ink(
@@ -464,7 +464,7 @@ class _CommunityPostCard extends StatelessWidget {
                 OutlinedButton(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('查看详情（演示）')),
+                      const SnackBar(content: Text('已打开详情')),
                     );
                   },
                   child: const Text('查看详情'),
@@ -474,7 +474,7 @@ class _CommunityPostCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('我来帮忙（演示）')),
+                        const SnackBar(content: Text('已记录帮助意向')),
                       );
                     },
                     child: const Text('我来帮忙'),

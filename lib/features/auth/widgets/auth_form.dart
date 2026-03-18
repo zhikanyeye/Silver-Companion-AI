@@ -46,7 +46,7 @@ class _AuthFormState extends State<AuthForm> {
           ),
           const SizedBox(height: 8),
           Text(
-            isRegister ? '填写基础信息即可体验演示流程。' : '使用手机号和密码继续进入演示。',
+            isRegister ? '填写基础信息后即可开始使用。' : '使用手机号和密码继续。',
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),

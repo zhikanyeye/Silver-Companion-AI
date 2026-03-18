@@ -19,6 +19,8 @@ void main() {
     expect(find.text('登录'), findsWidgets);
     expect(find.text('注册'), findsWidgets);
     expect(find.text('欢迎回来'), findsOneWidget);
+    expect(find.text('欢迎使用银龄智伴'), findsOneWidget);
+    expect(find.text('使用手机号和密码继续。'), findsOneWidget);
     expect(find.text('创建账号'), findsNothing);
     expect(find.text('姓名'), findsNothing);
     expect(find.text('手机号'), findsOneWidget);
@@ -35,6 +37,8 @@ void main() {
 
     expect(find.byType(AuthPage), findsOneWidget);
     expect(find.text('创建账号'), findsOneWidget);
+    expect(find.text('欢迎使用银龄智伴'), findsOneWidget);
+    expect(find.text('填写基础信息后即可开始使用。'), findsOneWidget);
     expect(find.text('欢迎回来'), findsNothing);
     expect(find.text('姓名'), findsOneWidget);
     expect(find.text('手机号'), findsOneWidget);

@@ -10,8 +10,9 @@
 
 - 老人端：首页入口、AI聊天页、反诈提示、社区互助信息流
 - 子女端：状态卡片、预警列表
-- 设置页：OpenRouter API Key 与模型配置
+- 设置页：云端服务状态与模型信息展示
 - Web Speech：浏览器端语音识别/语音播报桥接
+- AI 请求：通过 Cloudflare Pages Functions 的同源 `/api/chat` 代理转发
 
 ## 本地运行
 
@@ -39,17 +40,52 @@ flutter run -d chrome
 flutter test
 ```
 
-## 构建与部署（Cloudflare Pages）
+## 部署说明
 
-1. 构建产物：
+当前版本如果要使用真实 AI 对话，**不要再使用 Direct Upload 只上传 `build/web`**。
 
-```bash
-flutter build web --release
-```
+原因：
+- 聊天能力依赖 `functions/api/chat.js`
+- 该接口需要 Cloudflare Pages Functions 和环境变量
+- 只上传静态产物不会把 Functions 一起部署
 
-2. 打开 Cloudflare Pages，选择 Direct Upload，上传 `build/web` 目录。
+推荐部署方式：
+- GitHub 仓库接入 Cloudflare Pages
+- 由 Cloudflare 在构建阶段生成 `build/web`
+- 同时部署仓库根目录下的 `functions/`
 
-3. 若需真实 AI 对话，在 Cloudflare Pages 配置环境变量：
+详细步骤请查看：
 
-- `OPENROUTER_API_KEY`
-- `OPENROUTER_MODEL`（示例：`openai/gpt-4o-mini`）
+- `docs/cloudflare-pages-deployment.md`
+
+## Cloudflare Pages 关键环境变量
+
+在 Cloudflare Pages 中至少配置：
+
+- `AI_API_KEY`
+- `AI_MODEL_NAME`
+- `AI_API_BASE_URL`
+
+说明：
+- `AI_API_BASE_URL` 需要填写 OpenAI 兼容接口的基础地址
+- 不要包含 `/chat/completions`
+- 真实调用由 Cloudflare Pages Functions 完成，前端不再保存 API Key
+
+## 目录说明
+
+- `lib/`：Flutter 应用代码
+- `functions/`：Cloudflare Pages Functions
+- `web/`：Flutter Web 静态资源模板
+- `docs/`：设计、实现计划与部署说明
+
+## 当前部署方式变更
+
+旧方式：
+- 构建 `build/web`
+- Direct Upload 到 Cloudflare Pages
+
+当前推荐方式：
+- GitHub 仓库接入 Cloudflare Pages
+- 配置构建命令与输出目录
+- 配置 Pages 环境变量
+- 由 Pages 自动部署静态站点与 Functions

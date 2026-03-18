@@ -52,7 +52,7 @@ void main() {
 
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pump();
-    expect(find.text('发布互助（演示）'), findsOneWidget);
+    expect(find.text('已收到发布请求'), findsOneWidget);
   });
 
   testWidgets('can render feed with injected posts data',

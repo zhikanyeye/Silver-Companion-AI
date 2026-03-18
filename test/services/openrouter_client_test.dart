@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -27,27 +26,21 @@ void main() {
       );
     });
 
-    final result = await runZoned(
-      () async {
-        final client = OpenRouterClient(client: mockClient);
-        return client.createChatCompletion(
-          model: 'test-model',
-          messages: const [
-            {'role': 'user', 'content': 'hi'},
-            {'role': 'assistant', 'content': 'hello'},
-          ],
-        );
-      },
-      zoneValues: const {'openrouter_api_key': 'test-key'},
+    final client = OpenRouterClient(
+      client: mockClient,
+      proxyUri: Uri.parse('https://example.com/api/chat'),
     );
-
+    final result = await client.createChatCompletion(
+      model: 'test-model',
+      messages: const [
+        {'role': 'user', 'content': 'hi'},
+        {'role': 'assistant', 'content': 'hello'},
+      ],
+    );
 
     expect(capturedRequest.method, 'POST');
-    expect(
-      capturedRequest.url.toString(),
-      'https://openrouter.ai/api/v1/chat/completions',
-    );
-    expect(capturedRequest.headers['Authorization'], 'Bearer test-key');
+    expect(capturedRequest.url.toString(), 'https://example.com/api/chat');
+    expect(capturedRequest.headers['Authorization'], isNull);
     final payload = jsonDecode(capturedRequest.body) as Map<String, dynamic>;
     expect(payload['model'], 'test-model');
     expect(payload['messages'], isA<List<dynamic>>());
@@ -58,70 +51,37 @@ void main() {
     expect(result, 'response text');
   });
 
-  test('throws StateError when API key is empty', () async {
-    final mockClient = MockClient((request) async {
-      throw StateError('Request should not be sent');
-    });
-
-    await runZoned(
-      () async {
-        final client = OpenRouterClient(client: mockClient);
-
-        expect(
-          () => client.createChatCompletion(
-            model: 'test-model',
-            messages: const [
-              {'role': 'user', 'content': 'hi'},
-            ],
-          ),
-          throwsA(
-            isA<StateError>().having(
-              (error) => error.message,
-              'message',
-              contains('OPENROUTER_API_KEY'),
-            ),
-          ),
-        );
-      },
-      zoneValues: const {'openrouter_api_key': ''},
-    );
-
-  });
-
   test('includes status and body in non-2xx errors', () async {
     final mockClient = MockClient((request) async {
       return http.Response('bad response body', 500);
     });
 
-    await runZoned(
-      () async {
-        final client = OpenRouterClient(client: mockClient);
-
-        expect(
-          () => client.createChatCompletion(
-            model: 'test-model',
-            messages: const [
-              {'role': 'user', 'content': 'hi'},
-            ],
-          ),
-          throwsA(
-            isA<StateError>()
-                .having(
-                  (error) => error.message,
-                  'message',
-                  contains('500'),
-                )
-                .having(
-                  (error) => error.message,
-                  'message',
-                  contains('bad response body'),
-                ),
-          ),
-        );
-      },
-      zoneValues: const {'openrouter_api_key': 'test-key'},
+    final client = OpenRouterClient(
+      client: mockClient,
+      proxyUri: Uri.parse('https://example.com/api/chat'),
     );
 
+    expect(
+      () => client.createChatCompletion(
+        model: 'test-model',
+        messages: const [
+          {'role': 'user', 'content': 'hi'},
+        ],
+      ),
+      throwsA(
+        isA<StateError>()
+            .having(
+              (error) => error.message,
+              'message',
+              contains('500'),
+            )
+            .having(
+              (error) => error.message,
+              'message',
+              contains('bad response body'),
+            ),
+      ),
+    );
   });
 
   test('throws StateError when response JSON is invalid', () async {
@@ -129,27 +89,25 @@ void main() {
       return http.Response('not-json', 200);
     });
 
-    await runZoned(
-      () async {
-        final client = OpenRouterClient(client: mockClient);
+    final client = OpenRouterClient(
+      client: mockClient,
+      proxyUri: Uri.parse('https://example.com/api/chat'),
+    );
 
-        expect(
-          () => client.createChatCompletion(
-            model: 'test-model',
-            messages: const [
-              {'role': 'user', 'content': 'hi'},
-            ],
-          ),
-          throwsA(
-            isA<StateError>().having(
-              (error) => error.message,
-              'message',
-              contains('invalid JSON'),
-            ),
-          ),
-        );
-      },
-      zoneValues: const {'openrouter_api_key': 'test-key'},
+    expect(
+      () => client.createChatCompletion(
+        model: 'test-model',
+        messages: const [
+          {'role': 'user', 'content': 'hi'},
+        ],
+      ),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          contains('invalid JSON'),
+        ),
+      ),
     );
   });
 
@@ -162,27 +120,25 @@ void main() {
       );
     });
 
-    await runZoned(
-      () async {
-        final client = OpenRouterClient(client: mockClient);
+    final client = OpenRouterClient(
+      client: mockClient,
+      proxyUri: Uri.parse('https://example.com/api/chat'),
+    );
 
-        expect(
-          () => client.createChatCompletion(
-            model: 'test-model',
-            messages: const [
-              {'role': 'user', 'content': 'hi'},
-            ],
-          ),
-          throwsA(
-            isA<StateError>().having(
-              (error) => error.message,
-              'message',
-              contains('invalid JSON shape'),
-            ),
-          ),
-        );
-      },
-      zoneValues: const {'openrouter_api_key': 'test-key'},
+    expect(
+      () => client.createChatCompletion(
+        model: 'test-model',
+        messages: const [
+          {'role': 'user', 'content': 'hi'},
+        ],
+      ),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          contains('invalid JSON shape'),
+        ),
+      ),
     );
   });
 
@@ -195,27 +151,25 @@ void main() {
       );
     });
 
-    await runZoned(
-      () async {
-        final client = OpenRouterClient(client: mockClient);
+    final client = OpenRouterClient(
+      client: mockClient,
+      proxyUri: Uri.parse('https://example.com/api/chat'),
+    );
 
-        expect(
-          () => client.createChatCompletion(
-            model: 'test-model',
-            messages: const [
-              {'role': 'user', 'content': 'hi'},
-            ],
-          ),
-          throwsA(
-            isA<StateError>().having(
-              (error) => error.message,
-              'message',
-              contains('missing choices'),
-            ),
-          ),
-        );
-      },
-      zoneValues: const {'openrouter_api_key': 'test-key'},
+    expect(
+      () => client.createChatCompletion(
+        model: 'test-model',
+        messages: const [
+          {'role': 'user', 'content': 'hi'},
+        ],
+      ),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          contains('missing choices'),
+        ),
+      ),
     );
   });
 
@@ -232,27 +186,25 @@ void main() {
       );
     });
 
-    await runZoned(
-      () async {
-        final client = OpenRouterClient(client: mockClient);
+    final client = OpenRouterClient(
+      client: mockClient,
+      proxyUri: Uri.parse('https://example.com/api/chat'),
+    );
 
-        expect(
-          () => client.createChatCompletion(
-            model: 'test-model',
-            messages: const [
-              {'role': 'user', 'content': 'hi'},
-            ],
-          ),
-          throwsA(
-            isA<StateError>().having(
-              (error) => error.message,
-              'message',
-              contains('missing message'),
-            ),
-          ),
-        );
-      },
-      zoneValues: const {'openrouter_api_key': 'test-key'},
+    expect(
+      () => client.createChatCompletion(
+        model: 'test-model',
+        messages: const [
+          {'role': 'user', 'content': 'hi'},
+        ],
+      ),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          contains('missing message'),
+        ),
+      ),
     );
   });
 
@@ -271,27 +223,25 @@ void main() {
       );
     });
 
-    await runZoned(
-      () async {
-        final client = OpenRouterClient(client: mockClient);
+    final client = OpenRouterClient(
+      client: mockClient,
+      proxyUri: Uri.parse('https://example.com/api/chat'),
+    );
 
-        expect(
-          () => client.createChatCompletion(
-            model: 'test-model',
-            messages: const [
-              {'role': 'user', 'content': 'hi'},
-            ],
-          ),
-          throwsA(
-            isA<StateError>().having(
-              (error) => error.message,
-              'message',
-              contains('missing content'),
-            ),
-          ),
-        );
-      },
-      zoneValues: const {'openrouter_api_key': 'test-key'},
+    expect(
+      () => client.createChatCompletion(
+        model: 'test-model',
+        messages: const [
+          {'role': 'user', 'content': 'hi'},
+        ],
+      ),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          contains('missing content'),
+        ),
+      ),
     );
   });
 }

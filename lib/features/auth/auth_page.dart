@@ -108,7 +108,7 @@ class _AuthPageState extends State<AuthPage> {
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: Text(
-                                  '温暖演示入口',
+                                  '欢迎使用银龄智伴',
                                   style: theme.textTheme.labelLarge?.copyWith(
                                     color: AppTheme.accent,
                                     fontWeight: FontWeight.w800,
@@ -119,7 +119,7 @@ class _AuthPageState extends State<AuthPage> {
                               Text('银龄智伴', style: theme.textTheme.titleLarge),
                               const SizedBox(height: 8),
                               Text(
-                                '完成基础信息确认后，即可进入身份选择，开始体验银龄智伴。',
+                                '完成基础信息确认后，即可选择身份并进入服务。',
                                 style: theme.textTheme.bodyMedium,
                               ),
                               const SizedBox(height: 24),
