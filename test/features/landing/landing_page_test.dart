@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:yinling_zhiban_demo/app.dart';
 import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
+import 'package:yinling_zhiban_demo/widgets/brand_hero.dart';
 import 'package:yinling_zhiban_demo/routes.dart';
 
 void main() {
@@ -21,10 +22,38 @@ void main() {
     expect(find.text('我是子女'), findsNothing);
     expect(find.text('老人端'), findsNothing);
     expect(find.text('子女端'), findsNothing);
-    expect(find.text('安心开始'), findsOneWidget);
-    expect(find.text('一步完成'), findsOneWidget);
+    expect(find.byType(BrandHero), findsOneWidget);
+    expect(find.text('更简单地开始陪伴'), findsNothing);
+    expect(find.text('安心开始'), findsNothing);
+    expect(find.text('一步完成'), findsNothing);
     expect(find.text('品牌优先'), findsNothing);
     expect(find.text('入口统一'), findsNothing);
+  });
+
+  testWidgets('landing keeps a single hero and auth actions on small and wide screens', (
+    WidgetTester tester,
+  ) async {
+    Future<void> pumpAt(Size size) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = size;
+      await tester.pumpWidget(const App());
+      await tester.pumpAndSettle();
+    }
+
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await pumpAt(const Size(375, 812));
+    expect(find.byType(BrandHero), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '登录'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '注册'), findsOneWidget);
+    expect(find.text('更简单地开始陪伴'), findsNothing);
+
+    await pumpAt(const Size(1280, 900));
+    expect(find.byType(BrandHero), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '登录'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '注册'), findsOneWidget);
+    expect(find.text('更简单地开始陪伴'), findsNothing);
   });
 
   testWidgets('landing login action routes to auth', (WidgetTester tester) async {
