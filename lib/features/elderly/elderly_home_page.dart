@@ -14,128 +14,111 @@ class ElderlyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(title: const Text('老人端')),
-      body: Container(
+      body: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppTheme.backgroundTop, Color(0xFFFFE8D6)],
+            colors: [Color(0xFFF4F8FF), Color(0xFFFDF4EC), Colors.white],
           ),
         ),
         child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            children: [
-              _PageIntroCard(
-                title: '今天也有人陪你慢慢聊',
-                subtitle: '把常用陪伴、求助和社区入口放在更顺手的位置。',
-                child: Text(
-                  '温暖陪伴',
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: AppTheme.accent,
-                    fontWeight: FontWeight.w700,
-                  ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final isCompact = width < 640;
+              final isWide = width >= 960;
+              final horizontalPadding = isCompact ? 16.0 : (isWide ? 28.0 : 22.0);
+              final sectionSpacing = isCompact ? 16.0 : 20.0;
+
+              final services = [
+                _ElderlyServiceItem(
+                  title: 'AI陪伴',
+                  description: '说说近况和心情，让陪伴更自然。',
+                  icon: Icons.chat_bubble_outline_rounded,
+                  accent: const Color(0xFFE9F2FF),
+                  iconColor: const Color(0xFF2563EB),
+                  onTap: () => _showComingSoon(context),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text('今天想做什么', style: theme.textTheme.titleLarge),
-              const SizedBox(height: 6),
-              Text(
-                '大字卡片更清楚，点一下就能继续熟悉的操作。',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 14),
-              _ActionEntry(
-                title: 'AI陪伴',
-                description: '轻松说说今天的心情和想法',
-                icon: Icons.forum_outlined,
-                backgroundColor: const Color(0xFFFFF3E8),
-                iconColor: AppTheme.primary,
-                onTap: () => _showComingSoon(context),
-              ),
-              const SizedBox(height: 12),
-              _ActionEntry(
-                title: '一键求助',
-                description: '需要帮忙时更快找到支持',
-                icon: Icons.sos_outlined,
-                backgroundColor: const Color(0xFFFFF8EF),
-                iconColor: const Color(0xFFB85B42),
-                onTap: () => _showComingSoon(context),
-              ),
-              const SizedBox(height: 12),
-              _ActionEntry(
-                title: '社区互助',
-                description: '看看邻里正在提供哪些帮助',
-                icon: Icons.groups_outlined,
-                backgroundColor: const Color(0xFFFFF5F0),
-                iconColor: AppTheme.accent,
-                onTap: () => Navigator.of(context).pushNamed(communityRoute),
-              ),
-              const SizedBox(height: 12),
-              _ActionEntry(
-                title: '活动',
-                description: '留意今天适合参与的社区活动',
-                icon: Icons.celebration_outlined,
-                backgroundColor: const Color(0xFFFFFBF7),
-                iconColor: const Color(0xFFD18A4E),
-                onTap: () => _showComingSoon(context),
-              ),
-              const SizedBox(height: 16),
-              Semantics(
-                label: '童伴聊天入口',
-                button: true,
-                child: Card(
-                  color: const Color(0xFFFFF7F1),
-                  child: InkWell(
-                    key: const Key('childAvatarEntry'),
-                    borderRadius: BorderRadius.circular(28),
-                    onTap: () => Navigator.of(context).pushNamed(chatRoute),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Icon(
-                              Icons.child_care_outlined,
-                              color: AppTheme.primary,
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('小灵陪你聊聊天', style: theme.textTheme.titleLarge),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '像家人一样陪你聊聊近况，也能继续进入聊天页面。',
-                                  style: theme.textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(
-                            Icons.arrow_forward_rounded,
-                            color: AppTheme.primary,
-                          ),
-                        ],
-                      ),
+                _ElderlyServiceItem(
+                  title: '一键求助',
+                  description: '遇到需要帮助的时候，快速联系支持。',
+                  icon: Icons.support_agent_rounded,
+                  accent: const Color(0xFFFFF0E8),
+                  iconColor: const Color(0xFFDA6A2A),
+                  emphasize: true,
+                  onTap: () => _showComingSoon(context),
+                ),
+                _ElderlyServiceItem(
+                  title: '社区互助',
+                  description: '看看邻里今天有哪些互助信息。',
+                  icon: Icons.groups_2_outlined,
+                  accent: const Color(0xFFEEF7FF),
+                  iconColor: const Color(0xFF1D4ED8),
+                  onTap: () => Navigator.of(context).pushNamed(communityRoute),
+                ),
+                _ElderlyServiceItem(
+                  title: '活动',
+                  description: '查看适合今天参加的社区活动。',
+                  icon: Icons.event_available_outlined,
+                  accent: const Color(0xFFFFF6EA),
+                  iconColor: const Color(0xFFB45309),
+                  onTap: () => _showComingSoon(context),
+                ),
+                _ElderlyServiceItem(
+                  key: const Key('childAvatarEntry'),
+                  title: '小灵在线',
+                  description: '像家人一样陪你聊几句，也能继续进入聊天。',
+                  icon: Icons.child_care_outlined,
+                  accent: const Color(0xFFEAF3FF),
+                  iconColor: const Color(0xFF2563EB),
+                  onTap: () => Navigator.of(context).pushNamed(chatRoute),
+                ),
+              ];
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1180),
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      isCompact ? 16 : 20,
+                      horizontalPadding,
+                      24,
                     ),
+                    children: [
+                      const _ServiceHallHero(),
+                      SizedBox(height: sectionSpacing),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '常用服务',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '把最常用的陪伴、求助和互助入口放到更显眼的位置。',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: isCompact ? 12 : 16),
+                      _ElderlyServiceGrid(
+                        items: services,
+                        isCompact: isCompact,
+                        isWide: isWide,
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -143,105 +126,206 @@ class ElderlyHomePage extends StatelessWidget {
   }
 }
 
-class _PageIntroCard extends StatelessWidget {
-  const _PageIntroCard({
-    required this.title,
-    required this.subtitle,
-    required this.child,
-  });
-
-  final String title;
-  final String subtitle;
-  final Widget child;
+class _ServiceHallHero extends StatelessWidget {
+  const _ServiceHallHero();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(32),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFFFFCF8), Color(0xFFFFE7D3)],
+          colors: [Color(0xFFEAF3FF), Color(0xFFF9FCFF), Color(0xFFFFF1E8)],
         ),
+        border: Border.all(color: const Color(0xFFD8E5FF)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x14C96A43),
-            blurRadius: 24,
-            offset: Offset(0, 10),
+            color: Color(0x142563EB),
+            blurRadius: 28,
+            offset: Offset(0, 12),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          child,
-          const SizedBox(height: 10),
-          Text(title, style: theme.textTheme.headlineMedium),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.78),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              '今日服务大厅',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: const Color(0xFF1D4ED8),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text('您好，今天想先用哪项服务？', style: theme.textTheme.headlineMedium),
           const SizedBox(height: 8),
-          Text(subtitle, style: theme.textTheme.bodyLarge),
+          Text(
+            '常用入口已经为您排好，想聊天、求助或看看社区信息，都能更快找到。',
+            style: theme.textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 18),
+          const Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _HallTag(label: '服务更清楚'),
+              _HallTag(label: '求助更显眼'),
+              _HallTag(label: '家人可协同'),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _ActionEntry extends StatelessWidget {
-  const _ActionEntry({
+class _HallTag extends StatelessWidget {
+  const _HallTag({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFD9E6FF)),
+      ),
+      child: Text(label, style: Theme.of(context).textTheme.titleSmall),
+    );
+  }
+}
+
+class _ElderlyServiceGrid extends StatelessWidget {
+  const _ElderlyServiceGrid({
+    required this.items,
+    required this.isCompact,
+    required this.isWide,
+  });
+
+  final List<_ElderlyServiceItem> items;
+  final bool isCompact;
+  final bool isWide;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isCompact) {
+      return Column(
+        key: const Key('elderlyServiceGridSingleColumn'),
+        children: [
+          for (var index = 0; index < items.length; index++) ...[
+            _ElderlyServiceCard(item: items[index]),
+            if (index != items.length - 1) const SizedBox(height: 12),
+          ],
+        ],
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final spacing = isWide ? 18.0 : 16.0;
+        final itemWidth = (constraints.maxWidth - spacing) / 2;
+
+        return Wrap(
+          key: const Key('elderlyServiceGridMultiColumn'),
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final item in items)
+              SizedBox(
+                width: itemWidth,
+                child: _ElderlyServiceCard(item: item),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ElderlyServiceItem {
+  const _ElderlyServiceItem({
+    this.key,
     required this.title,
     required this.description,
     required this.icon,
-    required this.backgroundColor,
+    required this.accent,
     required this.iconColor,
     required this.onTap,
+    this.emphasize = false,
   });
 
+  final Key? key;
   final String title;
   final String description;
   final IconData icon;
-  final Color backgroundColor;
+  final Color accent;
   final Color iconColor;
   final VoidCallback onTap;
+  final bool emphasize;
+}
+
+class _ElderlyServiceCard extends StatelessWidget {
+  const _ElderlyServiceCard({required this.item});
+
+  final _ElderlyServiceItem item;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Card(
-      color: backgroundColor,
+      key: item.key,
+      elevation: item.emphasize ? 1 : 0,
+      color: item.emphasize ? const Color(0xFFFFF5EE) : Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: InkWell(
         borderRadius: BorderRadius.circular(28),
-        onTap: onTap,
+        onTap: item.onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 54,
-                height: 54,
+                width: 58,
+                height: 58,
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
+                  color: item.accent,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Icon(icon, size: 28, color: iconColor),
+                child: Icon(item.icon, color: item.iconColor, size: 30),
               ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: theme.textTheme.titleLarge),
+                    Text(item.title, style: theme.textTheme.titleLarge),
                     const SizedBox(height: 6),
-                    Text(description, style: theme.textTheme.bodyMedium),
+                    Text(item.description, style: theme.textTheme.bodyMedium),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, color: AppTheme.primary),
+              Icon(
+                Icons.arrow_forward_rounded,
+                color: item.emphasize ? const Color(0xFFDA6A2A) : AppTheme.primary,
+              ),
             ],
           ),
         ),
