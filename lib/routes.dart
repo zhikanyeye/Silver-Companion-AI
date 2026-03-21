@@ -38,7 +38,7 @@ class PlatformPlaceholderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('平台端')),
-      body: const Center(child: Text('平台端演示功能即将开放')),
+      body: const Center(child: Text('平台服务正在准备中')),
     );
   }
 }

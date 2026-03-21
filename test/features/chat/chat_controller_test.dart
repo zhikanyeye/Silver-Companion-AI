@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:yinling_zhiban_demo/features/chat/chat_controller.dart';
+import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
 import 'package:yinling_zhiban_demo/features/chat/memory_store.dart';
 import 'package:yinling_zhiban_demo/services/web_speech_service.dart';
 
@@ -10,6 +11,24 @@ class _TestMemoryStore extends MemoryStore {
 
   @override
   Future<void> save(List<String> memory) async {}
+}
+
+class _FakeChatRepository extends ChatRepository {
+  _FakeChatRepository({this.reply = 'assistant reply', this.errorToThrow});
+
+  final String reply;
+  final Object? errorToThrow;
+
+  @override
+  Future<String> sendMessage({
+    required String model,
+    required List<Map<String, String>> messages,
+  }) async {
+    if (errorToThrow != null) {
+      throw errorToThrow!;
+    }
+    return reply;
+  }
 }
 
 void main() {
@@ -56,5 +75,73 @@ void main() {
 
     expect(startCalls, 1);
     expect(stopCalls, 1);
+  });
+
+  test('sendText maps proxy not configured failures to safe service message', () async {
+    final controller = ChatController(
+      repository: _FakeChatRepository(
+        errorToThrow: StateError(
+          'OpenRouter request failed: 404 proxy route missing at https://proxy.example.com/api/chat',
+        ),
+      ),
+      memoryStore: _TestMemoryStore(),
+    );
+
+    await controller.sendText('hello');
+
+    expect(controller.error, 'AI 服务配置不可用，请稍后再试');
+    expect(controller.error, isNot(contains('proxy.example.com')));
+    expect(controller.error, isNot(contains('OpenRouter request failed')));
+    expect(controller.messages, hasLength(1));
+  });
+
+  test('sendText maps 400 failures to safe invalid request message', () async {
+    final controller = ChatController(
+      repository: _FakeChatRepository(
+        errorToThrow: StateError(
+          'OpenRouter request failed: 400 invalid model sk-test-key https://api.example.com/v1/chat',
+        ),
+      ),
+      memoryStore: _TestMemoryStore(),
+    );
+
+    await controller.sendText('hello');
+
+    expect(controller.error, '请求内容无效，请修改后重试');
+    expect(controller.error, isNot(contains('sk-test-key')));
+    expect(controller.error, isNot(contains('api.example.com')));
+    expect(controller.error, isNot(contains('400')));
+  });
+
+  test('sendText maps upstream unavailable failures to temporary service message', () async {
+    final controller = ChatController(
+      repository: _FakeChatRepository(
+        errorToThrow: StateError(
+          'OpenRouter request failed: 504 upstream timeout at https://proxy.example.com/api/chat',
+        ),
+      ),
+      memoryStore: _TestMemoryStore(),
+    );
+
+    await controller.sendText('hello');
+
+    expect(controller.error, 'AI 服务暂时不可用，请稍后再试');
+    expect(controller.error, isNot(contains('proxy.example.com')));
+    expect(controller.error, isNot(contains('upstream')));
+    expect(controller.error, isNot(contains('504')));
+  });
+
+  test('sendText keeps success behavior intact', () async {
+    final controller = ChatController(
+      repository: _FakeChatRepository(reply: 'assistant ok'),
+      memoryStore: _TestMemoryStore(),
+    );
+
+    await controller.sendText('hello');
+
+    expect(controller.error, isNull);
+    expect(controller.messages, hasLength(2));
+    expect(controller.messages.first.content, 'hello');
+    expect(controller.messages.last.content, 'assistant ok');
   });
 }

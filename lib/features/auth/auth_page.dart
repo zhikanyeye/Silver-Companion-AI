@@ -79,69 +79,82 @@ class _AuthPageState extends State<AuthPage> {
             ),
           ),
           SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 560),
-                  child: AnimatedSlide(
-                    duration: _motionDuration,
-                    curve: Curves.easeOutCubic,
-                    offset: _isVisible ? Offset.zero : const Offset(0, 0.08),
-                    child: AnimatedOpacity(
-                      duration: _motionDuration,
-                      curve: Curves.easeOut,
-                      opacity: _isVisible ? 1 : 0,
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF2E6),
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  '温暖演示入口',
-                                  style: theme.textTheme.labelLarge?.copyWith(
-                                    color: AppTheme.accent,
-                                    fontWeight: FontWeight.w800,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth;
+                final isCompact = width < 600;
+                final isTablet = width >= 600 && width < 1100;
+                final scrollPadding = EdgeInsets.symmetric(
+                  horizontal: isCompact ? 16 : (isTablet ? 24 : 32),
+                  vertical: isCompact ? 16 : (isTablet ? 24 : 28),
+                );
+                final cardPadding = EdgeInsets.all(isCompact ? 20 : (isTablet ? 24 : 28));
+
+                return Center(
+                  child: SingleChildScrollView(
+                    padding: scrollPadding,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 680),
+                      child: AnimatedSlide(
+                        duration: _motionDuration,
+                        curve: Curves.easeOutCubic,
+                        offset: _isVisible ? Offset.zero : const Offset(0, 0.08),
+                        child: AnimatedOpacity(
+                          duration: _motionDuration,
+                          curve: Curves.easeOut,
+                          opacity: _isVisible ? 1 : 0,
+                          child: Card(
+                            child: Padding(
+                              padding: cardPadding,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF2E6),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Text(
+                                      '欢迎使用银龄智伴',
+                                      style: theme.textTheme.labelLarge?.copyWith(
+                                        color: AppTheme.accent,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(height: 16),
+                                  Text('银龄智伴', style: theme.textTheme.titleLarge),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '完成基础信息确认后，即可选择身份并进入服务。',
+                                    style: theme.textTheme.bodyMedium,
+                                  ),
+                                  const SizedBox(height: 24),
+                                  AuthTabs(
+                                    selectedTab: selectedTab,
+                                    onChanged: (tab) => setState(() => _selectedTab = tab),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  AuthForm(
+                                    tab: selectedTab,
+                                    onSuccess: () => Navigator.of(
+                                      context,
+                                    ).pushNamed(roleSelectRoute),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 16),
-                              Text('银龄智伴', style: theme.textTheme.titleLarge),
-                              const SizedBox(height: 8),
-                              Text(
-                                '完成基础信息确认后，即可进入身份选择，开始体验银龄智伴。',
-                                style: theme.textTheme.bodyMedium,
-                              ),
-                              const SizedBox(height: 24),
-                              AuthTabs(
-                                selectedTab: selectedTab,
-                                onChanged: (tab) => setState(() => _selectedTab = tab),
-                              ),
-                              const SizedBox(height: 24),
-                              AuthForm(
-                                tab: selectedTab,
-                                onSuccess: () => Navigator.of(
-                                  context,
-                                ).pushNamed(roleSelectRoute),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],

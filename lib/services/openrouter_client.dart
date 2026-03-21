@@ -1,43 +1,35 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-const String _openRouterApiKeyZoneKey = 'openrouter_api_key';
-
-String _resolveOpenRouterApiKey() {
-  final zoneValue = Zone.current[_openRouterApiKeyZoneKey];
-  if (zoneValue is String) {
-    return zoneValue;
+Uri _defaultChatProxyUri() {
+  const configuredPath = String.fromEnvironment(
+    'AI_PROXY_URL',
+    defaultValue: '/api/chat',
+  );
+  final configuredUri = Uri.parse(configuredPath);
+  if (configuredUri.hasScheme) {
+    return configuredUri;
   }
-
-  return const String.fromEnvironment('OPENROUTER_API_KEY', defaultValue: '');
+  return Uri.base.resolveUri(configuredUri);
 }
 
 class OpenRouterClient {
-  OpenRouterClient({http.Client? client}) : _client = client ?? http.Client();
+  OpenRouterClient({http.Client? client, Uri? proxyUri})
+    : _client = client ?? http.Client(),
+      _proxyUri = proxyUri ?? _defaultChatProxyUri();
 
   final http.Client _client;
+  final Uri _proxyUri;
 
   Future<String> createChatCompletion({
     required String model,
     required List<Map<String, String>> messages,
   }) async {
-    final apiKey = _resolveOpenRouterApiKey();
-    if (apiKey.isEmpty) {
-      throw StateError('OPENROUTER_API_KEY is required for OpenRouter requests');
-    }
-
     final response = await _client.post(
-      Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $apiKey',
-      },
-      body: jsonEncode({
-        'model': model,
-        'messages': messages,
-      }),
+      _proxyUri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'model': model, 'messages': messages}),
     );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {

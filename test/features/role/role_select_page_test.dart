@@ -14,6 +14,7 @@ void main() {
 
     expect(find.text('请选择您的身份'), findsOneWidget);
     expect(find.text('我们会带您进入对应的专属入口。'), findsOneWidget);
+    expect(find.text('身份确认'), findsOneWidget);
     expect(find.text('Task 1 保持最小可导航骨架，后续再补充视觉细节。'), findsNothing);
     expect(find.widgetWithText(ElevatedButton, '我是老人'), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, '我是子女'), findsOneWidget);

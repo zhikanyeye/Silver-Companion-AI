@@ -41,9 +41,12 @@ class _LandingPageState extends State<LandingPage> {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final isWide = constraints.maxWidth >= 960;
-              final horizontalPadding = isWide ? 32.0 : 20.0;
-              final topPadding = isWide ? 24.0 : 16.0;
+              final width = constraints.maxWidth;
+              final isCompact = width < 640;
+              final isTablet = width >= 640 && width < 1100;
+              final horizontalPadding = isCompact ? 16.0 : (isTablet ? 24.0 : 32.0);
+              final topPadding = isCompact ? 12.0 : (isTablet ? 20.0 : 24.0);
+              final heroMaxWidth = isCompact ? 720.0 : (isTablet ? 840.0 : 960.0);
 
               return SingleChildScrollView(
                 padding: EdgeInsets.fromLTRB(
@@ -67,83 +70,29 @@ class _LandingPageState extends State<LandingPage> {
                           duration: _motionDuration,
                           curve: Curves.easeOut,
                           opacity: _isVisible ? 1 : 0,
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () => Navigator.of(context).pushNamed(
-                                    authRoute,
-                                    arguments: AuthTabSelection.login,
-                                  ),
-                                  child: const Text('登录'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => Navigator.of(context).pushNamed(
-                                    authRoute,
-                                    arguments: AuthTabSelection.register,
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.surface,
-                                    foregroundColor: AppTheme.accent,
-                                  ),
-                                  child: const Text('注册'),
-                                ),
-                              ],
-                            ),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: _LandingActions(isCompact: isCompact),
                           ),
                         ),
                       ),
-                      SizedBox(height: isWide ? 28 : 22),
+                      SizedBox(height: isCompact ? 18 : 24),
                       Center(
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 1180),
-                          child: isWide
-                              ? Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Expanded(flex: 11, child: BrandHero()),
-                                    SizedBox(width: 24),
-                                    Expanded(
-                                      flex: 7,
-                                      child: AnimatedSlide(
-                                        duration: _motionDuration,
-                                        curve: Curves.easeOutCubic,
-                                        offset: _isVisible
-                                            ? Offset.zero
-                                            : const Offset(0.08, 0),
-                                        child: AnimatedOpacity(
-                                          duration: _motionDuration,
-                                          curve: Curves.easeOut,
-                                          opacity: _isVisible ? 1 : 0,
-                                          child: const _HeroSupportPanel(),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const BrandHero(),
-                                    const SizedBox(height: 18),
-                                    AnimatedSlide(
-                                      duration: _motionDuration,
-                                      curve: Curves.easeOutCubic,
-                                      offset: _isVisible
-                                          ? Offset.zero
-                                          : const Offset(0, 0.08),
-                                      child: AnimatedOpacity(
-                                        duration: _motionDuration,
-                                        curve: Curves.easeOut,
-                                        opacity: _isVisible ? 1 : 0,
-                                        child: const _HeroSupportPanel(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          constraints: BoxConstraints(maxWidth: heroMaxWidth),
+                          child: AnimatedSlide(
+                            duration: _motionDuration,
+                            curve: Curves.easeOutCubic,
+                            offset: _isVisible
+                                ? Offset.zero
+                                : Offset(isCompact ? 0 : 0.04, isCompact ? 0.06 : 0),
+                            child: AnimatedOpacity(
+                              duration: _motionDuration,
+                              curve: Curves.easeOut,
+                              opacity: _isVisible ? 1 : 0,
+                              child: const BrandHero(),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -158,79 +107,51 @@ class _LandingPageState extends State<LandingPage> {
   }
 }
 
-class _HeroSupportPanel extends StatelessWidget {
-  const _HeroSupportPanel();
+class _LandingActions extends StatelessWidget {
+  const _LandingActions({required this.isCompact});
+
+  final bool isCompact;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFF3D2BC)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('更简单地开始陪伴', style: theme.textTheme.titleLarge),
-          const SizedBox(height: 12),
-          Text(
-            '首页先展示品牌与产品价值，认证完成后再进入角色分流，帮助首次访问者更快理解银龄智伴。',
-            style: theme.textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 18),
-          const _SupportPoint(
-            title: '品牌优先',
-            detail: '先建立可信赖感，再进入后续登录与注册流程。',
-          ),
-          const SizedBox(height: 14),
-          const _SupportPoint(
-            title: '入口统一',
-            detail: '登录和注册都在同一入口完成，减少来回跳转，让长辈和家人都更容易上手。',
-          ),
-        ],
-      ),
+    final registerStyle = ElevatedButton.styleFrom(
+      backgroundColor: AppTheme.surface,
+      foregroundColor: AppTheme.accent,
     );
-  }
-}
 
-class _SupportPoint extends StatelessWidget {
-  const _SupportPoint({required this.title, required this.detail});
+    Widget loginButton = ElevatedButton(
+      onPressed: () => Navigator.of(
+        context,
+      ).pushNamed(authRoute, arguments: AuthTabSelection.login),
+      child: const Text('登录'),
+    );
 
-  final String title;
-  final String detail;
+    Widget registerButton = ElevatedButton(
+      onPressed: () => Navigator.of(
+        context,
+      ).pushNamed(authRoute, arguments: AuthTabSelection.register),
+      style: registerStyle,
+      child: const Text('注册'),
+    );
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    if (isCompact) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          loginButton,
+          const SizedBox(height: 10),
+          registerButton,
+        ],
+      );
+    }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          margin: const EdgeInsets.only(top: 6),
-          decoration: const BoxDecoration(
-            color: AppTheme.secondary,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: theme.textTheme.titleMedium),
-              const SizedBox(height: 4),
-              Text(detail, style: theme.textTheme.bodyMedium),
-            ],
-          ),
-        ),
-      ],
+    return Align(
+      alignment: Alignment.topRight,
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: [loginButton, registerButton],
+      ),
     );
   }
 }

@@ -62,6 +62,35 @@ class ChatController extends ChangeNotifier {
 
   bool get isSpeechSupported => _speechService.isSpeechSupported();
 
+  String _mapToUserSafeError(Object error) {
+    final rawMessage = error.toString().toLowerCase();
+
+    if (rawMessage.contains(' 400 ') || rawMessage.endsWith(' 400')) {
+      return '请求内容无效，请修改后重试';
+    }
+
+    if (rawMessage.contains(' 404 ') ||
+        rawMessage.endsWith(' 404') ||
+        rawMessage.contains('not configured') ||
+        rawMessage.contains('route missing') ||
+        rawMessage.contains('service not configured')) {
+      return 'AI 服务配置不可用，请稍后再试';
+    }
+
+    if (rawMessage.contains(' 502 ') ||
+        rawMessage.endsWith(' 502') ||
+        rawMessage.contains(' 503 ') ||
+        rawMessage.endsWith(' 503') ||
+        rawMessage.contains(' 504 ') ||
+        rawMessage.endsWith(' 504') ||
+        rawMessage.contains('upstream') ||
+        rawMessage.contains('timeout')) {
+      return 'AI 服务暂时不可用，请稍后再试';
+    }
+
+    return '发送失败，请稍后再试';
+  }
+
   Future<void> sendText(String text) async {
     final content = text.trim();
     if (content.isEmpty || isLoading) {
@@ -95,7 +124,7 @@ class ChatController extends ChangeNotifier {
       await _memoryStore.save(_memory);
       _speechService.speak(reply);
     } catch (e) {
-      error = '发送失败，请稍后再试';
+      error = _mapToUserSafeError(e);
     } finally {
       isLoading = false;
       notifyListeners();

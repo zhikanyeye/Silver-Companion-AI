@@ -9,7 +9,7 @@ class ChatRepository {
   Future<String> sendMessage({
     required String model,
     required List<Map<String, String>> messages,
-  }) {
+  }) async {
     return _client.createChatCompletion(model: model, messages: messages);
   }
 }
