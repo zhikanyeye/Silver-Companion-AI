@@ -1,10 +1,92 @@
 import 'package:flutter/material.dart';
 
+import 'package:yinling_zhiban_demo/features/child/child_dashboard_service.dart';
 import 'package:yinling_zhiban_demo/features/child/mock_family_data.dart';
 import 'package:yinling_zhiban_demo/theme/app_theme.dart';
 
-class ChildHomePage extends StatelessWidget {
-  const ChildHomePage({super.key});
+class ChildHomePage extends StatefulWidget {
+  const ChildHomePage({super.key, this.service = const ChildDashboardService()});
+
+  final ChildDashboardService service;
+
+  @override
+  State<ChildHomePage> createState() => _ChildHomePageState();
+}
+
+class _ChildHomePageState extends State<ChildHomePage> {
+  ChildDashboardData? _dashboardData;
+  Object? _initialLoadError;
+  var _isInitialLoading = true;
+  var _isRefreshing = false;
+  String? _refreshMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitial();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChildHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.service != widget.service) {
+      _loadInitial();
+    }
+  }
+
+  Future<void> _loadInitial() async {
+    setState(() {
+      _isInitialLoading = true;
+      _initialLoadError = null;
+      _refreshMessage = null;
+    });
+
+    try {
+      final dashboard = await widget.service.loadDashboard();
+      if (!mounted) return;
+      setState(() {
+        _dashboardData = dashboard;
+        _isInitialLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _initialLoadError = error;
+        _isInitialLoading = false;
+      });
+    }
+  }
+
+  Future<void> _reload() async {
+    if (_dashboardData == null) {
+      await _loadInitial();
+      return;
+    }
+
+    setState(() {
+      _isRefreshing = true;
+      _refreshMessage = null;
+    });
+
+    try {
+      final dashboard = await widget.service.loadDashboard();
+      if (!mounted) return;
+      setState(() {
+        _dashboardData = dashboard;
+        _isRefreshing = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isRefreshing = false;
+        _refreshMessage = '刷新失败，请稍后再试';
+      });
+    }
+  }
+
+  void _retry() {
+    _loadInitial();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,52 +109,132 @@ class ChildHomePage extends StatelessWidget {
               final isWide = width >= 1080;
               final horizontalPadding = isCompact ? 16.0 : (isWide ? 28.0 : 22.0);
 
-              return Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1180),
-                  child: ListView(
-                    padding: EdgeInsets.fromLTRB(
-                      horizontalPadding,
-                      isCompact ? 16 : 20,
-                      horizontalPadding,
-                      24,
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1180),
+                    child: _buildBody(
+                      context,
+                      horizontalPadding: horizontalPadding,
+                      isCompact: isCompact,
+                      isSplit: isSplit,
                     ),
-                    children: [
-                      const _ChildOverviewHero(),
-                      const SizedBox(height: 18),
-                      if (isSplit)
-                        const Row(
-                          key: Key('childDashboardSplit'),
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 11, child: _StatusPanel()),
-                            SizedBox(width: 18),
-                            Expanded(flex: 9, child: _AlertTimelinePanel()),
-                          ],
-                        )
-                      else
-                        const Column(
-                          key: Key('childDashboardStack'),
-                          children: [
-                            _StatusPanel(),
-                            SizedBox(height: 18),
-                            _AlertTimelinePanel(),
-                          ],
-                        ),
-                    ],
                   ),
-                ),
-              );
+                );
             },
           ),
         ),
       ),
     );
   }
+
+  Widget _buildBody(
+    BuildContext context, {
+    required double horizontalPadding,
+    required bool isCompact,
+    required bool isSplit,
+  }) {
+    if (_isInitialLoading && _dashboardData == null) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text('正在整理家人近况...'),
+        ),
+      );
+    }
+
+    if (_initialLoadError != null && _dashboardData == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.cloud_off_rounded,
+                size: 42,
+                color: AppTheme.primary,
+              ),
+              const SizedBox(height: 12),
+              const Text('暂时无法加载家人近况'),
+              const SizedBox(height: 8),
+              const Text('请稍后重试。'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _retry,
+                child: const Text('重新加载'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final dashboard = _dashboardData!;
+
+    return RefreshIndicator(
+      onRefresh: _reload,
+      child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          horizontalPadding,
+          isCompact ? 16 : 20,
+          horizontalPadding,
+          24,
+        ),
+        children: [
+          if (_isRefreshing)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: LinearProgressIndicator(minHeight: 3),
+            ),
+          if (_refreshMessage != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF4E8),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(_refreshMessage!),
+              ),
+            ),
+          _ChildOverviewHero(metrics: dashboard.overviewMetrics),
+          const SizedBox(height: 18),
+          if (isSplit)
+            Row(
+              key: const Key('childDashboardSplit'),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 11,
+                  child: _StatusPanel(items: dashboard.statusCards),
+                ),
+                const SizedBox(width: 18),
+                Expanded(
+                  flex: 9,
+                  child: _AlertTimelinePanel(items: dashboard.alerts),
+                ),
+              ],
+            )
+          else
+            Column(
+              key: const Key('childDashboardStack'),
+              children: [
+                _StatusPanel(items: dashboard.statusCards),
+                const SizedBox(height: 18),
+                _AlertTimelinePanel(items: dashboard.alerts),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ChildOverviewHero extends StatelessWidget {
-  const _ChildOverviewHero();
+  const _ChildOverviewHero({required this.metrics});
+
+  final List<ChildOverviewMetricData> metrics;
 
   @override
   Widget build(BuildContext context) {
@@ -124,10 +286,9 @@ class _ChildOverviewHero extends StatelessWidget {
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: const [
-              _OverviewMetric(label: '今日整体状态', value: '稳定'),
-              _OverviewMetric(label: '沟通频率', value: '良好'),
-              _OverviewMetric(label: '重要提醒', value: '2条'),
+            children: [
+              for (final metric in metrics)
+                _OverviewMetric(label: metric.label, value: metric.value),
             ],
           ),
         ],
@@ -166,7 +327,9 @@ class _OverviewMetric extends StatelessWidget {
 }
 
 class _StatusPanel extends StatelessWidget {
-  const _StatusPanel();
+  const _StatusPanel({required this.items});
+
+  final List<ChildStatusCardData> items;
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +342,7 @@ class _StatusPanel extends StatelessWidget {
         const SizedBox(height: 6),
         Text('优先查看今天最值得关注的状态变化。', style: theme.textTheme.bodyMedium),
         const SizedBox(height: 12),
-        ...childStatusCards.map(
+        ...items.map(
           (item) => Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: _StatusCard(item: item),
@@ -191,7 +354,9 @@ class _StatusPanel extends StatelessWidget {
 }
 
 class _AlertTimelinePanel extends StatelessWidget {
-  const _AlertTimelinePanel();
+  const _AlertTimelinePanel({required this.items});
+
+  final List<ChildAlertItem> items;
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +369,7 @@ class _AlertTimelinePanel extends StatelessWidget {
         const SizedBox(height: 6),
         Text('按时间顺序整理，重要提醒不会错过。', style: theme.textTheme.bodyMedium),
         const SizedBox(height: 12),
-        ...childAlerts.map(
+        ...items.map(
           (item) => Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: _AlertCard(item: item),
