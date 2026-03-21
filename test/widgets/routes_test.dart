@@ -39,6 +39,25 @@ void main() {
     expect(find.byType(AppBar), findsOneWidget);
   });
 
+  testWidgets('navigates to elderly activities from the elderly service hall',
+      (WidgetTester tester) async {
+    await pumpAppToElderlyHome(tester);
+
+    await tester.scrollUntilVisible(find.text('活动'), 200);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('活动'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('活动安排'), findsWidgets);
+    expect(find.text('今日推荐'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('本周活动'), 200);
+    await tester.pumpAndSettle();
+
+    expect(find.text('本周活动'), findsOneWidget);
+  });
+
   testWidgets('navigates to platform route when launched on platform route',
       (WidgetTester tester) async {
     await tester.pumpWidget(const App(initialRoute: platformRoute));

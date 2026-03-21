@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import 'package:yinling_zhiban_demo/features/elderly/mock_service_data.dart';
 import 'package:yinling_zhiban_demo/routes.dart';
 import 'package:yinling_zhiban_demo/theme/app_theme.dart';
 
@@ -9,6 +11,67 @@ class ElderlyHomePage extends StatelessWidget {
   void _showComingSoon(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('服务正在完善中')),
+    );
+  }
+
+  Future<void> _showHelpSheet(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: const Color(0xFFFFFBF7),
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        var copiedMessage = '';
+
+        return SafeArea(
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('需要哪类帮助', style: theme.textTheme.titleLarge),
+                      const SizedBox(height: 6),
+                      Text(
+                        '可先联系家人或社区服务，如需产品协助也可以联系平台客服。',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      if (copiedMessage.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEAF7EA),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(copiedMessage, style: theme.textTheme.bodyMedium),
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      for (final contact in elderlySupportContacts) ...[
+                        _HelpContactCard(
+                          contact: contact,
+                          onCopy: () {
+                            Clipboard.setData(ClipboardData(text: contact.phone));
+                            setModalState(() {
+                              copiedMessage = '已复制联系电话';
+                            });
+                          },
+                        ),
+                        if (contact != elderlySupportContacts.last) const SizedBox(height: 10),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -40,7 +103,7 @@ class ElderlyHomePage extends StatelessWidget {
                   icon: Icons.chat_bubble_outline_rounded,
                   accent: const Color(0xFFE9F2FF),
                   iconColor: const Color(0xFF2563EB),
-                  onTap: () => _showComingSoon(context),
+                  onTap: () => Navigator.of(context).pushNamed(chatRoute),
                 ),
                 _ElderlyServiceItem(
                   title: '一键求助',
@@ -49,7 +112,7 @@ class ElderlyHomePage extends StatelessWidget {
                   accent: const Color(0xFFFFF0E8),
                   iconColor: const Color(0xFFDA6A2A),
                   emphasize: true,
-                  onTap: () => _showComingSoon(context),
+                  onTap: () => _showHelpSheet(context),
                 ),
                 _ElderlyServiceItem(
                   title: '社区互助',
@@ -65,7 +128,7 @@ class ElderlyHomePage extends StatelessWidget {
                   icon: Icons.event_available_outlined,
                   accent: const Color(0xFFFFF6EA),
                   iconColor: const Color(0xFFB45309),
-                  onTap: () => _showComingSoon(context),
+                  onTap: () => Navigator.of(context).pushNamed(elderlyActivitiesRoute),
                 ),
                 _ElderlyServiceItem(
                   key: const Key('childAvatarEntry'),
@@ -120,6 +183,69 @@ class ElderlyHomePage extends StatelessWidget {
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HelpContactCard extends StatelessWidget {
+  const _HelpContactCard({required this.contact, required this.onCopy});
+
+  final ElderlySupportContact contact;
+  final VoidCallback onCopy;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF3FF),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Icon(contact.icon, color: AppTheme.primary),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(contact.label, style: theme.textTheme.titleMedium),
+                      const SizedBox(height: 4),
+                      Text(contact.name, style: theme.textTheme.bodyLarge),
+                      const SizedBox(height: 2),
+                      Text(contact.phone, style: theme.textTheme.titleSmall),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(contact.description, style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: onCopy,
+                icon: const Icon(Icons.copy_rounded),
+                label: const Text('复制号码'),
+              ),
+            ),
+          ],
         ),
       ),
     );

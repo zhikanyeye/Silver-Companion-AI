@@ -79,14 +79,36 @@ void main() {
     expect(find.byKey(const Key('elderlyServiceGridMultiColumn')), findsOneWidget);
   });
 
-  testWidgets('elderly AI companion action shows coming soon feedback', (
+  testWidgets('elderly AI companion action routes directly to chat', (
     WidgetTester tester,
   ) async {
     await pumpAppToElderlyHome(tester);
 
     await tester.tap(find.text('AI陪伴'));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    expect(find.text('服务正在完善中'), findsOneWidget);
+    expect(find.text('AI智能助手'), findsOneWidget);
+    expect(find.byKey(const Key('chatInputField')), findsOneWidget);
+    expect(find.byKey(const Key('sendMessageButton')), findsOneWidget);
+  });
+
+  testWidgets('elderly help action opens support sheet and copies contact number', (
+    WidgetTester tester,
+  ) async {
+    await pumpAppToElderlyHome(tester);
+
+    await tester.tap(find.text('一键求助'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('需要哪类帮助'), findsOneWidget);
+    expect(find.text('家人联系人'), findsOneWidget);
+    expect(find.text('社区服务站'), findsOneWidget);
+    expect(find.text('平台客服'), findsOneWidget);
+    expect(find.text('复制号码'), findsWidgets);
+
+    await tester.tap(find.widgetWithText(TextButton, '复制号码').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('已复制联系电话'), findsOneWidget);
   });
 }
