@@ -37,7 +37,7 @@ export async function onRequest(context) {
 
   const requestedModel =
     typeof requestBody.model === 'string' ? requestBody.model.trim() : '';
-  const model = requestedModel || defaultModel;
+  const model = defaultModel || requestedModel;
 
   if (!model) {
     return jsonResponse({error: 'AI model is not configured'}, 500);
