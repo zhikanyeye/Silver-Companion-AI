@@ -74,7 +74,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: AppTheme.surfaceAlt,
       appBar: AppBar(
         title: Row(
           children: [
@@ -82,21 +82,12 @@ class _ChatPageState extends State<ChatPage> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFFB88C), Color(0xFFE89A7A)],
-                ),
+                color: const Color(0xFFEAF2FF),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFE89A7A).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
               child: const Icon(
                 Icons.smart_toy_rounded,
-                color: Colors.white,
+                color: AppTheme.serviceBluePrimary,
                 size: 24,
               ),
             ),
@@ -111,13 +102,13 @@ class _ChatPageState extends State<ChatPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Text(
-                  '在线',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.green,
-                  ),
-                ),
+                 Text(
+                   '在线',
+                   style: TextStyle(
+                     fontSize: 12,
+                     color: AppTheme.serviceBluePrimary,
+                   ),
+                 ),
               ],
             ),
           ],
@@ -126,22 +117,30 @@ class _ChatPageState extends State<ChatPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF333333)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              // TODO: Show options menu
-            },
+          PopupMenuButton<String>(
+            itemBuilder: (context) => const [
+              PopupMenuItem<String>(value: 'clear', child: Text('清空会话')),
+            ],
           ),
         ],
       ),
-      body: Column(
-        children: [
+      body: Container(
+        key: const Key('chatServiceShell'),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppTheme.surfaceAlt, Colors.white],
+          ),
+        ),
+        child: Column(
+          children: [
           // Risk warning banner
           if (_controller.hasRiskWarning)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: const Color(0xFFFFF3E0),
+              color: AppTheme.warningSoft,
               child: Row(
                 children: [
                   const Icon(
@@ -152,12 +151,12 @@ class _ChatPageState extends State<ChatPage> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '风险提示：请勿转账、勿透露验证码，遇事先联系家人。',
-                      style: TextStyle(
-                        color: const Color(0xFFE65100),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
+                        '风险提示：请勿转账、勿透露验证码，遇事先联系家人。',
+                        style: TextStyle(
+                          color: AppTheme.accent,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
                     ),
                   ),
                 ],
@@ -169,7 +168,7 @@ class _ChatPageState extends State<ChatPage> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: const Color(0xFFFFEBEE),
+              color: AppTheme.dangerSoft,
               child: Row(
                 children: [
                   const Icon(
@@ -222,11 +221,12 @@ class _ChatPageState extends State<ChatPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: AppTheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppTheme.borderSoft),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -248,11 +248,11 @@ class _ChatPageState extends State<ChatPage> {
                         const SizedBox(width: 8),
                         const Text(
                           'AI思考中...',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF666666),
-                          ),
-                        ),
+                           style: TextStyle(
+                             fontSize: 13,
+                             color: AppTheme.textMuted,
+                           ),
+                         ),
                       ],
                     ),
                   ),
@@ -262,7 +262,8 @@ class _ChatPageState extends State<ChatPage> {
           
           // Input area
           _buildInputArea(),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -285,21 +286,12 @@ class _ChatPageState extends State<ChatPage> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFFB88C), Color(0xFFE89A7A)],
-                ),
+                color: const Color(0xFFEAF2FF),
                 borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFE89A7A).withOpacity(0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
               child: const Icon(
                 Icons.smart_toy_rounded,
-                color: Colors.white,
+                color: AppTheme.serviceBluePrimary,
                 size: 20,
               ),
             ),
@@ -316,12 +308,12 @@ class _ChatPageState extends State<ChatPage> {
               decoration: BoxDecoration(
                 gradient: isUser
                     ? const LinearGradient(
-                        colors: [Color(0xFFFFB88C), Color(0xFFE89A7A)],
+                        colors: [Color(0xFF4A84E6), Color(0xFF2B67C7)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
                     : null,
-                color: isUser ? null : Colors.white,
+                color: isUser ? null : AppTheme.surface,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(isUser ? 20 : 4),
                   topRight: Radius.circular(isUser ? 4 : 20),
@@ -331,7 +323,7 @@ class _ChatPageState extends State<ChatPage> {
                 boxShadow: [
                   BoxShadow(
                     color: isUser
-                        ? const Color(0xFFE89A7A).withOpacity(0.3)
+                        ? const Color(0xFF2B67C7).withOpacity(0.25)
                         : Colors.black.withOpacity(0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
@@ -359,11 +351,11 @@ class _ChatPageState extends State<ChatPage> {
   Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -378,9 +370,10 @@ class _ChatPageState extends State<ChatPage> {
               height: 44,
               decoration: BoxDecoration(
                 color: _controller.isRecognizing
-                    ? const Color(0xFFFFE4E1)
-                    : const Color(0xFFF5F7FA),
+                    ? AppTheme.warningSoft
+                    : AppTheme.surfaceAlt,
                 borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: AppTheme.borderSoft),
               ),
               child: IconButton(
                 key: const Key('voiceButton'),
@@ -395,10 +388,10 @@ class _ChatPageState extends State<ChatPage> {
                     : null,
                 icon: Icon(
                   _controller.isRecognizing ? Icons.mic_off : Icons.mic,
-                  color: _controller.isRecognizing
-                      ? const Color(0xFFE74C3C)
-                      : const Color(0xFF666666),
-                ),
+                   color: _controller.isRecognizing
+                       ? const Color(0xFFE74C3C)
+                       : AppTheme.serviceBluePrimary,
+                 ),
                 tooltip: _controller.isRecognizing ? '停止识别' : '语音输入',
               ),
             ),
@@ -408,10 +401,10 @@ class _ChatPageState extends State<ChatPage> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F7FA),
+                  color: AppTheme.surfaceAlt,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: const Color(0xFFE0E0E0),
+                    color: AppTheme.borderSoft,
                     width: 1,
                   ),
                 ),
@@ -442,17 +435,17 @@ class _ChatPageState extends State<ChatPage> {
             Container(
               width: 44,
               height: 44,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFFB88C), Color(0xFFE89A7A)],
-                ),
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFE89A7A).withOpacity(0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF4A84E6), Color(0xFF2B67C7)],
                   ),
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF2B67C7).withOpacity(0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
                 ],
               ),
               child: IconButton(

@@ -60,6 +60,7 @@ class _BrandHeroState extends State<BrandHero> {
                   end: Alignment.bottomRight,
                   colors: [Color(0xFFFFFCF8), Color(0xFFFFE7D3), Color(0xFFFFD8BC)],
                 ),
+                border: Border.all(color: const Color(0xFFF1D3BE)),
                 boxShadow: const [
                   BoxShadow(
                     color: Color(0x1AC96A43),
@@ -95,6 +96,7 @@ class _BrandHeroState extends State<BrandHero> {
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.72),
                           borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: const Color(0xFFF1D3BE)),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
@@ -221,11 +223,11 @@ class _StatChip extends StatelessWidget {
         horizontal: compact ? 12 : 14,
         vertical: compact ? 10 : 12,
       ),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.82),
-        borderRadius: BorderRadius.circular(compact ? 16 : 18),
-        border: Border.all(color: const Color(0xFFF2D0B7)),
-      ),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.82),
+          borderRadius: BorderRadius.circular(compact ? 16 : 18),
+          border: Border.all(color: const Color(0xFFF1D3BE)),
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -271,7 +273,7 @@ class _CapabilityBadge extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.84),
             borderRadius: BorderRadius.circular(compact ? 18 : 22),
-            border: Border.all(color: const Color(0xFFF3D1B4)),
+            border: Border.all(color: const Color(0xFFF1D3BE)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

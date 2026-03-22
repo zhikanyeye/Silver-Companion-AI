@@ -57,6 +57,7 @@ class _RoleSelectPageState extends State<RoleSelectPage> {
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
+                key: const Key('roleBrandShell'),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 620),
@@ -77,8 +78,9 @@ class _RoleSelectPageState extends State<RoleSelectPage> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFF2E6),
+                              color: const Color(0xFFFFF3E7),
                               borderRadius: BorderRadius.circular(999),
+                              border: Border.all(color: const Color(0xFFF1D3BE)),
                             ),
                             child: Text(
                               '身份确认',
