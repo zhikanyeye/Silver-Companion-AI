@@ -29,7 +29,7 @@ class OpenRouterClient {
     final response = await _client.post(
       _proxyUri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'model': model, 'messages': messages}),
+      body: jsonEncode({'messages': messages}),
     );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
