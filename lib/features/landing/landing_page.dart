@@ -135,22 +135,40 @@ class _LandingActions extends StatelessWidget {
     );
 
     if (isCompact) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          loginButton,
-          const SizedBox(height: 10),
-          registerButton,
-        ],
+      return Container(
+        key: const Key('landingBrandActionBar'),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.82),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFF1D3BE)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            loginButton,
+            const SizedBox(height: 10),
+            registerButton,
+          ],
+        ),
       );
     }
 
     return Align(
       alignment: Alignment.topRight,
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: [loginButton, registerButton],
+      child: Container(
+        key: const Key('landingBrandActionBar'),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.82),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFF1D3BE)),
+        ),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [loginButton, registerButton],
+        ),
       ),
     );
   }

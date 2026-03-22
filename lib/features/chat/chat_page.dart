@@ -71,6 +71,10 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  bool get _hasAssistantMessage => _controller.messages.any(
+    (message) => message.role == ChatRole.assistant,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,6 +121,16 @@ class _ChatPageState extends State<ChatPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF333333)),
         actions: [
+          IconButton(
+            key: const Key('chatSpeechToggle'),
+            onPressed: _controller.isSpeechSupported
+                ? () => _controller.toggleSpeechPlayback()
+                : null,
+            icon: Icon(
+              _controller.isSpeechPlaybackEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+            ),
+            tooltip: _controller.isSpeechPlaybackEnabled ? '关闭播报' : '开启播报',
+          ),
           PopupMenuButton<String>(
             itemBuilder: (context) => const [
               PopupMenuItem<String>(value: 'clear', child: Text('清空会话')),
@@ -190,6 +204,29 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
           
+          if (_controller.isSpeechSupported)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              color: const Color(0xFFEFF5FF),
+              child: Row(
+                children: [
+                  Icon(
+                    _controller.isSpeechPlaybackEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                    size: 18,
+                    color: AppTheme.serviceBluePrimary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _controller.isSpeechPlaybackEnabled ? '已开启语音播报，可自动朗读 AI 回复' : '语音播报已关闭，可手动点按播放',
+                      style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
           // Chat messages
           Expanded(
             child: ListView.builder(
@@ -340,7 +377,25 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
           ),
-          
+
+          if (!isUser)
+            Padding(
+              padding: const EdgeInsets.only(left: 44, top: 6),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: index == _controller.messages.lastIndexWhere((m) => m.role == ChatRole.assistant)
+                      ? const Key('chatReplayLastAssistantButton')
+                      : null,
+                  onPressed: _controller.isSpeechSupported
+                      ? () => _controller.replayLastAssistantMessage()
+                      : null,
+                  icon: const Icon(Icons.volume_up_rounded, size: 18),
+                  label: const Text('播放回复'),
+                ),
+              ),
+            ),
+           
           // Spacer for user messages
           if (isUser) const SizedBox(width: 44),
         ],
@@ -365,9 +420,9 @@ class _ChatPageState extends State<ChatPage> {
         child: Row(
           children: [
             // Voice button
-            Container(
-              width: 44,
-              height: 44,
+             Container(
+               width: 44,
+               height: 44,
               decoration: BoxDecoration(
                 color: _controller.isRecognizing
                     ? AppTheme.warningSoft
@@ -375,8 +430,8 @@ class _ChatPageState extends State<ChatPage> {
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: AppTheme.borderSoft),
               ),
-              child: IconButton(
-                key: const Key('voiceButton'),
+                child: IconButton(
+                  key: const Key('voiceButton'),
                 onPressed: _controller.isSpeechSupported
                     ? () {
                         if (_controller.isRecognizing) {
@@ -393,12 +448,37 @@ class _ChatPageState extends State<ChatPage> {
                        : AppTheme.serviceBluePrimary,
                  ),
                 tooltip: _controller.isRecognizing ? '停止识别' : '语音输入',
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            
-            // Text input
-            Expanded(
+              const SizedBox(width: 8),
+
+              if (_hasAssistantMessage)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceAlt,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(color: AppTheme.borderSoft),
+                    ),
+                    child: IconButton(
+                      key: const Key('chatReplayLastAssistantButton'),
+                      onPressed: _controller.isSpeechSupported
+                          ? () => _controller.replayLastAssistantMessage()
+                          : null,
+                      icon: const Icon(
+                        Icons.play_circle_outline_rounded,
+                        color: AppTheme.serviceBluePrimary,
+                      ),
+                      tooltip: '重播回复',
+                    ),
+                  ),
+                ),
+             
+             // Text input
+             Expanded(
               child: Container(
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceAlt,

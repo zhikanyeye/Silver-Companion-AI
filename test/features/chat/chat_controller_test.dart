@@ -31,6 +31,23 @@ class _FakeChatRepository extends ChatRepository {
   }
 }
 
+class _RecordingSpeechService extends WebSpeechService {
+  _RecordingSpeechService({this.supported = true})
+    : super(
+        isWeb: () => true,
+        isSpeechSupportedOnWeb: () => supported,
+        speakOnWeb: (text) {},
+      );
+
+  final bool supported;
+  final List<String> spokenTexts = [];
+
+  @override
+  void speak(String text) {
+    spokenTexts.add(text);
+  }
+}
+
 void main() {
   test('startRecognition keeps recognizing false when unsupported', () {
     final speechService = WebSpeechService(
@@ -132,8 +149,10 @@ void main() {
   });
 
   test('sendText keeps success behavior intact', () async {
+    final speechService = _RecordingSpeechService();
     final controller = ChatController(
       repository: _FakeChatRepository(reply: 'assistant ok'),
+      speechService: speechService,
       memoryStore: _TestMemoryStore(),
     );
 
@@ -143,5 +162,19 @@ void main() {
     expect(controller.messages, hasLength(2));
     expect(controller.messages.first.content, 'hello');
     expect(controller.messages.last.content, 'assistant ok');
+    expect(speechService.spokenTexts, ['assistant ok']);
+  });
+
+  test('can replay last assistant message when speech is enabled', () {
+    final speechService = _RecordingSpeechService();
+    final controller = ChatController(
+      speechService: speechService,
+      memoryStore: _TestMemoryStore(),
+    );
+
+    controller.debugAddAssistantMessage('再次问候');
+    controller.replayLastAssistantMessage();
+
+    expect(speechService.spokenTexts, ['再次问候']);
   });
 }

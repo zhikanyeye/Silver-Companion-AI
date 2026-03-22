@@ -23,6 +23,7 @@ void main() {
     expect(find.text('老人端'), findsNothing);
     expect(find.text('子女端'), findsNothing);
     expect(find.byType(BrandHero), findsOneWidget);
+    expect(find.byKey(const Key('landingBrandActionBar')), findsOneWidget);
     expect(find.text('更简单地开始陪伴'), findsNothing);
     expect(find.text('安心开始'), findsNothing);
     expect(find.text('一步完成'), findsNothing);
@@ -45,12 +46,14 @@ void main() {
 
     await pumpAt(const Size(375, 812));
     expect(find.byType(BrandHero), findsOneWidget);
+    expect(find.byKey(const Key('landingBrandActionBar')), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, '登录'), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, '注册'), findsOneWidget);
     expect(find.text('更简单地开始陪伴'), findsNothing);
 
     await pumpAt(const Size(1280, 900));
     expect(find.byType(BrandHero), findsOneWidget);
+    expect(find.byKey(const Key('landingBrandActionBar')), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, '登录'), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, '注册'), findsOneWidget);
     expect(find.text('更简单地开始陪伴'), findsNothing);

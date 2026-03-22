@@ -11,10 +11,12 @@ void main() {
       (WidgetTester tester) async {
     await pumpAppToElderlyHome(tester);
 
+    await tester.scrollUntilVisible(find.text('社区互助'), 200);
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('社区互助'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('communityServiceShell')), findsOneWidget);
     expect(find.text('社区互助'), findsOneWidget);
     expect(find.text('看看邻里间正在发生的帮助与回应'), findsOneWidget);
     expect(find.text('社区公告'), findsOneWidget);

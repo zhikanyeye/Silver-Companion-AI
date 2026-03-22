@@ -59,6 +59,7 @@ class ChatController extends ChangeNotifier {
   String? error;
   bool hasRiskWarning = false;
   bool isRecognizing = false;
+  bool isSpeechPlaybackEnabled = true;
 
   bool get isSpeechSupported => _speechService.isSpeechSupported();
 
@@ -122,7 +123,9 @@ class ChatController extends ChangeNotifier {
       // Persist AI reply to memory as part of conversation history
       _memory.add(reply);
       await _memoryStore.save(_memory);
-      _speechService.speak(reply);
+      if (isSpeechPlaybackEnabled && _speechService.isSpeechSupported()) {
+        _speechService.speak(reply);
+      }
     } catch (e) {
       error = _mapToUserSafeError(e);
     } finally {
@@ -147,5 +150,34 @@ class ChatController extends ChangeNotifier {
     _speechService.stopRecognition();
     isRecognizing = false;
     notifyListeners();
+  }
+
+  void toggleSpeechPlayback() {
+    isSpeechPlaybackEnabled = !isSpeechPlaybackEnabled;
+    notifyListeners();
+  }
+
+  void replayLastAssistantMessage() {
+    if (!isSpeechPlaybackEnabled || !_speechService.isSpeechSupported()) {
+      return;
+    }
+
+    for (final message in _messages.reversed) {
+      if (message.role == ChatRole.assistant) {
+        _speechService.speak(message.content);
+        return;
+      }
+    }
+  }
+
+  @visibleForTesting
+  void debugAddAssistantMessage(String text) {
+    _messages.add(
+      ChatMessage(
+        role: ChatRole.assistant,
+        content: text,
+        createdAt: DateTime.now(),
+      ),
+    );
   }
 }

@@ -302,6 +302,22 @@ class _ServiceHallHero extends StatelessWidget {
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 18),
+          Text('今日重点服务', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.84),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFD9E6FF)),
+            ),
+            child: Text(
+              '先试试 AI 陪伴和一键求助，今天常用服务已为您排在前面。',
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
+          const SizedBox(height: 18),
           const Wrap(
             spacing: 10,
             runSpacing: 10,

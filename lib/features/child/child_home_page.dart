@@ -283,6 +283,29 @@ class _ChildOverviewHero extends StatelessWidget {
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 18),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.82),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFDCE7FF)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.priority_high_rounded, color: AppTheme.serviceBluePrimary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    '建议优先处理',
+                    style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ),
+                Text('2项', style: theme.textTheme.titleMedium),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 12,
             runSpacing: 12,

@@ -15,7 +15,9 @@ void main() {
 
     expect(find.byKey(const Key('chatServiceShell')), findsOneWidget);
     expect(find.text('AI智能助手'), findsOneWidget);
+    expect(find.byKey(const Key('chatSpeechToggle')), findsOneWidget);
     expect(find.byKey(const Key('chatInputField')), findsOneWidget);
     expect(find.byKey(const Key('sendMessageButton')), findsOneWidget);
+    expect(find.byKey(const Key('chatReplayLastAssistantButton')), findsNothing);
   });
 }

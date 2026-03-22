@@ -14,6 +14,7 @@ void main() {
 
     expect(find.text('老人端'), findsOneWidget);
     expect(find.text('今日服务大厅'), findsOneWidget);
+    expect(find.text('今日重点服务'), findsOneWidget);
     expect(find.text('您好，今天想先用哪项服务？'), findsOneWidget);
     expect(find.text('常用服务'), findsOneWidget);
     expect(find.text('AI陪伴'), findsOneWidget);
@@ -64,6 +65,7 @@ void main() {
 
     await pumpAt(const Size(390, 844));
     expect(find.text('今日服务大厅'), findsOneWidget);
+    expect(find.text('今日重点服务'), findsOneWidget);
     expect(find.text('常用服务'), findsOneWidget);
     expect(find.text('一键求助'), findsOneWidget);
     expect(find.text('小灵在线'), findsOneWidget);
@@ -72,6 +74,7 @@ void main() {
 
     await pumpAt(const Size(1280, 900));
     expect(find.text('今日服务大厅'), findsOneWidget);
+    expect(find.text('今日重点服务'), findsOneWidget);
     expect(find.text('常用服务'), findsOneWidget);
     expect(find.text('一键求助'), findsOneWidget);
     expect(find.text('小灵在线'), findsOneWidget);

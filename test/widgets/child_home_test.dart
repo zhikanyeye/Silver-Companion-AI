@@ -37,6 +37,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('家庭关怀总览'), findsOneWidget);
+    expect(find.text('建议优先处理'), findsOneWidget);
     expect(find.text('今天的照护重点已经为您整理好。'), findsOneWidget);
     expect(find.text('今日整体状态'), findsOneWidget);
     expect(find.text('照护指标'), findsOneWidget);
@@ -73,6 +74,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 350));
     await tester.pumpAndSettle();
     expect(find.text('家庭关怀总览'), findsOneWidget);
+    expect(find.text('建议优先处理'), findsOneWidget);
     expect(find.text('照护指标'), findsOneWidget);
     expect(find.text('今日提醒'), findsOneWidget);
     expect(find.byKey(const Key('childDashboardStack')), findsOneWidget);
@@ -82,6 +84,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 350));
     await tester.pumpAndSettle();
     expect(find.text('家庭关怀总览'), findsOneWidget);
+    expect(find.text('建议优先处理'), findsOneWidget);
     expect(find.text('照护指标'), findsOneWidget);
     expect(find.text('今日提醒'), findsOneWidget);
     expect(find.byKey(const Key('childDashboardStack')), findsNothing);
