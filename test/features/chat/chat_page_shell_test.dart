@@ -1,0 +1,21 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:yinling_zhiban_demo/features/chat/chat_page.dart';
+import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+
+void main() {
+  testWidgets('chat page exposes unified service shell markers', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(theme: AppTheme.highContrast(), home: const ChatPage()),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('chatServiceShell')), findsOneWidget);
+    expect(find.text('AI智能助手'), findsOneWidget);
+    expect(find.byKey(const Key('chatInputField')), findsOneWidget);
+    expect(find.byKey(const Key('sendMessageButton')), findsOneWidget);
+  });
+}

@@ -14,6 +14,7 @@ void main() {
     await tester.pumpWidget(const App(initialRoute: settingsRoute));
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key('settingsServiceShell')), findsOneWidget);
     expect(find.text('服务设置'), findsOneWidget);
     expect(find.text('云端服务已连接'), findsOneWidget);
     expect(find.text('由云端配置管理'), findsOneWidget);

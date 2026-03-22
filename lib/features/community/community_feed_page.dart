@@ -24,11 +24,12 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('社区互助')),
       body: Container(
+        key: const Key('communityServiceShell'),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppTheme.backgroundTop, Color(0xFFFFE9DA)],
+            colors: [AppTheme.surfaceAlt, Colors.white],
           ),
         ),
         child: SafeArea(
@@ -96,7 +97,7 @@ class _CommunityHeroCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      color: const Color(0xFFFFFCF8),
+      color: AppTheme.surfaceAlt,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -127,10 +128,10 @@ class _CommunityHeroCard extends StatelessWidget {
               spacing: 10,
               runSpacing: 10,
               children: [
-                _HeroBadge(
-                  icon: Icons.notifications_active_outlined,
-                  title: '重要提醒',
-                  subtitle: '社区公告与防诈提示',
+                 _HeroBadge(
+                   icon: Icons.notifications_active_outlined,
+                   title: '重要提醒',
+                   subtitle: '社区公告与防诈提示',
                 ),
                 _HeroBadge(
                   icon: Icons.volunteer_activism_outlined,
@@ -164,7 +165,7 @@ class _HeroBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF2E5),
+         color: const Color(0xFFEFF5FF),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -218,7 +219,7 @@ class _PinnedNoticeSection extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      color: const Color(0xFFFFFBF8),
+      color: AppTheme.surfaceAlt,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -317,7 +318,7 @@ class _FeedSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFFFFFCF8),
+       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
@@ -366,14 +367,14 @@ class _FeedSwitchButton extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFFFE5D1) : Colors.transparent,
+           color: selected ? const Color(0xFFE8F1FF) : Colors.transparent,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Center(
           child: Text(
             label,
             style: theme.textTheme.titleMedium?.copyWith(
-              color: selected ? AppTheme.accent : AppTheme.textMuted,
+               color: selected ? AppTheme.serviceBluePrimary : AppTheme.textMuted,
             ),
           ),
         ),
@@ -392,7 +393,7 @@ class _CommunityPostCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      color: const Color(0xFFFFFCF8),
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -405,14 +406,14 @@ class _CommunityPostCard extends StatelessWidget {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF1E6),
+                     color: const Color(0xFFEAF2FF),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     post.username.substring(0, 1),
                     style: theme.textTheme.titleMedium?.copyWith(
-                      color: AppTheme.primary,
+                       color: AppTheme.serviceBluePrimary,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -431,13 +432,13 @@ class _CommunityPostCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFE8D5),
+                     color: const Color(0xFFE8F1FF),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
                     post.tag,
                     style: theme.textTheme.labelLarge?.copyWith(
-                      color: AppTheme.accent,
+                       color: AppTheme.serviceBluePrimary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -500,7 +501,7 @@ class _EmptyFeedCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      color: const Color(0xFFFFFCF8),
+       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -529,13 +530,13 @@ class _MetaChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF3E8),
+         color: const Color(0xFFEFF5FF),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: AppTheme.primary),
+           Icon(icon, size: 18, color: AppTheme.serviceBluePrimary),
           const SizedBox(width: 6),
           Text(label, style: theme.textTheme.bodyMedium?.copyWith(color: AppTheme.textStrong)),
         ],

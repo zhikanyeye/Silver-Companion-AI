@@ -2,21 +2,30 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static const double textScale = 1.2;
+  static const Color brandWarmPrimary = Color(0xFFC96A43);
+  static const Color brandWarmSecondary = Color(0xFFE7A15B);
+  static const Color serviceBluePrimary = Color(0xFF2B67C7);
+  static const Color serviceBlueSecondary = Color(0xFF78A9F5);
   static const Color backgroundTop = Color(0xFFFFF4EA);
   static const Color backgroundBottom = Color(0xFFF9DCC8);
   static const Color surface = Color(0xFFFFFCF8);
+  static const Color surfaceAlt = Color(0xFFF7FAFD);
   static const Color surfaceTint = Color(0xFFF4C7A1);
-  static const Color primary = Color(0xFFC96A43);
-  static const Color secondary = Color(0xFFE7A15B);
+  static const Color primary = brandWarmPrimary;
+  static const Color secondary = brandWarmSecondary;
   static const Color accent = Color(0xFF8E4A31);
   static const Color textStrong = Color(0xFF5F2F21);
   static const Color textMuted = Color(0xFF7D5A4C);
+  static const Color borderSoft = Color(0xFFD9E6F7);
+  static const Color warningSoft = Color(0xFFFFF4E8);
+  static const Color successSoft = Color(0xFFEAF7EA);
+  static const Color dangerSoft = Color(0xFFFFEBEE);
 
   static ThemeData highContrast() {
     const colorScheme = ColorScheme.light(
-      primary: primary,
+      primary: brandWarmPrimary,
       onPrimary: Colors.white,
-      secondary: secondary,
+      secondary: brandWarmSecondary,
       onSecondary: Color(0xFF4A281C),
       surface: surface,
       onSurface: textStrong,
@@ -32,9 +41,11 @@ class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(24),
+          side: const BorderSide(color: borderSoft),
         ),
       ),
+      dividerColor: borderSoft,
       textTheme: base.textTheme.copyWith(
         headlineMedium: base.textTheme.headlineMedium?.copyWith(
           fontWeight: FontWeight.w800,

@@ -92,6 +92,7 @@ class _AuthPageState extends State<AuthPage> {
 
                 return Center(
                   child: SingleChildScrollView(
+                    key: const Key('authBrandShell'),
                     padding: scrollPadding,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 680),
@@ -104,6 +105,7 @@ class _AuthPageState extends State<AuthPage> {
                           curve: Curves.easeOut,
                           opacity: _isVisible ? 1 : 0,
                           child: Card(
+                            color: AppTheme.surface,
                             child: Padding(
                               padding: cardPadding,
                               child: Column(
@@ -115,8 +117,9 @@ class _AuthPageState extends State<AuthPage> {
                                       vertical: 8,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFFF2E6),
+                                      color: const Color(0xFFFFF3E7),
                                       borderRadius: BorderRadius.circular(999),
+                                      border: Border.all(color: const Color(0xFFF1D3BE)),
                                     ),
                                     child: Text(
                                       '欢迎使用银龄智伴',
