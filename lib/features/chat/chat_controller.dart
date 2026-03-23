@@ -4,6 +4,8 @@ import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
 import 'package:yinling_zhiban_demo/features/chat/prompt_builder.dart';
 import 'package:yinling_zhiban_demo/features/chat/scam_rules.dart';
+import 'package:yinling_zhiban_demo/services/audio_playback_service.dart';
+import 'package:yinling_zhiban_demo/services/tts_client.dart';
 import 'package:yinling_zhiban_demo/services/web_speech_service.dart';
 import 'package:yinling_zhiban_demo/config/app_config.dart';
 import 'package:yinling_zhiban_demo/config/config_loader.dart';
@@ -14,12 +16,16 @@ class ChatController extends ChangeNotifier {
     ChatRepository? repository,
     PromptBuilder? promptBuilder,
     WebSpeechService? speechService,
+    TTSClient? ttsClient,
+    AudioPlaybackService? audioPlaybackService,
     MemoryStore? memoryStore,
     String? model,
     this.maxHistory = 12,
   })  : _repository = repository ?? ChatRepository(),
         _promptBuilder = promptBuilder ?? const PromptBuilder(),
         _speechService = speechService ?? WebSpeechService(),
+        _ttsClient = ttsClient ?? TTSClient(),
+        _audioPlaybackService = audioPlaybackService ?? AudioPlaybackService(),
         _memoryStore = memoryStore ?? MemoryStore(),
         _model = model ?? 'openai/gpt-4o-mini' {
   // Initialize memory asynchronously (best-effort)
@@ -29,6 +35,8 @@ class ChatController extends ChangeNotifier {
   final ChatRepository _repository;
   final PromptBuilder _promptBuilder;
   final WebSpeechService _speechService;
+  final TTSClient _ttsClient;
+  final AudioPlaybackService _audioPlaybackService;
   String _model;
   String get model => _model;
   final int maxHistory;
@@ -51,6 +59,7 @@ class ChatController extends ChangeNotifier {
   void applyConfig(AppConfig config) {
     if (config != null) {
       _model = config.modelName.isNotEmpty ? config.modelName : _model;
+      _ttsClient.configureBaseUri(config.ttsApiBaseUrl);
       notifyListeners();
     }
   }
@@ -62,6 +71,7 @@ class ChatController extends ChangeNotifier {
   bool isSpeechPlaybackEnabled = true;
 
   bool get isSpeechSupported => _speechService.isSpeechSupported();
+  bool get isTTSConfigured => _ttsClient.isConfigured;
 
   String _mapToUserSafeError(Object error) {
     final rawMessage = error.toString().toLowerCase();
@@ -90,6 +100,26 @@ class ChatController extends ChangeNotifier {
     }
 
     return '发送失败，请稍后再试';
+  }
+
+  Future<void> _playAssistantSpeech(String text) async {
+    if (!isSpeechPlaybackEnabled) {
+      return;
+    }
+
+    if (_ttsClient.isConfigured && _audioPlaybackService.isSupported()) {
+      try {
+        final audioBytes = await _ttsClient.synthesize(text: text);
+        await _audioPlaybackService.playBytes(audioBytes);
+        return;
+      } catch (_) {
+        // Fall back to browser speech below.
+      }
+    }
+
+    if (_speechService.isSpeechSupported()) {
+      _speechService.speak(text);
+    }
   }
 
   Future<void> sendText(String text) async {
@@ -123,9 +153,7 @@ class ChatController extends ChangeNotifier {
       // Persist AI reply to memory as part of conversation history
       _memory.add(reply);
       await _memoryStore.save(_memory);
-      if (isSpeechPlaybackEnabled && _speechService.isSpeechSupported()) {
-        _speechService.speak(reply);
-      }
+      await _playAssistantSpeech(reply);
     } catch (e) {
       error = _mapToUserSafeError(e);
     } finally {
@@ -157,14 +185,10 @@ class ChatController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void replayLastAssistantMessage() {
-    if (!isSpeechPlaybackEnabled || !_speechService.isSpeechSupported()) {
-      return;
-    }
-
+  Future<void> replayLastAssistantMessage() async {
     for (final message in _messages.reversed) {
       if (message.role == ChatRole.assistant) {
-        _speechService.speak(message.content);
+        await _playAssistantSpeech(message.content);
         return;
       }
     }
