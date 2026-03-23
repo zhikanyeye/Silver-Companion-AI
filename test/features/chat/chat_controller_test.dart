@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'dart:typed_data';
 
 import 'package:yinling_zhiban_demo/features/chat/chat_controller.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
 import 'package:yinling_zhiban_demo/features/chat/memory_store.dart';
+import 'package:yinling_zhiban_demo/services/audio_playback_service.dart';
+import 'package:yinling_zhiban_demo/services/tts_client.dart';
 import 'package:yinling_zhiban_demo/services/web_speech_service.dart';
 
 class _TestMemoryStore extends MemoryStore {
@@ -45,6 +48,44 @@ class _RecordingSpeechService extends WebSpeechService {
   @override
   void speak(String text) {
     spokenTexts.add(text);
+  }
+}
+
+class _FakeTTSClient extends TTSClient {
+  _FakeTTSClient({this.shouldThrow = false, this.audio = const [1, 2, 3]});
+
+  final bool shouldThrow;
+  final List<int> audio;
+  int calls = 0;
+
+  @override
+  Future<Uint8List> synthesize({
+    required String text,
+    String voice = 'Bella',
+    double speed = 1.0,
+  }) async {
+    calls += 1;
+    if (shouldThrow) {
+      throw StateError('tts failed');
+    }
+    return Uint8List.fromList(audio);
+  }
+}
+
+class _RecordingAudioPlaybackService extends AudioPlaybackService {
+  _RecordingAudioPlaybackService({this.supported = true})
+    : super(
+        isWeb: () => true,
+        isPlaybackSupportedOnWeb: () => supported,
+        playBytesOnWeb: (bytes, mimeType) async {},
+      );
+
+  final bool supported;
+  final List<Uint8List> playedAudio = [];
+
+  @override
+  Future<void> playBytes(Uint8List bytes, {String mimeType = 'audio/wav'}) async {
+    playedAudio.add(bytes);
   }
 }
 
@@ -150,9 +191,14 @@ void main() {
 
   test('sendText keeps success behavior intact', () async {
     final speechService = _RecordingSpeechService();
+    final ttsClient = _FakeTTSClient();
+    final audioPlaybackService = _RecordingAudioPlaybackService();
+    ttsClient.configureBaseUri('https://tts.example.com/tts');
     final controller = ChatController(
       repository: _FakeChatRepository(reply: 'assistant ok'),
       speechService: speechService,
+      ttsClient: ttsClient,
+      audioPlaybackService: audioPlaybackService,
       memoryStore: _TestMemoryStore(),
     );
 
@@ -162,10 +208,32 @@ void main() {
     expect(controller.messages, hasLength(2));
     expect(controller.messages.first.content, 'hello');
     expect(controller.messages.last.content, 'assistant ok');
+    expect(ttsClient.calls, 1);
+    expect(audioPlaybackService.playedAudio, [Uint8List.fromList([1, 2, 3])]);
+    expect(speechService.spokenTexts, isEmpty);
+  });
+
+  test('sendText falls back to browser speech when TTS client fails', () async {
+    final speechService = _RecordingSpeechService();
+    final ttsClient = _FakeTTSClient(shouldThrow: true);
+    final audioPlaybackService = _RecordingAudioPlaybackService();
+    ttsClient.configureBaseUri('https://tts.example.com/tts');
+    final controller = ChatController(
+      repository: _FakeChatRepository(reply: 'assistant ok'),
+      speechService: speechService,
+      ttsClient: ttsClient,
+      audioPlaybackService: audioPlaybackService,
+      memoryStore: _TestMemoryStore(),
+    );
+
+    await controller.sendText('hello');
+
+    expect(ttsClient.calls, 1);
+    expect(audioPlaybackService.playedAudio, isEmpty);
     expect(speechService.spokenTexts, ['assistant ok']);
   });
 
-  test('can replay last assistant message when speech is enabled', () {
+  test('can replay last assistant message when speech is enabled', () async {
     final speechService = _RecordingSpeechService();
     final controller = ChatController(
       speechService: speechService,
@@ -173,7 +241,7 @@ void main() {
     );
 
     controller.debugAddAssistantMessage('再次问候');
-    controller.replayLastAssistantMessage();
+    await controller.replayLastAssistantMessage();
 
     expect(speechService.spokenTexts, ['再次问候']);
   });

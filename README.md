@@ -58,6 +58,10 @@ flutter test
 
 - `docs/cloudflare-pages-deployment.md`
 
+如果需要稳定的 AI 回复语音播放，可单独部署 `services/tts/` 中的 FastAPI + KittenTTS 服务。
+
+- `docs/kittentts-railway-deployment.md`
+
 ## Cloudflare Pages 关键环境变量
 
 在 Cloudflare Pages 中至少配置：
