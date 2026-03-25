@@ -88,6 +88,14 @@ class ElderlyHomePage extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showSOSDialog(context),
+        backgroundColor: AppTheme.error,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.sos_rounded, size: 32),
+        label: const Text('紧急呼救', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: AppTheme.serviceGradient,
@@ -253,6 +261,45 @@ class _HelpContactCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showSOSDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.error,
+          title: const Text(
+            '紧急呼救已激活',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.warning_rounded, color: Colors.white, size: 64),
+              SizedBox(height: 16),
+              Text(
+                '如果您不取消，系统将在 5 秒后自动向家属及社区网格员发送您的精确位置与求助信息！',
+                style: TextStyle(color: Colors.white, fontSize: 18, height: 1.4),
+              ),
+            ],
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppTheme.error,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('我按错了 (取消)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            ),
+          ],
+        );
+      },
     );
   }
 }
