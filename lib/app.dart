@@ -18,6 +18,7 @@ class App extends StatelessWidget {
       valueListenable: isCareMode,
       builder: (context, careMode, child) {
         return MaterialApp(
+          title: '银龄智伴',
           theme: careMode ? AppTheme.highContrast() : AppTheme.standard(),
           builder: (context, materialChild) {
             final baseScaler = MediaQuery.textScalerOf(context);
