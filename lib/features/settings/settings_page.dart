@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:yinling_zhiban_demo/services/settings_store.dart';
 import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling_zhiban_demo/app.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, SettingsStore? store}) : _store = store;
@@ -54,6 +55,40 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
+                    Card(
+                      color: Colors.white,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: App.isCareMode,
+                        builder: (context, careMode, child) {
+                          return SwitchListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            title: const Text('长辈关怀模式', style: TextStyle(fontWeight: FontWeight.w600)),
+                            subtitle: const Text('启用大字体体验与高对比度柔和色彩'),
+                            value: careMode,
+                            activeColor: AppTheme.primary,
+                            onChanged: (val) {
+                              App.isCareMode.value = val;
+                            },
+                            secondary: Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF4E8),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Icon(
+                                Icons.text_increase_rounded,
+                                color: AppTheme.accent,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Card(
                       color: AppTheme.surfaceAlt,
                       child: Padding(

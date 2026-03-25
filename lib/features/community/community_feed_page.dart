@@ -497,15 +497,40 @@ class _EmptyFeedCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-       color: Colors.white,
+      color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(32),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(subtitle, style: theme.textTheme.bodyMedium),
+            Container(
+              width: 100,
+              height: 100,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEAF2FF),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.volunteer_activism_rounded,
+                size: 50,
+                color: AppTheme.serviceBluePrimary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(title, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 12),
+            Text(subtitle, textAlign: TextAlign.center, style: theme.textTheme.bodyLarge),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('已收到互助请求，功能开发中')),
+                );
+              },
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('发布第一条社区互助'),
+            ),
           ],
         ),
       ),

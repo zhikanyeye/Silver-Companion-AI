@@ -47,6 +47,14 @@ class AppTheme {
     final base = ThemeData.from(colorScheme: colorScheme, useMaterial3: true);
 
     return base.copyWith(
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+          TargetPlatform.macOS: ZoomPageTransitionsBuilder(),
+        },
+      ),
       scaffoldBackgroundColor: backgroundTop,
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -106,6 +114,52 @@ class AppTheme {
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
+    );
+  }
+
+  static ThemeData standard() {
+    const colorScheme = ColorScheme.light(
+      primary: brandWarmPrimary,
+      onPrimary: Colors.white,
+      secondary: brandWarmSecondary,
+      onSecondary: Colors.white,
+      surface: surface,
+      onSurface: Color(0xFF333333),
+      error: Color(0xFFB3261E),
+      onError: Colors.white,
+    );
+    final base = ThemeData.from(colorScheme: colorScheme, useMaterial3: true);
+
+    return base.copyWith(
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+          TargetPlatform.macOS: ZoomPageTransitionsBuilder(),
+        },
+      ),
+      scaffoldBackgroundColor: surfaceAlt,
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Color(0xFF333333)),
+        titleTextStyle: base.textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF333333),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: borderSoft),
+        ),
+      ),
+      dividerColor: borderSoft,
     );
   }
 }

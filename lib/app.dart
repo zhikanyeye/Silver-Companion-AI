@@ -10,21 +10,28 @@ class App extends StatelessWidget {
 
   final String initialRoute;
 
+  static final ValueNotifier<bool> isCareMode = ValueNotifier(true);
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: AppTheme.highContrast(),
-      builder: (context, child) {
-        final baseScaler = MediaQuery.textScalerOf(context);
-        final baseScale = baseScaler.scale(1.0);
-        final minScale = AppTheme.textScale;
-        final scaled = MediaQuery.of(context).copyWith(
-          textScaler: TextScaler.linear(math.max(baseScale, minScale)),
+    return ValueListenableBuilder<bool>(
+      valueListenable: isCareMode,
+      builder: (context, careMode, child) {
+        return MaterialApp(
+          theme: careMode ? AppTheme.highContrast() : AppTheme.standard(),
+          builder: (context, materialChild) {
+            final baseScaler = MediaQuery.textScalerOf(context);
+            final baseScale = baseScaler.scale(1.0);
+            final minScale = careMode ? AppTheme.textScale : 1.0;
+            final scaled = MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(math.max(baseScale, minScale)),
+            );
+            return MediaQuery(data: scaled, child: materialChild ?? const SizedBox());
+          },
+          routes: appRoutes,
+          initialRoute: initialRoute,
         );
-        return MediaQuery(data: scaled, child: child ?? const SizedBox());
       },
-      routes: appRoutes,
-      initialRoute: initialRoute,
     );
   }
 }

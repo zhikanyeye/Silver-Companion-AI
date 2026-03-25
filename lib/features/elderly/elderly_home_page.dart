@@ -426,54 +426,73 @@ class _ElderlyServiceItem {
   final bool emphasize;
 }
 
-class _ElderlyServiceCard extends StatelessWidget {
+class _ElderlyServiceCard extends StatefulWidget {
   const _ElderlyServiceCard({required this.item});
 
   final _ElderlyServiceItem item;
 
   @override
+  State<_ElderlyServiceCard> createState() => _ElderlyServiceCardState();
+}
+
+class _ElderlyServiceCardState extends State<_ElderlyServiceCard> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final item = widget.item;
 
-    return Card(
-      key: item.key,
-      elevation: item.emphasize ? 1 : 0,
-      color: item.emphasize ? const Color(0xFFFFF5EE) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(28),
-        onTap: item.onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  color: item.accent,
-                  borderRadius: BorderRadius.circular(20),
+    return AnimatedScale(
+      scale: _isPressed ? 0.96 : 1.0,
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOutCubic,
+      child: Card(
+        key: item.key,
+        elevation: item.emphasize ? 1 : 0,
+        color: item.emphasize ? const Color(0xFFFFF5EE) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(28),
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapCancel: () => setState(() => _isPressed = false),
+          onTap: () {
+            item.onTap();
+            setState(() => _isPressed = false);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: item.accent,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Icon(item.icon, color: item.iconColor, size: 30),
                 ),
-                child: Icon(item.icon, color: item.iconColor, size: 30),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item.title, style: theme.textTheme.titleLarge),
-                    const SizedBox(height: 6),
-                    Text(item.description, style: theme.textTheme.bodyMedium),
-                  ],
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item.title, style: theme.textTheme.titleLarge),
+                      const SizedBox(height: 6),
+                      Text(item.description, style: theme.textTheme.bodyMedium),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_rounded,
-                color: item.emphasize ? const Color(0xFFDA6A2A) : AppTheme.primary,
-              ),
-            ],
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: item.emphasize ? const Color(0xFFDA6A2A) : AppTheme.primary,
+                ),
+              ],
+            ),
           ),
         ),
       ),
