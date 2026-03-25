@@ -56,11 +56,11 @@ flutter test
 
 详细步骤请查看：
 
-- `docs/cloudflare-pages-deployment.md`
+- [Cloudflare Pages 部署说明](docs/cloudflare-pages-deployment.md)
 
 如果需要稳定的 AI 回复语音播放，可单独部署 `services/tts/` 中的 FastAPI + KittenTTS 服务。
 
-- `docs/kittentts-railway-deployment.md`
+- [KittenTTS 模型服务 Railway 部署指南](docs/kittentts-railway-deployment.md)
 
 ## Cloudflare Pages 关键环境变量
 
@@ -75,12 +75,16 @@ flutter test
 - 不要包含 `/chat/completions`
 - 真实调用由 Cloudflare Pages Functions 完成，前端不再保存 API Key
 
-## 目录说明
+## 目录与文档说明
 
 - `lib/`：Flutter 应用代码
 - `functions/`：Cloudflare Pages Functions
 - `web/`：Flutter Web 静态资源模板
-- `docs/`：设计、实现计划与部署说明
+- `docs/`：项目相关文档与部署说明，主要包括：
+  - [**项目 Demo 演示脚本**](docs/demo-script.md)
+  - [**Cloudflare Pages 自动部署指南**](docs/cloudflare-pages-deployment.md)
+  - [**KittenTTS 语音服务部署指南**](docs/kittentts-railway-deployment.md)
+  - `docs/plans/`：详尽的功能演进记录日志（涵盖UI统一设计、响应式布局重构、长辈/子女端隔离、服务端网关搭建等设计与实现计划）
 
 ## 当前部署方式变更
 
