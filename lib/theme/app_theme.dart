@@ -20,6 +20,7 @@ class AppTheme {
   static const Color warningSoft = Color(0xFFFFF4E8);
   static const Color successSoft = Color(0xFFEAF7EA);
   static const Color dangerSoft = Color(0xFFFFEBEE);
+  static const Color error = Color(0xFFB3261E);
 
   static const Gradient brandGradient = LinearGradient(
     begin: Alignment.topCenter,
