@@ -46,11 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Container(
         key: const Key('settingsServiceShell'),
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppTheme.surfaceAlt, Colors.white],
-          ),
+          gradient: AppTheme.serviceGradient,
         ),
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())

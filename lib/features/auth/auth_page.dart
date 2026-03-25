@@ -57,11 +57,7 @@ class _AuthPageState extends State<AuthPage> {
         children: [
           const DecoratedBox(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [AppTheme.backgroundTop, Color(0xFFFFE7D3), Colors.white],
-              ),
+              gradient: AppTheme.brandGradient,
             ),
           ),
           Positioned(
@@ -158,6 +154,18 @@ class _AuthPageState extends State<AuthPage> {
                   ),
                 );
               },
+            ),
+          ),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: BackButton(
+                  color: AppTheme.textStrong,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
             ),
           ),
         ],

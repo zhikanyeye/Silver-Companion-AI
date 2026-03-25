@@ -21,6 +21,18 @@ class AppTheme {
   static const Color successSoft = Color(0xFFEAF7EA);
   static const Color dangerSoft = Color(0xFFFFEBEE);
 
+  static const Gradient brandGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [backgroundTop, Color(0xFFFFE7D3), Colors.white],
+  );
+
+  static const Gradient serviceGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [surfaceAlt, backgroundTop, Colors.white],
+  );
+
   static ThemeData highContrast() {
     const colorScheme = ColorScheme.light(
       primary: brandWarmPrimary,
@@ -36,6 +48,16 @@ class AppTheme {
 
     return base.copyWith(
       scaffoldBackgroundColor: backgroundTop,
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: textStrong),
+        titleTextStyle: base.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.w800,
+          color: textStrong,
+        ),
+      ),
       cardTheme: CardThemeData(
         color: surface,
         elevation: 0,

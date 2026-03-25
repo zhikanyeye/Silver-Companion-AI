@@ -12,11 +12,7 @@ class ElderlyActivitiesPage extends StatelessWidget {
       appBar: AppBar(title: const Text('活动安排')),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF4F8FF), Color(0xFFFFF5EC), Colors.white],
-          ),
+          gradient: AppTheme.serviceGradient,
         ),
         child: SafeArea(
           child: ListView(

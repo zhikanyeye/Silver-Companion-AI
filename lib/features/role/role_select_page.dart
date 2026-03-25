@@ -33,11 +33,7 @@ class _RoleSelectPageState extends State<RoleSelectPage> {
         children: [
           const DecoratedBox(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [AppTheme.backgroundTop, Colors.white],
-              ),
+              gradient: AppTheme.brandGradient,
             ),
           ),
           Positioned(
@@ -119,6 +115,19 @@ class _RoleSelectPageState extends State<RoleSelectPage> {
                       ),
                     ),
                   ),
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: IconButton(
+                  icon: const Icon(Icons.logout_rounded, color: AppTheme.textStrong),
+                  tooltip: '退出登录',
+                  onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(landingRoute, (route) => false),
                 ),
               ),
             ),

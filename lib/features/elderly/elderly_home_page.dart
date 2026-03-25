@@ -78,14 +78,19 @@ class ElderlyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('老人端')),
+      appBar: AppBar(
+        title: const Text('老人端'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home_rounded),
+            tooltip: '返回首页',
+            onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(landingRoute, (route) => false),
+          ),
+        ],
+      ),
       body: DecoratedBox(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF4F8FF), Color(0xFFFDF4EC), Colors.white],
-          ),
+          gradient: AppTheme.serviceGradient,
         ),
         child: SafeArea(
           child: LayoutBuilder(

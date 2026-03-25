@@ -32,11 +32,7 @@ class _LandingPageState extends State<LandingPage> {
     return Scaffold(
       body: DecoratedBox(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppTheme.backgroundTop, Color(0xFFFFE7D3), Colors.white],
-          ),
+          gradient: AppTheme.brandGradient,
         ),
         child: SafeArea(
           child: LayoutBuilder(

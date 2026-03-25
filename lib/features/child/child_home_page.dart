@@ -91,14 +91,19 @@ class _ChildHomePageState extends State<ChildHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('子女端')),
+      appBar: AppBar(
+        title: const Text('子女端'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home_rounded),
+            tooltip: '返回首页',
+            onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(landingRoute, (route) => false),
+          ),
+        ],
+      ),
       body: DecoratedBox(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF5F8FF), Color(0xFFFFF4EA), Colors.white],
-          ),
+          gradient: AppTheme.serviceGradient,
         ),
         child: SafeArea(
           child: LayoutBuilder(

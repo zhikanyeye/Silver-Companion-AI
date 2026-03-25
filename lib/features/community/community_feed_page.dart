@@ -26,11 +26,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
       body: Container(
         key: const Key('communityServiceShell'),
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppTheme.surfaceAlt, Colors.white],
-          ),
+          gradient: AppTheme.serviceGradient,
         ),
         child: SafeArea(
           child: ListView(

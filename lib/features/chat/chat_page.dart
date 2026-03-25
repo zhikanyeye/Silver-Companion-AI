@@ -141,11 +141,7 @@ class _ChatPageState extends State<ChatPage> {
       body: Container(
         key: const Key('chatServiceShell'),
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppTheme.surfaceAlt, Colors.white],
-          ),
+          gradient: AppTheme.serviceGradient,
         ),
         child: Column(
           children: [
