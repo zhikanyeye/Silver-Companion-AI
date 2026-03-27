@@ -6,3 +6,7 @@ build/
 .flutter-plugins-dependencies
 __pycache__/
 *.pyc
+
+# AI skill files
+.agent/
+design-system/
