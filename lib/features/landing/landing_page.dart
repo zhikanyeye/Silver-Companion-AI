@@ -108,16 +108,14 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           // Logo
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFC96A43), Color(0xFFE7A15B)],
-              ),
-              borderRadius: BorderRadius.circular(12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.asset(
+              'web/assets/branding/yinling-logo-symbol.png',
+              width: 40,
+              height: 40,
+              fit: BoxFit.cover,
             ),
-            child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 22),
           ),
           const SizedBox(width: 12),
           Text(
@@ -126,20 +124,6 @@ class _TopBar extends StatelessWidget {
               fontSize: isCompact ? 18 : 20,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF0C4A6E),
-            ),
-          ),
-          const Spacer(),
-          ElevatedButton.icon(
-            onPressed: () => Navigator.of(context).pushNamed(authRoute),
-            icon: const Icon(Icons.login_rounded, size: 18),
-            label: const Text('开始使用', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0369A1),
-              foregroundColor: Colors.white,
-              minimumSize: const Size(0, 44),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 0,
             ),
           ),
         ],
