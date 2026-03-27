@@ -77,7 +77,6 @@ class ChatController extends ChangeNotifier {
   void applyConfig(AppConfig config) {
     if (config != null) {
       _model = config.modelName.isNotEmpty ? config.modelName : _model;
-      _ttsClient.configureBaseUri(config.ttsApiBaseUrl);
       notifyListeners();
     }
   }
