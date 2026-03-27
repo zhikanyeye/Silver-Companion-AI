@@ -14,7 +14,6 @@ class AuthPage extends StatefulWidget {
     if (arguments == AuthTabSelection.register) {
       return AuthTabSelection.register;
     }
-
     return AuthTabSelection.login;
   }
 
@@ -22,26 +21,34 @@ class AuthPage extends StatefulWidget {
   State<AuthPage> createState() => _AuthPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
-  static const _motionDuration = Duration(milliseconds: 220);
+class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin {
+  late final AnimationController _animCtrl;
+  late final Animation<double> _fadeIn;
+  late final Animation<Offset> _slideUp;
 
   AuthTabSelection? _selectedTab;
-  var _isVisible = false;
 
   @override
   void initState() {
     super.initState();
+    _animCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _fadeIn = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _slideUp = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() => _isVisible = true);
-      }
+      if (mounted) _animCtrl.forward();
     });
+  }
+
+  @override
+  void dispose() {
+    _animCtrl.dispose();
+    super.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     _selectedTab ??= AuthPage.tabFromRouteArguments(
       ModalRoute.of(context)?.settings.arguments,
     );
@@ -49,127 +56,164 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final selectedTab = _selectedTab ?? AuthTabSelection.login;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: AppTheme.brandGradient,
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF0F9FF), Color(0xFFFFF4EA), Colors.white],
           ),
-          Positioned(
-            top: -70,
-            right: -30,
-            child: IgnorePointer(
-              child: Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppTheme.secondary.withValues(alpha: 0.1),
-                ),
-              ),
-            ),
-          ),
-          SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final width = constraints.maxWidth;
-                final isCompact = width < 600;
-                final isTablet = width >= 600 && width < 1100;
-                final scrollPadding = EdgeInsets.symmetric(
-                  horizontal: isCompact ? 16 : (isTablet ? 24 : 32),
-                  vertical: isCompact ? 16 : (isTablet ? 24 : 28),
-                );
-                final cardPadding = EdgeInsets.all(isCompact ? 20 : (isTablet ? 24 : 28));
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final isCompact = width < 600;
+              final horizontalPadding = isCompact ? 20.0 : 32.0;
 
-                return Center(
-                  child: SingleChildScrollView(
-                    key: const Key('authBrandShell'),
-                    padding: scrollPadding,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 680),
-                      child: AnimatedSlide(
-                        duration: _motionDuration,
-                        curve: Curves.easeOutCubic,
-                        offset: _isVisible ? Offset.zero : const Offset(0, 0.08),
-                        child: AnimatedOpacity(
-                          duration: _motionDuration,
-                          curve: Curves.easeOut,
-                          opacity: _isVisible ? 1 : 0,
-                          child: Card(
-                            color: AppTheme.surface,
-                            child: Padding(
-                              padding: cardPadding,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFF3E7),
-                                      borderRadius: BorderRadius.circular(999),
-                                      border: Border.all(color: const Color(0xFFF1D3BE)),
-                                    ),
-                                    child: Text(
-                                      '欢迎使用银龄智伴',
-                                      style: theme.textTheme.labelLarge?.copyWith(
-                                        color: AppTheme.accent,
-                                        fontWeight: FontWeight.w800,
+              return Stack(
+                children: [
+                  Center(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
+                        vertical: isCompact ? 20 : 32,
+                      ),
+                      child: FadeTransition(
+                        opacity: _fadeIn,
+                        child: SlideTransition(
+                          position: _slideUp,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 440),
+                            child: Column(
+                              children: [
+                                // Logo + Brand
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Image.asset(
+                                    'web/assets/branding/yinling-logo-symbol.png',
+                                    width: 64,
+                                    height: 64,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  '银龄智伴',
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF0C4A6E),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                const Text(
+                                  '安心陪伴，从这里开始',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                // Card
+                                Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(isCompact ? 24 : 32),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0x08000000),
+                                        blurRadius: 32,
+                                        offset: Offset(0, 8),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 16),
-                                  Text('银龄智伴', style: theme.textTheme.titleLarge),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '完成基础信息确认后，即可选择身份并进入服务。',
-                                    style: theme.textTheme.bodyMedium,
+                                  child: Column(
+                                    children: [
+                                      AuthTabs(
+                                        selectedTab: selectedTab,
+                                        onChanged: (tab) => setState(() => _selectedTab = tab),
+                                      ),
+                                      const SizedBox(height: 28),
+                                      AuthForm(
+                                        tab: selectedTab,
+                                        onSuccess: () => Navigator.of(context).pushNamed(roleSelectRoute),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 24),
-                                  AuthTabs(
-                                    selectedTab: selectedTab,
-                                    onChanged: (tab) => setState(() => _selectedTab = tab),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  AuthForm(
-                                    tab: selectedTab,
-                                    onSuccess: () => Navigator.of(
-                                      context,
-                                    ).pushNamed(roleSelectRoute),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(height: 20),
+                                // Trust indicators
+                                const Wrap(
+                                  alignment: WrapAlignment.center,
+                                  spacing: 16,
+                                  runSpacing: 8,
+                                  children: [
+                                    _TrustBadge(icon: Icons.lock_rounded, text: '数据加密'),
+                                    _TrustBadge(icon: Icons.verified_user_rounded, text: '隐私保护'),
+                                    _TrustBadge(icon: Icons.support_agent_rounded, text: '24h 支持'),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                );
-              },
-            ),
+                  // Back button
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Semantics(
+                      label: '返回上一页',
+                      button: true,
+                      child: Container(
+                        width: AppTheme.minTouchTarget,
+                        height: AppTheme.minTouchTarget,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0C4A6E)),
+                          onPressed: () => Navigator.of(context).pop(),
+                          tooltip: '返回',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: BackButton(
-                  color: AppTheme.textStrong,
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+}
+
+class _TrustBadge extends StatelessWidget {
+  const _TrustBadge({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFF94A3B8)),
+        const SizedBox(width: 4),
+        Text(text, style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+      ],
     );
   }
 }
