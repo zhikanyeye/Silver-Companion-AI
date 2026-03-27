@@ -1,0 +1,4 @@
+{
+  "model_name": "openai/gpt-4o-mini",
+  "tts_api_base_url": "https://silver-companion-ai-production.up.railway.app/tts"
+}
