@@ -129,32 +129,18 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          TextButton(
-            onPressed: () => Navigator.of(context).pushNamed(
-              authRoute,
-              arguments: AuthTabSelection.login,
-            ),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF0369A1),
-              textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
-            child: const Text('登录'),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pushNamed(
-              authRoute,
-              arguments: AuthTabSelection.register,
-            ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pushNamed(authRoute),
+            icon: const Icon(Icons.login_rounded, size: 18),
+            label: const Text('开始使用', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0369A1),
               foregroundColor: Colors.white,
               minimumSize: const Size(0, 44),
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 0,
             ),
-            child: const Text('免费体验', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
           ),
         ],
       ),
