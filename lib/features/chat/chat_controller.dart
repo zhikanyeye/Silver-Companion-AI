@@ -45,8 +45,26 @@ class ChatController extends ChangeNotifier {
   final MemoryStore _memoryStore;
   List<String> _memory = [];
 
+  // Callback for populating the input text field from speech recognition
+  void Function(String text)? onInterimText;
+  void Function(String text)? onFinalText;
+
   Future<void> _loadMemory() async {
     _memory = await _memoryStore.load();
+    _speechService.setRecognitionCallbacks(
+      onInterim: (text) {
+        onInterimText?.call(text);
+      },
+      onFinal: (text) {
+        onFinalText?.call(text);
+      },
+      onEnd: () {
+        if (isRecognizing) {
+          isRecognizing = false;
+          notifyListeners();
+        }
+      },
+    );
     notifyListeners();
   }
 
@@ -169,6 +187,8 @@ class ChatController extends ChangeNotifier {
       return;
     }
 
+    // Unlock browser audio autoplay policy on first interaction
+    _speechService.unlockAudio();
     _speechService.startRecognition();
     isRecognizing = true;
     notifyListeners();

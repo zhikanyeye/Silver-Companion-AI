@@ -1,20 +1,10 @@
-import 'package:js/js.dart';
-
-@JS('speechIsSupported')
-external bool _speechIsSupportedJs();
-
-@JS('speechStartRecognition')
-external void _speechStartRecognitionJs();
-
-@JS('speechStopRecognition')
-external void _speechStopRecognitionJs();
-
-@JS('speechSpeakText')
-external void _speechSpeakTextJs(String text);
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:js' as js;
 
 bool speechIsSupportedOnWebBridge() {
   try {
-    return _speechIsSupportedJs();
+    final result = js.context.callMethod('speechIsSupported');
+    return result == true;
   } catch (_) {
     return false;
   }
@@ -22,24 +12,42 @@ bool speechIsSupportedOnWebBridge() {
 
 void speechStartRecognitionOnWebBridge() {
   try {
-    _speechStartRecognitionJs();
-  } catch (_) {
-    return;
-  }
+    js.context.callMethod('speechStartRecognition');
+  } catch (_) {}
 }
 
 void speechStopRecognitionOnWebBridge() {
   try {
-    _speechStopRecognitionJs();
-  } catch (_) {
-    return;
-  }
+    js.context.callMethod('speechStopRecognition');
+  } catch (_) {}
 }
 
 void speechSpeakTextOnWebBridge(String text) {
   try {
-    _speechSpeakTextJs(text);
-  } catch (_) {
-    return;
-  }
+    js.context.callMethod('speechSpeakText', [text]);
+  } catch (_) {}
+}
+
+void speechSetCallbacksOnWebBridge({
+  required void Function(String) onInterim,
+  required void Function(String) onFinal,
+  required void Function() onEnd,
+}) {
+  try {
+    js.context['onSpeechInterimResult'] = js.allowInterop((dynamic text) {
+      onInterim(text?.toString() ?? '');
+    });
+    js.context['onSpeechFinalResult'] = js.allowInterop((dynamic text) {
+      onFinal(text?.toString() ?? '');
+    });
+    js.context['onSpeechEnd'] = js.allowInterop(() {
+      onEnd();
+    });
+  } catch (_) {}
+}
+
+void unlockAudioContextOnWebBridge() {
+  try {
+    js.context.callMethod('unlockAudioContext');
+  } catch (_) {}
 }

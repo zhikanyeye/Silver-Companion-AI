@@ -21,7 +21,25 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    _controller = ChatController()..addListener(_onControllerChanged);
+    _controller = ChatController()
+      ..addListener(_onControllerChanged)
+      ..onInterimText = (text) {
+        if (mounted) {
+          _inputController.text = text;
+          _inputController.selection = TextSelection.collapsed(offset: text.length);
+        }
+      }
+      ..onFinalText = (text) {
+        if (mounted) {
+          _inputController.text = text;
+          // Auto-send after a brief delay to let user see the text
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              _sendCurrentText();
+            }
+          });
+        }
+      };
     _loadConfig();
   }
 
