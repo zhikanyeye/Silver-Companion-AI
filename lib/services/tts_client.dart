@@ -3,33 +3,33 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
-/// TTS client compatible with OpenAI /v1/audio/speech API format.
-/// Works with EdgeTTS Cloudflare Workers or any OpenAI-compatible TTS endpoint.
+Uri _defaultTtsProxyUri() {
+  const configuredPath = String.fromEnvironment(
+    'TTS_PROXY_URL',
+    defaultValue: '/api/tts',
+  );
+  final configuredUri = Uri.parse(configuredPath);
+  if (configuredUri.hasScheme) {
+    return configuredUri;
+  }
+  return Uri.base.resolveUri(configuredUri);
+}
+
+/// TTS client that interacts with the Cloudflare Pages Function proxy (`/api/tts`).
+/// The actual EdgeTTS /v1/audio/speech request and API Key handling is done safely on the server side.
 class TTSClient {
-  TTSClient({http.Client? client, Uri? baseUri, String? apiKey})
+  TTSClient({http.Client? client, Uri? proxyUri})
     : _client = client ?? http.Client(),
-      _baseUri = baseUri,
-      _apiKey = apiKey;
+      _proxyUri = proxyUri ?? _defaultTtsProxyUri();
 
   final http.Client _client;
-  Uri? _baseUri;
-  String? _apiKey;
+  final Uri _proxyUri;
 
-  void configureBaseUri(String? rawBaseUrl) {
-    if (rawBaseUrl == null || rawBaseUrl.trim().isEmpty) {
-      _baseUri = null;
-      return;
-    }
-    _baseUri = Uri.parse(rawBaseUrl.trim());
-  }
+  // We consider it always configured since we rely on the relative `/api/tts` path.
+  // The backend will return a 500 error if Cloudflare env variables aren't set.
+  bool get isConfigured => true;
 
-  void configureApiKey(String? key) {
-    _apiKey = (key != null && key.trim().isNotEmpty) ? key.trim() : null;
-  }
-
-  bool get isConfigured => _baseUri != null;
-
-  /// Synthesize speech using OpenAI-compatible /v1/audio/speech API.
+  /// Synthesize speech via the `/api/tts` proxy.
   ///
   /// [text] - The text to convert to speech.
   /// [voice] - Voice name (e.g., 'shimmer', 'alloy', 'zh-CN-XiaoxiaoNeural').
@@ -41,22 +41,9 @@ class TTSClient {
     double speed = 1.0,
     String format = 'mp3',
   }) async {
-    final uri = _baseUri;
-    if (uri == null) {
-      throw StateError('TTS endpoint not configured');
-    }
-
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-    };
-
-    if (_apiKey != null) {
-      headers['Authorization'] = 'Bearer $_apiKey';
-    }
-
     final response = await _client.post(
-      uri,
-      headers: headers,
+      _proxyUri,
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'model': 'tts-1',
         'input': text,

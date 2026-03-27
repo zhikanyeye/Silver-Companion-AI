@@ -61,16 +61,19 @@ flutter test
 
 ## Cloudflare Pages 关键环境变量
 
-在 Cloudflare Pages 中至少配置：
+在 Cloudflare Pages 中，进入设置 -> 环境变量，配置：
 
-- `AI_API_KEY`
-- `AI_MODEL_NAME`
-- `AI_API_BASE_URL`
+**AI 聊天配置：**
+- `AI_API_KEY`: 你的 OpenRouter API 密钥
+- `AI_MODEL_NAME`: (可选) 如 `openai/gpt-4o-mini`
+- `AI_API_BASE_URL`: https://openrouter.ai/api
+
+**EdgeTTS 语音合成配置：**
+- `TTS_API_BASE_URL`: 你部署的 EdgeTTS WebUI 服务的域名（如 `https://your-edgetts.pages.dev`）
+- `TTS_API_KEY`: 你为 EdgeTTS 设置的安全访问密钥（对应的 API Key）
 
 说明：
-- `AI_API_BASE_URL` 需要填写 OpenAI 兼容接口的基础地址
-- 不要包含 `/chat/completions`
-- 真实调用由 Cloudflare Pages Functions 完成，前端不再保存 API Key
+- 真实调用全都在服务端（`functions/api/chat.js` 和 `functions/api/tts.js`）代理进行，前端没有任何 API Key，彻底保障安全。
 
 ## 目录与文档说明
 
