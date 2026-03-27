@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:yinling_zhiban_demo/features/child/child_dashboard_service.dart';
+import 'package:yinling_zhiban_demo/features/child/child_dashboard_charts.dart';
 import 'package:yinling_zhiban_demo/features/child/mock_family_data.dart';
 import 'package:yinling_zhiban_demo/routes.dart';
 import 'package:yinling_zhiban_demo/theme/app_theme.dart';
@@ -205,6 +206,10 @@ class _ChildHomePageState extends State<ChildHomePage> {
               ),
             ),
           _ChildOverviewHero(metrics: dashboard.overviewMetrics),
+          const SizedBox(height: 18),
+          const WeeklyTrendChart(),
+          const SizedBox(height: 18),
+          const HealthMetricsTable(),
           const SizedBox(height: 18),
           if (isSplit)
             Row(
