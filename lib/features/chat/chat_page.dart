@@ -434,34 +434,39 @@ class _ChatPageState extends State<ChatPage> {
         child: Row(
           children: [
             // Voice button
-             Container(
-               width: 44,
-               height: 44,
-              decoration: BoxDecoration(
-                color: _controller.isRecognizing
-                    ? AppTheme.warningSoft
-                    : AppTheme.surfaceAlt,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: AppTheme.borderSoft),
-              ),
-                child: IconButton(
-                  key: const Key('voiceButton'),
-                onPressed: _controller.isSpeechSupported
-                    ? () {
-                        if (_controller.isRecognizing) {
-                          _controller.stopRecognition();
-                        } else {
-                          _controller.startRecognition();
+             Semantics(
+               label: _controller.isRecognizing ? '停止语音识别' : '语音输入',
+               button: true,
+               child: Container(
+                 width: AppTheme.minTouchTarget,
+                 height: AppTheme.minTouchTarget,
+                decoration: BoxDecoration(
+                  color: _controller.isRecognizing
+                      ? AppTheme.warningSoft
+                      : AppTheme.surfaceAlt,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppTheme.borderSoft),
+                ),
+                  child: IconButton(
+                    key: const Key('voiceButton'),
+                  onPressed: _controller.isSpeechSupported
+                      ? () {
+                          if (_controller.isRecognizing) {
+                            _controller.stopRecognition();
+                          } else {
+                            _controller.startRecognition();
+                          }
                         }
-                      }
-                    : null,
-                icon: Icon(
-                  _controller.isRecognizing ? Icons.mic_off : Icons.mic,
-                   color: _controller.isRecognizing
-                       ? const Color(0xFFE74C3C)
-                       : AppTheme.serviceBluePrimary,
-                 ),
-                tooltip: _controller.isRecognizing ? '停止识别' : '语音输入',
+                      : null,
+                  icon: Icon(
+                    _controller.isRecognizing ? Icons.mic_off : Icons.mic,
+                     color: _controller.isRecognizing
+                         ? const Color(0xFFE74C3C)
+                         : AppTheme.serviceBluePrimary,
+                     size: 26,
+                   ),
+                  tooltip: _controller.isRecognizing ? '停止识别' : '语音输入',
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -469,24 +474,29 @@ class _ChatPageState extends State<ChatPage> {
               if (_hasAssistantMessage)
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppTheme.surfaceAlt,
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(color: AppTheme.borderSoft),
-                    ),
-                    child: IconButton(
-                      key: const Key('chatReplayLastAssistantButton'),
-                      onPressed: _controller.isSpeechSupported
-                          ? () => _controller.replayLastAssistantMessage()
-                          : null,
-                      icon: const Icon(
-                        Icons.play_circle_outline_rounded,
-                        color: AppTheme.serviceBluePrimary,
+                  child: Semantics(
+                    label: '重播上一条AI回复',
+                    button: true,
+                    child: Container(
+                      width: AppTheme.minTouchTarget,
+                      height: AppTheme.minTouchTarget,
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceAlt,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: AppTheme.borderSoft),
                       ),
-                      tooltip: '重播回复',
+                      child: IconButton(
+                        key: const Key('chatReplayLastAssistantButton'),
+                        onPressed: _controller.isSpeechSupported
+                            ? () => _controller.replayLastAssistantMessage()
+                            : null,
+                        icon: const Icon(
+                          Icons.play_circle_outline_rounded,
+                          color: AppTheme.serviceBluePrimary,
+                          size: 26,
+                        ),
+                        tooltip: '重播回复',
+                      ),
                     ),
                   ),
                 ),
@@ -502,22 +512,22 @@ class _ChatPageState extends State<ChatPage> {
                     width: 1,
                   ),
                 ),
-                child: TextField(
+                 child: TextField(
                   key: const Key('chatInputField'),
                   controller: _inputController,
                   decoration: InputDecoration(
                     hintText: _controller.isRecognizing ? '正在听您说话...' : '输入想说的话',
                     hintStyle: const TextStyle(
                       color: Color(0xFF999999),
-                      fontSize: 15,
+                      fontSize: 17,
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 12,
+                      vertical: 14,
                     ),
                   ),
-                  style: const TextStyle(fontSize: 15),
+                  style: const TextStyle(fontSize: 18, height: 1.4),
                   onSubmitted: (_) => _sendCurrentText(),
                   enabled: !_controller.isRecognizing,
                 ),
@@ -526,31 +536,35 @@ class _ChatPageState extends State<ChatPage> {
             const SizedBox(width: 8),
             
             // Send button
-            Container(
-              width: 44,
-              height: 44,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4A84E6), Color(0xFF2B67C7)],
-                  ),
-                  borderRadius: BorderRadius.circular(22),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF2B67C7).withOpacity(0.25),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+            Semantics(
+              label: '发送消息',
+              button: true,
+              child: Container(
+                width: AppTheme.minTouchTarget,
+                height: AppTheme.minTouchTarget,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4A84E6), Color(0xFF2B67C7)],
                     ),
-                ],
-              ),
-              child: IconButton(
-                key: const Key('sendMessageButton'),
-                onPressed: _controller.isLoading ? null : _sendCurrentText,
-                icon: const Icon(
-                  Icons.send,
-                  color: Colors.white,
-                  size: 20,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF2B67C7).withOpacity(0.25),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                  ],
                 ),
-                tooltip: '发送',
+                child: IconButton(
+                  key: const Key('sendMessageButton'),
+                  onPressed: _controller.isLoading ? null : _sendCurrentText,
+                  icon: const Icon(
+                    Icons.send,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                  tooltip: '发送',
+                ),
               ),
             ),
           ],

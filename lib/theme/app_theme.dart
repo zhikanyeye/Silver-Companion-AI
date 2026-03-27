@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static const double textScale = 1.2;
+
+  // UI UX Pro Max: WCAG AAA touch target minimums for elderly users
+  static const double minTouchTarget = 48.0;
+  static const double minButtonHeight = 56.0;
+
   static const Color brandWarmPrimary = Color(0xFFC96A43);
   static const Color brandWarmSecondary = Color(0xFFE7A15B);
   static const Color serviceBluePrimary = Color(0xFF2B67C7);
@@ -101,7 +106,9 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          minimumSize: const Size.fromHeight(minButtonHeight),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
