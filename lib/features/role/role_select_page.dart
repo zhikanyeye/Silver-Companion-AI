@@ -11,128 +11,179 @@ class RoleSelectPage extends StatefulWidget {
   State<RoleSelectPage> createState() => _RoleSelectPageState();
 }
 
-class _RoleSelectPageState extends State<RoleSelectPage> {
-  static const _motionDuration = Duration(milliseconds: 220);
-
-  var _isVisible = false;
+class _RoleSelectPageState extends State<RoleSelectPage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animCtrl;
+  late final Animation<double> _fadeIn;
+  late final Animation<Offset> _slideUp;
 
   @override
   void initState() {
     super.initState();
+    _animCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _fadeIn = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _slideUp = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() => _isVisible = true);
-      }
+      if (mounted) _animCtrl.forward();
     });
+  }
+
+  @override
+  void dispose() {
+    _animCtrl.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: AppTheme.brandGradient,
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF0F9FF), Color(0xFFFFF4EA), Colors.white],
           ),
-          Positioned(
-            left: -30,
-            top: 72,
-            child: IgnorePointer(
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppTheme.primary.withValues(alpha: 0.08),
-                ),
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                key: const Key('roleBrandShell'),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 620),
-                  child: AnimatedSlide(
-                    duration: _motionDuration,
-                    curve: Curves.easeOutCubic,
-                    offset: _isVisible ? Offset.zero : const Offset(0, 0.08),
-                    child: AnimatedOpacity(
-                      duration: _motionDuration,
-                      curve: Curves.easeOut,
-                      opacity: _isVisible ? 1 : 0,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final isCompact = width < 600;
+              final horizontalPadding = isCompact ? 20.0 : 32.0;
+
+              return Stack(
+                children: [
+                  Center(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
+                        vertical: isCompact ? 24 : 40,
+                      ),
+                      child: FadeTransition(
+                        opacity: _fadeIn,
+                        child: SlideTransition(
+                          position: _slideUp,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 480),
+                            child: Column(
+                              children: [
+                                // Icon
+                                Container(
+                                  width: 72,
+                                  height: 72,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0369A1).withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(22),
+                                  ),
+                                  child: const Icon(
+                                    Icons.people_alt_rounded,
+                                    size: 36,
+                                    color: Color(0xFF0369A1),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                const Text(
+                                  '选择您的身份',
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF0C4A6E),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  '我们将为您打开专属的服务入口',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                                const SizedBox(height: 36),
+                                // Role cards
+                                RoleOptionCard(
+                                  title: '我是长辈',
+                                  subtitle: '语音陪伴 · 健康提醒 · 社区互助',
+                                  icon: Icons.elderly_rounded,
+                                  iconColor: const Color(0xFFD97706),
+                                  iconBg: const Color(0xFFFEF3C7),
+                                  onPressed: () => Navigator.of(context)
+                                      .pushNamed(elderlyRoute),
+                                ),
+                                const SizedBox(height: 16),
+                                RoleOptionCard(
+                                  title: '我是子女',
+                                  subtitle: '远程关怀 · 健康看板 · 提醒管理',
+                                  icon: Icons.family_restroom_rounded,
+                                  iconColor: const Color(0xFF2563EB),
+                                  iconBg: const Color(0xFFEFF6FF),
+                                  onPressed: () => Navigator.of(context)
+                                      .pushNamed(childRoute),
+                                ),
+                                const SizedBox(height: 28),
+                                // Divider with text
+                                Row(
+                                  children: [
+                                    const Expanded(
+                                      child: Divider(color: Color(0xFFE2E8F0)),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      child: Text(
+                                        '随时可以切换',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: const Color(0xFF94A3B8),
+                                        ),
+                                      ),
+                                    ),
+                                    const Expanded(
+                                      child: Divider(color: Color(0xFFE2E8F0)),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFF3E7),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: const Color(0xFFF1D3BE)),
-                            ),
-                            child: Text(
-                              '身份确认',
-                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                color: AppTheme.accent,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            '请选择您的身份',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            '我们会带您进入对应的专属入口。',
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                          const SizedBox(height: 24),
-                          RoleOptionCard(
-                            title: '我是老人',
-                            subtitle: '进入长辈使用入口，查看陪伴、提醒与常用功能。',
-                            icon: Icons.elderly_rounded,
-                            onPressed: () =>
-                                Navigator.of(context).pushNamed(elderlyRoute),
-                          ),
-                          const SizedBox(height: 16),
-                          RoleOptionCard(
-                            title: '我是子女',
-                            subtitle: '进入家人关怀入口，查看联动信息与陪伴功能。',
-                            icon: Icons.family_restroom_rounded,
-                            onPressed: () => Navigator.of(context).pushNamed(childRoute),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            ),
+                  // Logout button
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Semantics(
+                      label: '退出登录',
+                      button: true,
+                      child: Container(
+                        width: AppTheme.minTouchTarget,
+                        height: AppTheme.minTouchTarget,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.logout_rounded,
+                              color: Color(0xFF0C4A6E)),
+                          tooltip: '退出登录',
+                          onPressed: () => Navigator.of(context)
+                              .pushNamedAndRemoveUntil(
+                                  landingRoute, (route) => false),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: IconButton(
-                  icon: const Icon(Icons.logout_rounded, color: AppTheme.textStrong),
-                  tooltip: '退出登录',
-                  onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(landingRoute, (route) => false),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
