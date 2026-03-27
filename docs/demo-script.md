@@ -1,7 +1,8 @@
 # Demo Script (3-5 minutes)
 
-1. Start from the branded home page and introduce `银龄智伴` as an AI companion plus community mutual-aid platform for older adults and their families.
-2. Open `老人端` to show the large-text entry points, then briefly explain the familiar actions like `AI陪伴`、`一键求助` and `社区互助`.
-3. Enter `社区互助` and demonstrate the new layout: important reminders, `推荐 / 最新` switching, and neighborhood help cards such as light-bulb replacement, medicine pickup, and community activities.
-4. Return to home and open `子女端` to present the family-facing dashboard for understanding daily status, reminders, and companionship context.
-5. Open `设置` from the home page and briefly note where the API key and model are configured for the demo environment.
+1. **首页视效体验**：展示全新的冷蓝科技风落地页，突出 "Hero 区域 + 信任背书 + 特色卡片"。
+2. **极简入口登录**：演示统一的登录/注册卡片和直观的角色选择页（强调大按钮和响应式排版）。
+3. **老人端适老功能**：进入老人端，展示大字体的核心入口。并演示 `AI陪伴` 里的高质量 AI 语音播报（由 EdgeTTS 加持的高逼真自然语音）。
+4. **社区与互助板块**：进入 `社区互助`，展示经过重新设计的列表卡片，强调信息和色彩对老年人的易读性。
+5. **子女关怀看板**：返回首页切换身份进入 `子女端`，展示数据驱动的图表看板（由 fl_chart 强化的趋势图表）和设备、活动预警状态。
+6. **安全架构讲解**：展示通过开发者工具抓包，证明所有的 AI 请求和 TTS 请求都已经转发到后端的 `/api/chat` 和 `/api/tts`，彻底防范了 API Key 泄露。

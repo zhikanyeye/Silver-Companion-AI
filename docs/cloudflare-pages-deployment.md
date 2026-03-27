@@ -12,9 +12,10 @@
 
 - GitHub 仓库已经可访问
 - 目标分支已经包含以下关键文件：
-  - `functions/api/chat.js`
+  - `functions/api/chat.js` (AI 对话代理)
+  - `functions/api/tts.js` (TTS 语音代理)
   - `lib/services/openrouter_client.dart`
-  - `lib/features/settings/settings_page.dart`
+  - `lib/services/tts_client.dart`
 - 仓库根目录可以正常执行：
 
 ```bash
@@ -27,10 +28,11 @@ flutter build web --release --no-wasm-dry-run
 
 当前版本不再适合只上传 `build/web` 静态文件。
 
+
 原因：
-- AI 对话现在依赖同源接口 `/api/chat`
-- `/api/chat` 由 Cloudflare Pages Functions 提供
-- 如果只上传静态产物，Functions 不会一起部署，聊天功能无法工作
+- AI 对话和语音合成依赖同源代理接口 `/api/chat` 和 `/api/tts`
+- 这些代理接口由 Cloudflare Pages Functions 提供
+- 如果只上传静态产物，Functions 不会一起部署，核心能力将无法工作
 
 因此，推荐使用：
 - GitHub 仓库接入 Cloudflare Pages
@@ -111,7 +113,17 @@ https://openrouter.ai/api/v1
 ${AI_API_BASE_URL}/chat/completions
 ```
 
-如果你把完整路径直接填进去，请求就会变成重复路径，导致调用失败。
+如果你把完整路径直接填进去，请求就会变成重复路径，导致调用大模型失败。
+
+### EdgeTTS 语音服务必填变量
+
+针对高质量语音合成功能（采用 Cloudflare Workers WebUI Enhanced 版 EdgeTTS）：
+
+- `TTS_API_BASE_URL`
+  - 你部署的 EdgeTTS WebUI 服务的域名
+  - 示例：`https://your-edgetts-app.pages.dev`
+- `TTS_API_KEY`
+  - 对应的安全访问密码/API Key
 
 ## 6. 触发部署
 
@@ -140,10 +152,11 @@ ${AI_API_BASE_URL}/chat/completions
 
 ```text
 /api/chat
+/api/tts
 ```
 
-- 前端**不会**直接请求第三方模型地址
-- 浏览器中**不会**出现 `AI_API_KEY`
+- 前端**不会**直接请求第三方模型地址或 TTS 地址
+- 浏览器网络请求中**绝对不会**出现 `AI_API_KEY` 或 `TTS_API_KEY`
 
 ### 功能验证
 
@@ -156,7 +169,7 @@ ${AI_API_BASE_URL}/chat/completions
 若返回正常，即说明：
 - Pages Functions 已生效
 - 环境变量已被正确读取
-- 上游大模型接口可用
+- 上游大模型接口和 EdgeTTS 语音接口均可用
 
 ## 8. 常见问题排查
 
