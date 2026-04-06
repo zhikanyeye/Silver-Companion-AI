@@ -17,15 +17,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);
-    expect(find.text('Login'), findsWidgets);
-    expect(find.text('Register'), findsWidgets);
-    expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Welcome to Silver Companion'), findsOneWidget);
-    expect(find.text('Continue with your phone number and password.'), findsOneWidget);
-    expect(find.text('Create account'), findsNothing);
-    expect(find.text('Name'), findsNothing);
-    expect(find.text('Phone'), findsOneWidget);
-    expect(find.text('Password'), findsOneWidget);
+    expect(find.text('登录'), findsWidgets);
+    expect(find.text('注册'), findsWidgets);
+    expect(find.text('欢迎回来'), findsOneWidget);
+    expect(find.text('欢迎使用银龄智伴'), findsOneWidget);
+    expect(find.text('使用手机号和密码继续。'), findsOneWidget);
+    expect(find.text('创建账号'), findsNothing);
+    expect(find.text('姓名'), findsNothing);
+    expect(find.text('手机号'), findsOneWidget);
+    expect(find.text('密码'), findsOneWidget);
   });
 
   testWidgets('landing register opens auth page on register tab', (
@@ -37,13 +37,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);
-    expect(find.text('Create account'), findsOneWidget);
-    expect(find.text('Welcome to Silver Companion'), findsOneWidget);
-    expect(find.text('Fill in the basics to get started.'), findsOneWidget);
-    expect(find.text('Welcome back'), findsNothing);
-    expect(find.text('Name'), findsOneWidget);
-    expect(find.text('Phone'), findsOneWidget);
-    expect(find.text('Password'), findsOneWidget);
+    expect(find.text('创建账号'), findsOneWidget);
+    expect(find.text('欢迎使用银龄智伴'), findsOneWidget);
+    expect(find.text('填写基础信息即可开始使用。'), findsOneWidget);
+    expect(find.text('欢迎回来'), findsNothing);
+    expect(find.text('姓名'), findsOneWidget);
+    expect(find.text('手机号'), findsOneWidget);
+    expect(find.text('密码'), findsOneWidget);
   });
 
   testWidgets('auth page adapts spacing for small and wide screens', (
@@ -65,12 +65,12 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await pumpAt(const Size(375, 812));
-    expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, 'Enter role selection'), findsOneWidget);
+    expect(find.text('欢迎回来'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '进入角色选择'), findsOneWidget);
 
     await pumpAt(const Size(1280, 900));
-    expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, 'Enter role selection'), findsOneWidget);
+    expect(find.text('欢迎回来'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '进入角色选择'), findsOneWidget);
   });
 
   testWidgets('auth login form navigates to role selection after valid submit', (
@@ -83,7 +83,7 @@ void main() {
 
     await tester.enterText(find.byType(TextFormField).at(0), '13800138000');
     await tester.enterText(find.byType(TextFormField).at(1), 'password123');
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Enter role selection'));
+    await tester.tap(find.widgetWithText(ElevatedButton, '进入角色选择'));
     await tester.pumpAndSettle();
 
     expect(find.byType(RoleSelectPage), findsOneWidget);

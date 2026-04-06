@@ -24,14 +24,14 @@ class AuthTabs extends StatelessWidget {
         children: [
           Expanded(
             child: _AuthTabButton(
-              label: 'Login',
+              label: '登录',
               isSelected: selectedTab == AuthTabSelection.login,
               onPressed: () => onChanged(AuthTabSelection.login),
             ),
           ),
           Expanded(
             child: _AuthTabButton(
-              label: 'Register',
+              label: '注册',
               isSelected: selectedTab == AuthTabSelection.register,
               onPressed: () => onChanged(AuthTabSelection.register),
             ),

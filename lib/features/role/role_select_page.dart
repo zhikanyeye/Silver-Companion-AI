@@ -26,24 +26,24 @@ class RoleSelectPage extends StatelessWidget {
                 child: Column(
                   children: [
                     const Text(
-                      'Select your role',
+                      '请选择您的身份',
                       style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'We will take you to the role-specific experience.',
+                      '我们将带您进入对应身份的服务页面。',
                     ),
                     const SizedBox(height: 24),
                     RoleOptionCard(
-                      title: 'I am an elder',
-                      subtitle: 'Chat, reminders, and community support',
+                      title: '我是长者',
+                      subtitle: '聊天陪伴、提醒服务与社区互助',
                       icon: Icons.elderly_rounded,
                       onPressed: () => Navigator.of(context).pushNamed(elderlyRoute),
                     ),
                     const SizedBox(height: 16),
                     RoleOptionCard(
-                      title: 'I am a child',
-                      subtitle: 'Remote care dashboard and reminders',
+                      title: '我是子女',
+                      subtitle: '远程看护看板与提醒管理',
                       icon: Icons.family_restroom_rounded,
                       onPressed: () => Navigator.of(context).pushNamed(childRoute),
                     ),
@@ -53,7 +53,7 @@ class RoleSelectPage extends StatelessWidget {
                         landingRoute,
                         (route) => false,
                       ),
-                      child: const Text('Log out'),
+                      child: const Text('退出登录'),
                     ),
                   ],
                 ),

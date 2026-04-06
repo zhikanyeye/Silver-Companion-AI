@@ -12,10 +12,10 @@ void main() {
       const MaterialApp(home: RoleSelectPage()),
     );
 
-    expect(find.text('Select your role'), findsOneWidget);
-    expect(find.text('We will take you to the role-specific experience.'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, 'I am an elder'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, 'I am a child'), findsOneWidget);
+    expect(find.text('请选择您的身份'), findsOneWidget);
+    expect(find.text('我们将带您进入对应身份的服务页面。'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '我是长者'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '我是子女'), findsOneWidget);
     expect(find.byType(ElevatedButton), findsNWidgets(2));
   });
 
@@ -32,7 +32,7 @@ void main() {
       ),
     );
 
-    final elderlyButton = find.widgetWithText(ElevatedButton, 'I am an elder');
+    final elderlyButton = find.widgetWithText(ElevatedButton, '我是长者');
     await tester.tap(elderlyButton);
     await tester.pumpAndSettle();
 
@@ -52,7 +52,7 @@ void main() {
       ),
     );
 
-    final childButton = find.widgetWithText(ElevatedButton, 'I am a child');
+    final childButton = find.widgetWithText(ElevatedButton, '我是子女');
     await tester.tap(childButton);
     await tester.pumpAndSettle();
 

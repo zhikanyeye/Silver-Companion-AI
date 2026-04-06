@@ -17,11 +17,11 @@ class WeeklyTrendChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Weekly trend',
+            '每周趋势',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 8),
-          Text('A simple summary of activity and mood over the last 7 days.'),
+          Text('近 7 天活动与情绪的简要趋势。'),
           SizedBox(height: 16),
           LinearProgressIndicator(value: 0.82),
           SizedBox(height: 8),
@@ -48,25 +48,25 @@ class HealthMetricsTable extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Health metrics',
+            '健康指标',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 8),
-          Text('Key health data at a glance.'),
+          Text('关键健康数据一目了然。'),
           SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: Text('Blood pressure')),
+              Expanded(child: Text('血压')),
               Expanded(child: Text('128/82')),
-              Expanded(child: Text('Normal')),
+              Expanded(child: Text('正常')),
             ],
           ),
           SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: Text('Heart rate')),
-              Expanded(child: Text('72 bpm')),
-              Expanded(child: Text('Normal')),
+              Expanded(child: Text('心率')),
+              Expanded(child: Text('72 次/分')),
+              Expanded(child: Text('正常')),
             ],
           ),
         ],

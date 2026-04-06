@@ -99,7 +99,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Assistant'),
+        title: const Text('AI 助手'),
         actions: [
           IconButton(
             key: const Key('chatSpeechToggle'),
@@ -112,8 +112,8 @@ class _ChatPageState extends State<ChatPage> {
                   : Icons.volume_off_rounded,
             ),
             tooltip: _controller.isSpeechPlaybackEnabled
-                ? 'Mute speech'
-                : 'Enable speech',
+                ? '关闭语音播报'
+                : '开启语音播报',
           ),
           PopupMenuButton<String>(
             onSelected: (value) async {
@@ -130,12 +130,12 @@ class _ChatPageState extends State<ChatPage> {
             itemBuilder: (context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
                 value: 'clear',
-                child: Text('Clear chat'),
+                child: Text('清空会话'),
               ),
               CheckedPopupMenuItem<String>(
                 value: 'auto_send',
                 checked: _autoSendVoice,
-                child: const Text('Voice auto-send'),
+                 child: const Text('语音自动发送'),
               ),
             ],
           ),
@@ -151,7 +151,7 @@ class _ChatPageState extends State<ChatPage> {
                 color: AppTheme.warningSoft,
                 icon: Icons.warning_amber_rounded,
                 message:
-                    'Risk reminder: do not transfer money or share verification codes without confirming with family.',
+                    '风险提醒：未与家人核实前，请勿转账或透露验证码。',
               ),
             if (_controller.error != null)
               _Banner(
@@ -166,8 +166,8 @@ class _ChatPageState extends State<ChatPage> {
                     ? Icons.volume_up_rounded
                     : Icons.volume_off_rounded,
                 message: _controller.isSpeechPlaybackEnabled
-                    ? 'Speech playback is enabled for assistant replies.'
-                    : 'Speech playback is off. Use replay to listen manually.',
+                    ? '已开启助手回复语音播报。'
+                    : '语音播报已关闭，可手动重播收听。',
               ),
             Expanded(
               child: ListView.builder(
@@ -204,7 +204,7 @@ class _ChatPageState extends State<ChatPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                     SizedBox(width: 8),
-                    Text('AI is thinking...'),
+                    Text('AI 正在思考...'),
                   ],
                 ),
               ),
@@ -233,8 +233,8 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             Semantics(
               label: _controller.isRecognizing
-                  ? 'Stop voice input'
-                  : 'Voice input',
+                  ? '停止语音输入'
+                  : '语音输入',
               button: true,
               child: Container(
                 width: AppTheme.minTouchTarget,
@@ -264,8 +264,8 @@ class _ChatPageState extends State<ChatPage> {
                         : AppTheme.serviceBluePrimary,
                   ),
                   tooltip: _controller.isRecognizing
-                      ? 'Stop voice input'
-                      : 'Voice input',
+                      ? '停止语音输入'
+                      : '语音输入',
                 ),
               ),
             ),
@@ -288,7 +288,7 @@ class _ChatPageState extends State<ChatPage> {
                     Icons.play_circle_outline_rounded,
                     color: AppTheme.serviceBluePrimary,
                   ),
-                  tooltip: 'Replay reply',
+                  tooltip: '重播回复',
                 ),
               ),
             ],
@@ -307,8 +307,8 @@ class _ChatPageState extends State<ChatPage> {
                   onSubmitted: (_) => _sendCurrentText(),
                   decoration: InputDecoration(
                     hintText: _controller.isRecognizing
-                        ? 'Listening...'
-                        : 'Type your message',
+                        ? '正在聆听...'
+                        : '请输入消息',
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -320,7 +320,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
             const SizedBox(width: 8),
             Semantics(
-              label: 'Send message',
+              label: '发送消息',
               button: true,
               child: Container(
                 width: AppTheme.minTouchTarget,
@@ -335,7 +335,7 @@ class _ChatPageState extends State<ChatPage> {
                   key: const Key('sendMessageButton'),
                   onPressed: _controller.isLoading ? null : _sendCurrentText,
                   icon: const Icon(Icons.send, color: Colors.white),
-                  tooltip: 'Send',
+                  tooltip: '发送',
                 ),
               ),
             ),
@@ -418,7 +418,7 @@ class _MessageBubble extends StatelessWidget {
                 key: const Key('chatReplayLastAssistantButton'),
                 onPressed: onReplay,
                 icon: const Icon(Icons.volume_up_rounded, size: 18),
-                label: const Text('Replay reply'),
+                label: const Text('重播回复'),
               ),
           ],
         ),

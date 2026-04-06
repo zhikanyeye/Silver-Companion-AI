@@ -58,19 +58,17 @@ class _AuthPageState extends State<AuthPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          isRegister ? 'Create account' : 'Welcome back',
+                          isRegister ? '创建账号' : '欢迎回来',
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Welcome to Silver Companion',
+                          '欢迎使用银龄智伴',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          isRegister
-                              ? 'Fill in the basics to get started.'
-                              : 'Continue with your phone number and password.',
+                          isRegister ? '填写基础信息即可开始使用。' : '使用手机号和密码继续。',
                         ),
                         const SizedBox(height: 24),
                         AuthTabs(

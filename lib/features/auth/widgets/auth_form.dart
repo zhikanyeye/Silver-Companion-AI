@@ -44,13 +44,13 @@ class _AuthFormState extends State<AuthForm> {
           if (isRegister) ...[
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
+              decoration: const InputDecoration(labelText: '姓名'),
               validator: (value) {
                 if (!isRegister) {
                   return null;
                 }
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter your name.';
+                  return '请输入姓名';
                 }
                 return null;
               },
@@ -59,10 +59,10 @@ class _AuthFormState extends State<AuthForm> {
           ],
           TextFormField(
             controller: _phoneController,
-            decoration: const InputDecoration(labelText: 'Phone'),
+            decoration: const InputDecoration(labelText: '手机号'),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter your phone.';
+                return '请输入手机号';
               }
               return null;
             },
@@ -72,7 +72,7 @@ class _AuthFormState extends State<AuthForm> {
             controller: _passwordController,
             obscureText: _obscurePassword,
             decoration: InputDecoration(
-              labelText: 'Password',
+              labelText: '密码',
               suffixIcon: IconButton(
                 icon: Icon(
                   _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -86,7 +86,7 @@ class _AuthFormState extends State<AuthForm> {
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter your password.';
+                return '请输入密码';
               }
               return null;
             },
@@ -101,7 +101,7 @@ class _AuthFormState extends State<AuthForm> {
             style: ElevatedButton.styleFrom(
               minimumSize: const Size.fromHeight(AppTheme.minButtonHeight),
             ),
-            child: const Text('Enter role selection'),
+            child: const Text('进入角色选择'),
           ),
         ],
       ),

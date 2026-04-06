@@ -48,7 +48,7 @@ class _FakeCommunityFeedService extends CommunityFeedService {
     final index = _items.indexWhere((item) => item.id == postId);
     final updated = _items[index].copyWith(
       responseCount: _items[index].responseCount + 1,
-      helperNames: <String>['Test Neighbor', ..._items[index].helperNames],
+      helperNames: <String>['测试邻里', ..._items[index].helperNames],
       respondedByMe: true,
     );
     _items[index] = updated;
@@ -60,8 +60,8 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{
       'demo_actor_id': _FakeCommunityFeedService.actorId,
-      'demo_display_name': 'Test Neighbor',
-      'demo_identity_label': 'Building 5',
+      'demo_display_name': '测试邻里',
+      'demo_identity_label': '5号楼住户',
     });
   });
 
@@ -136,28 +136,28 @@ void main() {
 
     await tester.enterText(
       find.byKey(const Key('communityPublishNameField')),
-      'Zhang Ayi',
+      '张阿姨',
     );
     await tester.enterText(
       find.byKey(const Key('communityPublishIdentityField')),
-      'Building 5',
+      '5号楼住户',
     );
     await tester.enterText(
       find.byKey(const Key('communityPublishTitleField')),
-      'Clinic companion needed',
+      '明天下午去门诊，想找人陪同',
     );
     await tester.enterText(
       find.byKey(const Key('communityPublishLocationField')),
-      'Chunhe Community',
+      '春和社区',
     );
     await tester.enterText(
       find.byKey(const Key('communityPublishSummaryField')),
-      'Need someone to accompany me to the clinic tomorrow afternoon.',
+      '明天下午需要一位邻居陪同前往门诊。',
     );
     await tester.tap(find.byKey(const Key('communityPublishSubmitButton')));
     await tester.pumpAndSettle();
 
-    expect(service._items.first.title, 'Clinic companion needed');
+    expect(service._items.first.title, '明天下午去门诊，想找人陪同');
     expect(
       tester.widget<Text>(find.byKey(const Key('communityMyPublishedCount'))).data,
       '1',

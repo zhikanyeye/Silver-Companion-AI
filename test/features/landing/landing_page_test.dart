@@ -51,8 +51,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);
-    expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Create account'), findsNothing);
+    expect(find.text('欢迎回来'), findsOneWidget);
+    expect(find.text('创建账号'), findsNothing);
     expect(
       ModalRoute.of(tester.element(find.byType(AuthPage)))?.settings.name,
       authRoute,
@@ -68,8 +68,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);
-    expect(find.text('Create account'), findsOneWidget);
-    expect(find.text('Welcome back'), findsNothing);
+    expect(find.text('创建账号'), findsOneWidget);
+    expect(find.text('欢迎回来'), findsNothing);
     expect(
       ModalRoute.of(tester.element(find.byType(AuthPage)))?.settings.name,
       authRoute,
