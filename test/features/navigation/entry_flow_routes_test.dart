@@ -23,7 +23,7 @@ void main() {
       landingRoute,
     );
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
     await tester.pumpAndSettle();
 
     final authPage = find.byType(AuthPage);
@@ -54,7 +54,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), '13800138000');
     await tester.enterText(find.byType(TextFormField).at(1), 'password123');

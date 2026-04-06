@@ -7,7 +7,7 @@ Future<void> pumpAppToRoleSelect(WidgetTester tester) async {
   await tester.pumpWidget(const App());
   await tester.pumpAndSettle();
 
-  await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+  await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
   await tester.pumpAndSettle();
 
   await tester.enterText(find.widgetWithText(TextFormField, 'Phone'), '13800000000');
