@@ -33,22 +33,22 @@ class CommunityPost {
     final createdAt = DateTime.fromMillisecondsSinceEpoch(createdAtEpochMs);
     final difference = DateTime.now().difference(createdAt);
     if (difference.inMinutes < 1) {
-      return 'Just now';
+       return '刚刚';
     }
     if (difference.inHours < 1) {
-      return '${difference.inMinutes} min ago';
+       return '${difference.inMinutes} 分钟前';
     }
     if (difference.inDays < 1) {
-      return '${difference.inHours} hr ago';
+       return '${difference.inHours} 小时前';
     }
-    return '${difference.inDays} d ago';
+     return '${difference.inDays} 天前';
   }
 
   String get responseStatus {
     if (responseCount <= 0) {
-      return 'Waiting for help';
+       return '等待帮助';
     }
-    return '$responseCount responses';
+     return '$responseCount 人响应';
   }
 
   CommunityPost copyWith({
@@ -102,9 +102,9 @@ class CommunityPost {
     final helpers = json['helperNames'];
     return CommunityPost(
       id: json['id'] as String? ?? '',
-      username: json['username'] as String? ?? 'Neighbor',
-      identity: json['identity'] as String? ?? 'Resident',
-      tag: json['tag'] as String? ?? 'Help',
+       username: json['username'] as String? ?? '邻里用户',
+       identity: json['identity'] as String? ?? '社区居民',
+       tag: json['tag'] as String? ?? '求助',
       title: json['title'] as String? ?? '',
       location: json['location'] as String? ?? '',
       summary: json['summary'] as String? ?? '',
@@ -127,25 +127,25 @@ class CommunityPost {
 const List<CommunityPost> mockPosts = <CommunityPost>[
   CommunityPost(
     id: 'seed-help-light-bulb',
-    username: 'Wang Ayi',
-    identity: 'Building 3',
-    tag: 'Help',
-    title: 'Need help replacing a light bulb',
-    location: 'Chaoyang District',
-    summary: 'The light bulb at home is out and I need a neighbor to help.',
+     username: '王阿姨',
+     identity: '3号楼住户',
+     tag: '求助',
+     title: '家里灯泡坏了，想请人帮忙更换',
+     location: '朝阳区春和社区',
+     summary: '家中客厅灯泡损坏，希望有邻居可以上门协助更换。',
     createdAtEpochMs: 1774918200000,
     responseCount: 0,
   ),
   CommunityPost(
     id: 'seed-medicine-pickup',
-    username: 'Li Shushu',
-    identity: 'Volunteer',
-    tag: 'Mutual aid',
-    title: 'Medicine pickup on the way',
-    location: 'Wangjing Street',
-    summary: 'I am heading to the clinic this afternoon and can pick up medicine for neighbors.',
+     username: '李叔叔',
+     identity: '社区志愿者',
+     tag: '互助',
+     title: '下午去社区诊所，可帮邻居代取药',
+     location: '望京街道',
+     summary: '今天下午前往诊所办理事务，可顺路帮邻居代取药品。',
     createdAtEpochMs: 1774916700000,
     responseCount: 2,
-    helperNames: <String>['Zhou Ayi', 'Chen Shifu'],
+     helperNames: <String>['周阿姨', '陈师傅'],
   ),
 ];

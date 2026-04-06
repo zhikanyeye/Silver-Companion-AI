@@ -93,7 +93,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
         return;
       }
       setState(() {
-        _errorMessage = 'Join failed. Please try again.';
+        _errorMessage = '报名失败，请稍后重试。';
       });
     }
   }
@@ -130,7 +130,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
         return;
       }
       setState(() {
-        _errorMessage = 'Publish failed. Please verify the service configuration.';
+        _errorMessage = '发布失败，请检查服务配置。';
       });
     }
   }
@@ -138,7 +138,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Activity Schedule')),
+      appBar: AppBar(title: const Text('活动日程')),
       body: Container(
         decoration: const BoxDecoration(gradient: AppTheme.serviceGradient),
         child: SafeArea(
@@ -154,12 +154,12 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Community activities',
+                           '社区活动',
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Review today and this week, join an activity, or publish a new one.',
+                           '查看今日与本周活动，可报名参与或发布新活动。',
                         ),
                       ],
                     ),
@@ -185,15 +185,15 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
                   )
                 else ...[
                   _ActivitySection(
-                    title: 'Today',
-                    subtitle: 'Activities you can join right away.',
+                    title: '今日活动',
+                    subtitle: '现在就可以参加的活动。',
                     items: _todayItems,
                     onJoin: _joinActivity,
                   ),
                   const SizedBox(height: 18),
                   _ActivitySection(
-                    title: 'This week',
-                    subtitle: 'Activities you can plan for in advance.',
+                    title: '本周活动',
+                    subtitle: '可提前安排参与的活动。',
                     items: _weeklyItems,
                     onJoin: _joinActivity,
                   ),
@@ -206,7 +206,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _publishActivity,
         icon: const Icon(Icons.event_available_outlined),
-        label: const Text('Publish'),
+        label: const Text('发布活动'),
       ),
     );
   }
@@ -225,7 +225,7 @@ class _MyActivitiesSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = identity?.displayName ?? 'Community partner';
+    final displayName = identity?.displayName ?? '社区伙伴';
 
     return Card(
       key: const Key('activitiesMySummaryCard'),
@@ -240,7 +240,7 @@ class _MyActivitiesSummaryCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _MetricTile(
-                    label: 'Created',
+                     label: '我发布的',
                     value: '${createdItems.length}',
                     valueKey: const Key('activitiesMyCreatedCount'),
                   ),
@@ -248,7 +248,7 @@ class _MyActivitiesSummaryCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _MetricTile(
-                    label: 'Joined',
+                     label: '我报名的',
                     value: '${joinedItems.length}',
                     valueKey: const Key('activitiesMyJoinedCount'),
                   ),
@@ -319,7 +319,7 @@ class _ActivitySection extends StatelessWidget {
           const Card(
             child: Padding(
               padding: EdgeInsets.all(20),
-              child: Text('No activities published yet.'),
+               child: Text('暂无已发布活动。'),
             ),
           )
         else
@@ -363,21 +363,21 @@ class _ActivityCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(item.description),
             const SizedBox(height: 12),
-            Text('Organizer: ${item.organizerName}'),
+             Text('组织者：${item.organizerName}'),
             if (item.participantNames.isNotEmpty) ...[
               const SizedBox(height: 6),
-              Text('Recent joins: ${item.participantNames.join(', ')}'),
+               Text('近期报名：${item.participantNames.join('、')}'),
             ],
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: Text('Joined ${item.joinedCount}')),
+                 Expanded(child: Text('已报名 ${item.joinedCount} 人')),
                 SizedBox(
                   width: 112,
                   child: ElevatedButton(
                     key: Key('activityJoinButton_${item.id}'),
                     onPressed: item.joinedByMe ? null : onJoin,
-                    child: Text(item.joinedByMe ? 'Joined' : 'Join'),
+                     child: Text(item.joinedByMe ? '已报名' : '报名参加'),
                   ),
                 ),
               ],
@@ -442,7 +442,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
-  String _tag = 'Culture';
+  String _tag = '文化';
   ElderlyActivityGroup _group = ElderlyActivityGroup.weekly;
 
   @override
@@ -458,7 +458,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Publish activity'),
+      title: const Text('发布活动'),
       content: SizedBox(
         width: 420,
         child: Form(
@@ -470,35 +470,35 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
                 TextFormField(
                   key: const Key('activityPublishOrganizerField'),
                   controller: _organizerController,
-                  decoration: const InputDecoration(labelText: 'Organizer'),
+                  decoration: const InputDecoration(labelText: '组织者'),
                   validator: _requiredValidator,
                 ),
                 TextFormField(
                   key: const Key('activityPublishTitleField'),
                   controller: _titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
+                  decoration: const InputDecoration(labelText: '活动标题'),
                   validator: _requiredValidator,
                 ),
                 TextFormField(
                   key: const Key('activityPublishLocationField'),
                   controller: _locationController,
-                  decoration: const InputDecoration(labelText: 'Location'),
+                  decoration: const InputDecoration(labelText: '活动地点'),
                   validator: _requiredValidator,
                 ),
                 TextFormField(
                   key: const Key('activityPublishTimeField'),
                   controller: _timeController,
-                  decoration: const InputDecoration(labelText: 'Time'),
+                  decoration: const InputDecoration(labelText: '活动时间'),
                   validator: _requiredValidator,
                 ),
                 DropdownButtonFormField<String>(
                   initialValue: _tag,
-                  decoration: const InputDecoration(labelText: 'Type'),
+                   decoration: const InputDecoration(labelText: '活动类型'),
                   items: const [
-                    DropdownMenuItem(value: 'Culture', child: Text('Culture')),
-                    DropdownMenuItem(value: 'Health', child: Text('Health')),
-                    DropdownMenuItem(value: 'Service', child: Text('Service')),
-                    DropdownMenuItem(value: 'Exercise', child: Text('Exercise')),
+                     DropdownMenuItem(value: '文化', child: Text('文化')),
+                     DropdownMenuItem(value: '健康', child: Text('健康')),
+                     DropdownMenuItem(value: '服务', child: Text('服务')),
+                     DropdownMenuItem(value: '运动', child: Text('运动')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -510,15 +510,15 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
                 ),
                 DropdownButtonFormField<ElderlyActivityGroup>(
                   initialValue: _group,
-                  decoration: const InputDecoration(labelText: 'Group'),
+                   decoration: const InputDecoration(labelText: '分组'),
                   items: const [
                     DropdownMenuItem(
                       value: ElderlyActivityGroup.today,
-                      child: Text('Today'),
+                       child: Text('今日活动'),
                     ),
                     DropdownMenuItem(
                       value: ElderlyActivityGroup.weekly,
-                      child: Text('This week'),
+                       child: Text('本周活动'),
                     ),
                   ],
                   onChanged: (value) {
@@ -534,7 +534,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
                   controller: _descriptionController,
                   minLines: 3,
                   maxLines: 5,
-                  decoration: const InputDecoration(labelText: 'Description'),
+                  decoration: const InputDecoration(labelText: '活动简介'),
                   validator: _requiredValidator,
                 ),
               ],
@@ -545,7 +545,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+           child: const Text('取消'),
         ),
         ElevatedButton(
           key: const Key('activityPublishSubmitButton'),
@@ -565,7 +565,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
               ),
             );
           },
-          child: const Text('Publish'),
+           child: const Text('发布'),
         ),
       ],
     );
@@ -573,7 +573,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
 
   String? _requiredValidator(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'This field is required.';
+      return '该字段不能为空';
     }
     return null;
   }

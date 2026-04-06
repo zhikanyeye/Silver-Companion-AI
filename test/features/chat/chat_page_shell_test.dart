@@ -14,7 +14,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('chatServiceShell')), findsOneWidget);
-    expect(find.text('AI Assistant'), findsOneWidget);
+    expect(find.text('AI 助手'), findsOneWidget);
     expect(find.byKey(const Key('chatSpeechToggle')), findsOneWidget);
     expect(find.byKey(const Key('chatInputField')), findsOneWidget);
     expect(find.byKey(const Key('sendMessageButton')), findsOneWidget);

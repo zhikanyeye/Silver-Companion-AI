@@ -42,7 +42,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Service Settings')),
+      appBar: AppBar(title: const Text('服务设置')),
       body: Container(
         key: const Key('settingsServiceShell'),
         decoration: const BoxDecoration(gradient: AppTheme.serviceGradient),
@@ -65,11 +65,11 @@ class _SettingsPageState extends State<SettingsPage> {
                                   vertical: 10,
                                 ),
                                 title: const Text(
-                                  'Care Mode',
+                                  '关怀模式',
                                   style: TextStyle(fontWeight: FontWeight.w600),
                                 ),
                                 subtitle: const Text(
-                                  'Enable larger text and stronger contrast.',
+                                  '开启更大字号和更高对比度。',
                                 ),
                                 value: careMode,
                                 activeThumbColor: AppTheme.primary,
@@ -110,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     borderRadius: BorderRadius.circular(999),
                                   ),
                                   child: Text(
-                                    'Service Status',
+                                     '服务状态',
                                     style: theme.textTheme.labelLarge?.copyWith(
                                       color: AppTheme.serviceBluePrimary,
                                     ),
@@ -118,12 +118,12 @@ class _SettingsPageState extends State<SettingsPage> {
                                 ),
                                 const SizedBox(height: 14),
                                 Text(
-                                  'Cloud services connected',
+                                   '云端服务已连接',
                                   style: theme.textTheme.titleLarge,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Model selection is loaded from cloud configuration.',
+                                   '模型配置已从云端加载。',
                                   style: theme.textTheme.bodyMedium,
                                 ),
                               ],
@@ -137,7 +137,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               horizontal: 16,
                               vertical: 10,
                             ),
-                            title: const Text('Current Model'),
+                            title: const Text('当前模型'),
                             subtitle: Text(_model),
                             leading: Container(
                               width: 42,

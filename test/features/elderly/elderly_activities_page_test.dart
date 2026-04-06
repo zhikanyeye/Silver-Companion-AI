@@ -25,7 +25,7 @@ class _FakeElderlyActivitiesService extends ElderlyActivitiesService {
     final index = _items.indexWhere((item) => item.id == activityId);
     final updated = _items[index].copyWith(
       joinedCount: _items[index].joinedCount + 1,
-      participantNames: <String>['Test Signup', ..._items[index].participantNames],
+      participantNames: <String>['测试报名', ..._items[index].participantNames],
       joinedByMe: true,
     );
     _items[index] = updated;
@@ -63,8 +63,8 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{
       'demo_actor_id': _FakeElderlyActivitiesService.actorId,
-      'demo_display_name': 'Test Activity Partner',
-      'demo_identity_label': 'Resident',
+      'demo_display_name': '测试活动伙伴',
+      'demo_identity_label': '社区居民',
     });
   });
 
@@ -146,28 +146,28 @@ void main() {
 
     await tester.enterText(
       find.byKey(const Key('activityPublishOrganizerField')),
-      'Station Lead Zhou',
+      '周站长',
     );
     await tester.enterText(
       find.byKey(const Key('activityPublishTitleField')),
-      'Friday tea talk',
+      '周五茶话会',
     );
     await tester.enterText(
       find.byKey(const Key('activityPublishLocationField')),
-      'Community Center',
+      '社区活动中心',
     );
     await tester.enterText(
       find.byKey(const Key('activityPublishTimeField')),
-      'Fri 15:00',
+      '周五 15:00',
     );
     await tester.enterText(
       find.byKey(const Key('activityPublishDescriptionField')),
-      'Neighbors are welcome to talk about recent changes in the community.',
+      '欢迎邻里一起交流近期社区动态。',
     );
     await tester.tap(find.byKey(const Key('activityPublishSubmitButton')));
     await tester.pumpAndSettle();
 
-    expect(service._items.first.title, 'Friday tea talk');
+    expect(service._items.first.title, '周五茶话会');
     expect(
       tester.widget<Text>(find.byKey(const Key('activitiesMyCreatedCount'))).data,
       '1',

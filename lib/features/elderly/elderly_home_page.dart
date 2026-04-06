@@ -28,12 +28,12 @@ class ElderlyHomePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'What kind of help do you need?',
+                        '您需要哪类帮助？',
                         style: Theme.of(sheetContext).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Reach family or community support first, or contact platform support if needed.',
+                         '可优先联系家人或社区支持，如有需要再联系平台客服。',
                       ),
                       if (copiedMessage.isNotEmpty) ...[
                         const SizedBox(height: 12),
@@ -68,10 +68,10 @@ class ElderlyHomePage extends StatelessWidget {
                                     onPressed: () {
                                       Clipboard.setData(ClipboardData(text: contact.phone));
                                       setModalState(() {
-                                        copiedMessage = 'Contact number copied';
+                                         copiedMessage = '联系电话已复制';
                                       });
                                     },
-                                    child: const Text('Copy number'),
+                                     child: const Text('复制号码'),
                                   ),
                                 ),
                               ],
@@ -104,44 +104,44 @@ class ElderlyHomePage extends StatelessWidget {
     final services = <_ServiceItem>[
       _ServiceItem(
         key: const Key('elderlyAiCompanionEntry'),
-        title: 'AI Companion',
-        description: 'Chat with the assistant naturally.',
+         title: 'AI陪伴',
+         description: '和智能助手自然聊天。',
         onTap: () => Navigator.of(context).pushNamed(chatRoute),
       ),
       _ServiceItem(
         key: const Key('elderlyHelpEntry'),
-        title: 'Help',
-        description: 'Reach family or support quickly.',
+         title: '求助',
+         description: '快速联系家人或支持人员。',
         onTap: () => _showHelpSheet(context),
       ),
       _ServiceItem(
         key: const Key('elderlyCommunityEntry'),
-        title: 'Community',
-        description: 'See today\'s neighborhood support posts.',
+         title: '社区',
+         description: '查看今日邻里互助信息。',
         onTap: () => Navigator.of(context).pushNamed(communityRoute),
       ),
       _ServiceItem(
         key: const Key('elderlyActivitiesEntry'),
-        title: 'Activities',
-        description: 'Check community activities for today.',
+         title: '活动',
+         description: '查看社区今日活动安排。',
         onTap: () => Navigator.of(context).pushNamed(elderlyActivitiesRoute),
       ),
       _ServiceItem(
         key: const Key('childAvatarEntry'),
-        title: 'Xiao Ling Online',
-        description: 'Open chat directly with the assistant.',
+         title: '小灵在线',
+         description: '一键进入智能助手聊天。',
         onTap: () => Navigator.of(context).pushNamed(chatRoute),
       ),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Elderly Home')),
+       appBar: AppBar(title: const Text('长者首页')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showSOSDialog(context),
         backgroundColor: AppTheme.error,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.sos_rounded),
-        label: const Text('Emergency SOS'),
+         label: const Text('紧急求助'),
       ),
       body: DecoratedBox(
         decoration: const BoxDecoration(gradient: AppTheme.serviceGradient),
@@ -165,18 +165,18 @@ class ElderlyHomePage extends StatelessWidget {
                     child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Today Service Hall', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                        Text('今日服务大厅', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                         SizedBox(height: 12),
-                        Text('What would you like to use first today?', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
+                        Text('今天想先使用哪项服务？', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
                         SizedBox(height: 8),
-                        Text('Key entries are organized for chat, help, and community updates.'),
+                        Text('聊天、求助、社区动态等常用入口已为您整理好。'),
                         SizedBox(height: 16),
-                        Text('Today key services', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                        Text('今日重点服务', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),
                   const SizedBox(height: 18),
-                  const Text('Common services', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
+                  const Text('常用服务', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 12),
                   if (isCompact)
                     Column(
@@ -297,12 +297,12 @@ class _SOSDialogState extends State<_SOSDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Emergency SOS active'),
-      content: Text('An emergency alert will be sent in $_countdown seconds unless canceled.'),
+       title: const Text('紧急求助已启动'),
+       content: Text('若不取消，将在 $_countdown 秒后发送紧急提醒。'),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+           child: const Text('取消'),
         ),
       ],
     );

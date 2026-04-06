@@ -27,7 +27,7 @@ void main() {
       (WidgetTester tester) async {
     await pumpAppToElderlyHome(tester);
 
-    expect(find.text('Elderly Home'), findsOneWidget);
+    expect(find.text('长者首页'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 
@@ -35,7 +35,7 @@ void main() {
       (WidgetTester tester) async {
     await pumpAppToChildHome(tester);
 
-    expect(find.text('Child Dashboard'), findsOneWidget);
+    expect(find.text('子女看护看板'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 
@@ -49,8 +49,8 @@ void main() {
     await tester.tap(activitiesEntry.hitTestable());
     await tester.pumpAndSettle();
 
-    expect(find.text('Activity Schedule'), findsWidgets);
-    expect(find.text('Today'), findsOneWidget);
+    expect(find.text('活动日程'), findsWidgets);
+    expect(find.text('今日活动'), findsOneWidget);
   });
 
   testWidgets('navigates to platform route when launched on platform route',
@@ -58,7 +58,7 @@ void main() {
     await tester.pumpWidget(const App(initialRoute: platformRoute));
     await tester.pumpAndSettle();
 
-    final platformText = find.text('Platform');
+    final platformText = find.text('平台服务');
     expect(platformText, findsOneWidget);
 
     final platformPage = find.byType(PlatformPlaceholderPage);
@@ -68,7 +68,7 @@ void main() {
     final route = ModalRoute.of(tester.element(platformPage));
 
     expect(route?.settings.name, platformRoute);
-    expect(find.text('Platform services are being prepared.'), findsOneWidget);
+    expect(find.text('平台服务正在准备中。'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 }

@@ -89,7 +89,7 @@ class _ChildHomePageState extends State<ChildHomePage> {
       }
       setState(() {
         _isRefreshing = false;
-        _refreshMessage = 'Refresh failed. Please try again later.';
+        _refreshMessage = '刷新失败，请稍后再试。';
       });
     }
   }
@@ -98,7 +98,7 @@ class _ChildHomePageState extends State<ChildHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Child Dashboard'),
+        title: const Text('子女看护看板'),
         actions: [
           IconButton(
             icon: const Icon(Icons.home_rounded),
@@ -146,7 +146,7 @@ class _ChildHomePageState extends State<ChildHomePage> {
         key: Key('childDashboardLoading'),
         child: Padding(
           padding: EdgeInsets.all(24),
-          child: Text('Loading family status...'),
+          child: Text('正在加载家庭状态...'),
         ),
       );
     }
@@ -160,13 +160,13 @@ class _ChildHomePageState extends State<ChildHomePage> {
             children: [
               const Icon(Icons.cloud_off_rounded, size: 42),
               const SizedBox(height: 12),
-              const Text('Unable to load family status right now'),
+              const Text('暂时无法加载家庭状态'),
               const SizedBox(height: 8),
-              const Text('Please try again later.'),
+              const Text('请稍后再试。'),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _loadInitial,
-                child: const Text('Reload'),
+                child: const Text('重新加载'),
               ),
             ],
           ),
@@ -251,12 +251,12 @@ class _ChildOverviewHero extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Family Care Overview',
+            '家庭照护总览',
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 8),
           const Text(
-            'Today\'s care priorities are summarized for you in one place.',
+            '今日照护重点已为您汇总，一目了然。',
           ),
           const SizedBox(height: 18),
           Wrap(
@@ -298,9 +298,9 @@ class _StatusPanel extends StatelessWidget {
       key: const Key('childStatusPanel'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Care indicators', style: Theme.of(context).textTheme.titleLarge),
+        Text('照护指标', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 6),
-        const Text('Review the most important changes for today.'),
+        const Text('查看今天最重要的变化。'),
         const SizedBox(height: 12),
         ...items.map(
           (item) => Padding(
@@ -329,9 +329,9 @@ class _AlertTimelinePanel extends StatelessWidget {
       key: const Key('childAlertPanel'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Today\'s reminders', style: Theme.of(context).textTheme.titleLarge),
+        Text('今日提醒', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 6),
-        const Text('A simple timeline so nothing important is missed.'),
+        const Text('按时间线展示提醒，不错过重要事项。'),
         const SizedBox(height: 12),
         ...items.map(
           (item) => Padding(

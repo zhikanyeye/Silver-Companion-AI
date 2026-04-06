@@ -117,7 +117,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
         return;
       }
       setState(() {
-        _errorMessage = 'Publish failed. Please verify the KV binding.';
+        _errorMessage = '发布失败，请检查 KV 配置。';
       });
     }
   }
@@ -142,7 +142,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
         return;
       }
       setState(() {
-        _errorMessage = 'Respond failed. Please try again.';
+        _errorMessage = '响应失败，请稍后重试。';
       });
     }
   }
@@ -150,7 +150,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Community Board')),
+      appBar: AppBar(title: const Text('社区互助')),
       body: Container(
         key: const Key('communityServiceShell'),
         decoration: const BoxDecoration(gradient: AppTheme.serviceGradient),
@@ -167,12 +167,12 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Neighborhood help board',
+                           '邻里互助看板',
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'View nearby requests, respond to others, or publish a new help request.',
+                           '查看周边求助信息、响应他人需求，或发布新的互助请求。',
                         ),
                       ],
                     ),
@@ -209,7 +209,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
                   const Card(
                     child: Padding(
                       padding: EdgeInsets.all(24),
-                      child: Text('No community posts yet.'),
+                       child: Text('暂无社区帖子。'),
                     ),
                   )
                 else
@@ -230,7 +230,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openPublishDialog,
         icon: const Icon(Icons.edit_outlined),
-        label: const Text('Publish'),
+        label: const Text('发布求助'),
       ),
     );
   }
@@ -249,8 +249,8 @@ class _MyCommunitySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = identity?.displayName ?? 'Neighbor';
-    final identityLabel = identity?.identityLabel ?? 'Resident';
+    final displayName = identity?.displayName ?? '邻里用户';
+    final identityLabel = identity?.identityLabel ?? '社区居民';
 
     return Card(
       key: const Key('communityMySummaryCard'),
@@ -268,7 +268,7 @@ class _MyCommunitySummaryCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _MetricTile(
-                    label: 'Published',
+                     label: '我发布的',
                     value: '${publishedPosts.length}',
                     valueKey: const Key('communityMyPublishedCount'),
                   ),
@@ -276,7 +276,7 @@ class _MyCommunitySummaryCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _MetricTile(
-                    label: 'Responded',
+                     label: '我响应的',
                     value: '${respondedPosts.length}',
                     valueKey: const Key('communityMyRespondedCount'),
                   ),
@@ -340,7 +340,7 @@ class _FeedSwitcher extends StatelessWidget {
             Expanded(
               child: ChoiceChip(
                 key: const Key('communityFeedRecommendedTab'),
-                label: const Text('Recommended'),
+                label: const Text('推荐'),
                 selected: selectedBucket == CommunityFeedBucket.recommended,
                 onSelected: (_) => onChanged(CommunityFeedBucket.recommended),
               ),
@@ -349,7 +349,7 @@ class _FeedSwitcher extends StatelessWidget {
             Expanded(
               child: ChoiceChip(
                 key: const Key('communityFeedLatestTab'),
-                label: const Text('Latest'),
+                label: const Text('最新'),
                 selected: selectedBucket == CommunityFeedBucket.latest,
                 onSelected: (_) => onChanged(CommunityFeedBucket.latest),
               ),
@@ -393,7 +393,7 @@ class _CommunityPostCard extends StatelessWidget {
             ),
             if (post.helperNames.isNotEmpty) ...[
               const SizedBox(height: 12),
-              Text('Recent helpers: ${post.helperNames.join(', ')}'),
+              Text('近期帮助者：${post.helperNames.join('、')}'),
             ],
             const SizedBox(height: 12),
             Row(
@@ -410,28 +410,28 @@ class _CommunityPostCard extends StatelessWidget {
                           children: [
                             Text(post.summary),
                             const SizedBox(height: 12),
-                            Text('Location: ${post.location}'),
+                            Text('地点：${post.location}'),
                             const SizedBox(height: 8),
-                            Text('Status: ${post.responseStatus}'),
+                            Text('状态：${post.responseStatus}'),
                           ],
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Close'),
+                            child: const Text('关闭'),
                           ),
                         ],
                       ),
                     );
                   },
-                  child: const Text('Details'),
+                  child: const Text('详情'),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     key: Key('communityRespondButton_${post.id}'),
                     onPressed: post.respondedByMe ? null : onRespond,
-                    child: Text(post.respondedByMe ? 'Responded' : 'I can help'),
+                     child: Text(post.respondedByMe ? '已响应' : '我来帮忙'),
                   ),
                 ),
               ],
@@ -495,7 +495,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _summaryController = TextEditingController();
-  String _selectedTag = 'Help';
+  String _selectedTag = '求助';
 
   @override
   void dispose() {
@@ -510,7 +510,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Publish community post'),
+      title: const Text('发布社区互助'),
       content: SizedBox(
         width: 420,
         child: Form(
@@ -522,21 +522,21 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
                 TextFormField(
                   key: const Key('communityPublishNameField'),
                   controller: _usernameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
+                  decoration: const InputDecoration(labelText: '姓名'),
                   validator: _requiredValidator,
                 ),
                 TextFormField(
                   key: const Key('communityPublishIdentityField'),
                   controller: _identityController,
-                  decoration: const InputDecoration(labelText: 'Identity'),
+                  decoration: const InputDecoration(labelText: '身份'),
                   validator: _requiredValidator,
                 ),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedTag,
-                  decoration: const InputDecoration(labelText: 'Type'),
+                   decoration: const InputDecoration(labelText: '类型'),
                   items: const [
-                    DropdownMenuItem(value: 'Help', child: Text('Help')),
-                    DropdownMenuItem(value: 'Mutual aid', child: Text('Mutual aid')),
+                     DropdownMenuItem(value: '求助', child: Text('求助')),
+                     DropdownMenuItem(value: '互助', child: Text('互助')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -549,13 +549,13 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
                 TextFormField(
                   key: const Key('communityPublishTitleField'),
                   controller: _titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
+                  decoration: const InputDecoration(labelText: '标题'),
                   validator: _requiredValidator,
                 ),
                 TextFormField(
                   key: const Key('communityPublishLocationField'),
                   controller: _locationController,
-                  decoration: const InputDecoration(labelText: 'Location'),
+                  decoration: const InputDecoration(labelText: '地点'),
                   validator: _requiredValidator,
                 ),
                 TextFormField(
@@ -563,7 +563,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
                   controller: _summaryController,
                   minLines: 3,
                   maxLines: 5,
-                  decoration: const InputDecoration(labelText: 'Summary'),
+                  decoration: const InputDecoration(labelText: '内容简介'),
                   validator: _requiredValidator,
                 ),
               ],
@@ -574,7 +574,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+           child: const Text('取消'),
         ),
         ElevatedButton(
           key: const Key('communityPublishSubmitButton'),
@@ -593,7 +593,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
               ),
             );
           },
-          child: const Text('Publish'),
+           child: const Text('发布'),
         ),
       ],
     );
@@ -601,7 +601,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
 
   String? _requiredValidator(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'This field is required.';
+      return '该字段不能为空';
     }
     return null;
   }

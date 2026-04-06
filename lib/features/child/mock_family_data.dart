@@ -33,16 +33,16 @@ class ChildDashboardData {
 
 const ChildDashboardData mockChildDashboardData = ChildDashboardData(
   overviewMetrics: [
-    ChildOverviewMetricData(label: 'Today overall', value: 'Stable'),
-    ChildOverviewMetricData(label: 'Communication', value: 'Good'),
-    ChildOverviewMetricData(label: 'Priority reminders', value: '2'),
+    ChildOverviewMetricData(label: '今日总体', value: '平稳'),
+    ChildOverviewMetricData(label: '沟通状态', value: '良好'),
+    ChildOverviewMetricData(label: '重点提醒', value: '2'),
   ],
   statusCards: [
-    ChildStatusCardData(label: 'Daily activity', value: '82'),
-    ChildStatusCardData(label: 'Mood trend', value: 'Improving'),
+    ChildStatusCardData(label: '日常活动量', value: '82'),
+    ChildStatusCardData(label: '情绪趋势', value: '向好'),
   ],
   alerts: [
-    ChildAlertItem(time: '17:30', title: 'Drink water reminder'),
-    ChildAlertItem(time: '20:00', title: 'Bedtime reading'),
+    ChildAlertItem(time: '17:30', title: '饮水提醒'),
+    ChildAlertItem(time: '20:00', title: '睡前阅读'),
   ],
 );

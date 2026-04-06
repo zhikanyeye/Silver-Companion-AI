@@ -40,8 +40,8 @@ class PlatformPlaceholderPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Platform')),
-      body: const Center(child: Text('Platform services are being prepared.')),
+      appBar: AppBar(title: const Text('平台服务')),
+      body: const Center(child: Text('平台服务正在准备中。')),
     );
   }
 }
