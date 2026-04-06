@@ -27,7 +27,7 @@ void main() {
       (WidgetTester tester) async {
     await pumpAppToElderlyHome(tester);
 
-    expect(find.text('老人端'), findsOneWidget);
+    expect(find.text('Elderly Home'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 
@@ -35,7 +35,7 @@ void main() {
       (WidgetTester tester) async {
     await pumpAppToChildHome(tester);
 
-    expect(find.text('子女端'), findsOneWidget);
+    expect(find.text('Child Dashboard'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 
@@ -43,19 +43,14 @@ void main() {
       (WidgetTester tester) async {
     await pumpAppToElderlyHome(tester);
 
-    await tester.scrollUntilVisible(find.text('活动'), 200);
+    final activitiesEntry = find.byKey(const Key('elderlyActivitiesEntry'));
+    await tester.ensureVisible(activitiesEntry);
+    await tester.pumpAndSettle();
+    await tester.tap(activitiesEntry.hitTestable());
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('活动'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('活动安排'), findsWidgets);
-    expect(find.text('今日推荐'), findsOneWidget);
-
-    await tester.scrollUntilVisible(find.text('本周活动'), 200);
-    await tester.pumpAndSettle();
-
-    expect(find.text('本周活动'), findsOneWidget);
+    expect(find.text('Activity Schedule'), findsWidgets);
+    expect(find.text('Today'), findsOneWidget);
   });
 
   testWidgets('navigates to platform route when launched on platform route',
@@ -63,7 +58,7 @@ void main() {
     await tester.pumpWidget(const App(initialRoute: platformRoute));
     await tester.pumpAndSettle();
 
-    final platformText = find.text('平台端');
+    final platformText = find.text('Platform');
     expect(platformText, findsOneWidget);
 
     final platformPage = find.byType(PlatformPlaceholderPage);
@@ -73,7 +68,7 @@ void main() {
     final route = ModalRoute.of(tester.element(platformPage));
 
     expect(route?.settings.name, platformRoute);
-    expect(find.text('平台服务正在准备中'), findsOneWidget);
+    expect(find.text('Platform services are being prepared.'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 }

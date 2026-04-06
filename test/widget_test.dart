@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:yinling_zhiban_demo/app.dart';
+import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
+import 'package:yinling_zhiban_demo/features/landing/landing_page.dart';
+import 'package:yinling_zhiban_demo/features/role/role_select_page.dart';
+import 'package:yinling_zhiban_demo/routes.dart';
 
 void main() {
   testWidgets('App boots to landing route', (WidgetTester tester) async {
     await tester.pumpWidget(const App());
+    final landingPage = find.byType(LandingPage);
 
-    expect(find.text('银龄智伴'), findsOneWidget);
-    expect(find.text('让长辈在熟悉的关怀里，获得更安心的数字陪伴。'), findsOneWidget);
-    expect(find.text('登录'), findsOneWidget);
-    expect(find.text('注册'), findsOneWidget);
-    expect(find.text('老人端'), findsNothing);
-    expect(find.text('子女端'), findsNothing);
+    expect(landingPage, findsOneWidget);
+    expect(
+      ModalRoute.of(tester.element(landingPage))?.settings.name,
+      landingRoute,
+    );
+    expect(find.byType(AuthPage), findsNothing);
+    expect(find.byType(RoleSelectPage), findsNothing);
   });
 }

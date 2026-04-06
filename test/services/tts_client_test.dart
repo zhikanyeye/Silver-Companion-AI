@@ -16,18 +16,21 @@ class _FakeHttpClient extends http.BaseClient {
 }
 
 void main() {
-  test('posts text to TTS endpoint and returns audio bytes', () async {
+  test('posts text to tts proxy and returns audio bytes', () async {
     late http.BaseRequest capturedRequest;
     final client = _FakeHttpClient((request) async {
       capturedRequest = request;
       return http.StreamedResponse(
         Stream.value(Uint8List.fromList([1, 2, 3, 4])),
         200,
-        headers: {'content-type': 'audio/wav'},
+        headers: {'content-type': 'audio/mpeg'},
       );
     });
 
-    final ttsClient = TTSClient(client: client, baseUri: Uri.parse('https://tts.example.com/tts'));
+    final ttsClient = TTSClient(
+      client: client,
+      proxyUri: Uri.parse('https://tts.example.com/tts'),
+    );
     final audio = await ttsClient.synthesize(
       text: '您好，今天感觉怎么样？',
       voice: 'Bella',
@@ -37,11 +40,13 @@ void main() {
     expect(audio, Uint8List.fromList([1, 2, 3, 4]));
     expect(capturedRequest.url.toString(), 'https://tts.example.com/tts');
     final body = jsonDecode((capturedRequest as http.Request).body) as Map<String, dynamic>;
-    expect(body['text'], '您好，今天感觉怎么样？');
+    expect(body['model'], 'tts-1');
+    expect(body['input'], '您好，今天感觉怎么样？');
     expect(body['voice'], 'Bella');
+    expect(body['response_format'], 'mp3');
   });
 
-  test('throws safe error when TTS endpoint fails', () async {
+  test('throws safe error when tts proxy fails', () async {
     final client = _FakeHttpClient((request) async {
       return http.StreamedResponse(
         Stream.value(utf8.encode('{"error":"down"}')),
@@ -50,7 +55,10 @@ void main() {
       );
     });
 
-    final ttsClient = TTSClient(client: client, baseUri: Uri.parse('https://tts.example.com/tts'));
+    final ttsClient = TTSClient(
+      client: client,
+      proxyUri: Uri.parse('https://tts.example.com/tts'),
+    );
 
     expect(
       () => ttsClient.synthesize(text: '您好', voice: 'Bella', speed: 1.0),

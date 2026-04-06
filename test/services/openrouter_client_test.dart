@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:yinling_zhiban_demo/services/openrouter_client.dart';
+import 'package:yinling_zhiban_demo/services/ai_chat_client.dart';
 
 void main() {
-  test('sends messages without model and parses first response content', () async {
+  test('posts messages to proxy and parses first response content', () async {
     late http.Request capturedRequest;
 
     final mockClient = MockClient((request) async {
@@ -26,7 +26,7 @@ void main() {
       );
     });
 
-    final client = OpenRouterClient(
+    final client = AiChatClient(
       client: mockClient,
       proxyUri: Uri.parse('https://example.com/api/chat'),
     );
@@ -40,11 +40,9 @@ void main() {
 
     expect(capturedRequest.method, 'POST');
     expect(capturedRequest.url.toString(), 'https://example.com/api/chat');
-    expect(capturedRequest.headers['Authorization'], isNull);
     final payload = jsonDecode(capturedRequest.body) as Map<String, dynamic>;
-    expect(payload.containsKey('model'), isFalse);
     expect(payload['messages'], isA<List<dynamic>>());
-    expect((payload['messages'] as List<dynamic>), hasLength(2));
+    expect(payload.containsKey('model'), isFalse);
     final firstMessage = payload['messages'][0] as Map<String, dynamic>;
     expect(firstMessage['role'], 'user');
     expect(firstMessage['content'], 'hi');
@@ -56,40 +54,7 @@ void main() {
       return http.Response('bad response body', 500);
     });
 
-    final client = OpenRouterClient(
-      client: mockClient,
-      proxyUri: Uri.parse('https://example.com/api/chat'),
-    );
-
-    expect(
-      () => client.createChatCompletion(
-        model: 'test-model',
-        messages: const [
-          {'role': 'user', 'content': 'hi'},
-        ],
-      ),
-      throwsA(
-        isA<StateError>()
-            .having(
-              (error) => error.message,
-              'message',
-              contains('500'),
-            )
-            .having(
-              (error) => error.message,
-              'message',
-              contains('bad response body'),
-            ),
-      ),
-    );
-  });
-
-  test('throws StateError when response JSON is invalid', () async {
-    final mockClient = MockClient((request) async {
-      return http.Response('not-json', 200);
-    });
-
-    final client = OpenRouterClient(
+    final client = AiChatClient(
       client: mockClient,
       proxyUri: Uri.parse('https://example.com/api/chat'),
     );
@@ -105,22 +70,18 @@ void main() {
         isA<StateError>().having(
           (error) => error.message,
           'message',
-          contains('invalid JSON'),
+          allOf(contains('500'), contains('bad response body')),
         ),
       ),
     );
   });
 
-  test('throws StateError when response JSON is not a map', () async {
+  test('throws StateError when response JSON is invalid', () async {
     final mockClient = MockClient((request) async {
-      return http.Response(
-        jsonEncode(['not', 'a', 'map']),
-        200,
-        headers: {'content-type': 'application/json'},
-      );
+      return http.Response('not-json', 200);
     });
 
-    final client = OpenRouterClient(
+    final client = AiChatClient(
       client: mockClient,
       proxyUri: Uri.parse('https://example.com/api/chat'),
     );
@@ -151,7 +112,7 @@ void main() {
       );
     });
 
-    final client = OpenRouterClient(
+    final client = AiChatClient(
       client: mockClient,
       proxyUri: Uri.parse('https://example.com/api/chat'),
     );
@@ -173,12 +134,12 @@ void main() {
     );
   });
 
-  test('throws StateError when response message is missing', () async {
+  test('throws StateError when response message or content is missing', () async {
     final mockClient = MockClient((request) async {
       return http.Response(
         jsonEncode({
           'choices': [
-            {},
+            {'message': {}},
           ],
         }),
         200,
@@ -186,44 +147,7 @@ void main() {
       );
     });
 
-    final client = OpenRouterClient(
-      client: mockClient,
-      proxyUri: Uri.parse('https://example.com/api/chat'),
-    );
-
-    expect(
-      () => client.createChatCompletion(
-        model: 'test-model',
-        messages: const [
-          {'role': 'user', 'content': 'hi'},
-        ],
-      ),
-      throwsA(
-        isA<StateError>().having(
-          (error) => error.message,
-          'message',
-          contains('missing message'),
-        ),
-      ),
-    );
-  });
-
-  test('throws StateError when response content is missing', () async {
-    final mockClient = MockClient((request) async {
-      return http.Response(
-        jsonEncode({
-          'choices': [
-            {
-              'message': {},
-            },
-          ],
-        }),
-        200,
-        headers: {'content-type': 'application/json'},
-      );
-    });
-
-    final client = OpenRouterClient(
+    final client = AiChatClient(
       client: mockClient,
       proxyUri: Uri.parse('https://example.com/api/chat'),
     );

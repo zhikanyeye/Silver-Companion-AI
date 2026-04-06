@@ -19,8 +19,8 @@ void main() {
       ModalRoute.of(tester.element(landingPage))?.settings.name,
       landingRoute,
     );
-    expect(find.text('登录'), findsOneWidget);
-    expect(find.text('注册'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
+    expect(find.text('Register'), findsOneWidget);
     expect(find.byType(AuthPage), findsNothing);
     expect(find.byType(RoleSelectPage), findsNothing);
   });

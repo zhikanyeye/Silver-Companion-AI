@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
-import 'package:yinling_zhiban_demo/services/openrouter_client.dart';
+import 'package:yinling_zhiban_demo/services/ai_chat_client.dart';
 
-class _FakeOpenRouterClient extends OpenRouterClient {
-  _FakeOpenRouterClient({required this.response}) : super();
+class _FakeAiChatClient extends AiChatClient {
+  _FakeAiChatClient({required this.response}) : super();
 
   final String response;
   String? capturedModel;
@@ -22,7 +22,7 @@ class _FakeOpenRouterClient extends OpenRouterClient {
 
 void main() {
   test('forwards model and messages to client and returns response text', () async {
-    final client = _FakeOpenRouterClient(response: 'proxy reply');
+    final client = _FakeAiChatClient(response: 'proxy reply');
     final repository = ChatRepository(client: client);
 
     final result = await repository.sendMessage(

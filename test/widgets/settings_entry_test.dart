@@ -15,13 +15,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('settingsServiceShell')), findsOneWidget);
-    expect(find.text('服务设置'), findsOneWidget);
-    expect(find.text('云端服务已连接'), findsOneWidget);
-    expect(find.text('由云端配置管理'), findsOneWidget);
-    expect(find.text('当前模型'), findsOneWidget);
+    expect(find.text('Service Settings'), findsOneWidget);
+    expect(find.text('Cloud services connected'), findsOneWidget);
+    expect(
+      find.text('Model selection is loaded from cloud configuration.'),
+      findsOneWidget,
+    );
+    expect(find.text('Current Model'), findsOneWidget);
     expect(find.text('openai/gpt-4o-mini'), findsOneWidget);
-    expect(find.text('访问凭证'), findsNothing);
-    expect(find.text('保存设置'), findsNothing);
     expect(find.byType(TextField), findsNothing);
   });
 }

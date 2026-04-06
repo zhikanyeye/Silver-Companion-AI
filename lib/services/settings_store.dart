@@ -1,21 +1,36 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
+import 'package:yinling_zhiban_demo/services/kv_client.dart';
 
 class SettingsData {
-  const SettingsData({
-    required this.model,
-  });
+  const SettingsData({required this.model});
 
   final String model;
 }
 
 class SettingsStore {
-  static const String apiKeyPreferenceKey = 'openrouter_api_key';
+  SettingsStore({KvClient? kvClient, DemoIdentityStore? identityStore})
+    : _kvClient = kvClient ?? const KvClient(),
+      _identityStore = identityStore ?? DemoIdentityStore();
+
+  final KvClient _kvClient;
+  final DemoIdentityStore _identityStore;
+
   static const String modelPreferenceKey = 'openrouter_model';
   static const String defaultModel = 'openai/gpt-4o-mini';
 
-  Future<SettingsData> load() async {
-    final preferences = await SharedPreferences.getInstance();
+  Future<String> _settingsKey() async {
+    final identity = await _identityStore.loadOrCreate();
+    return 'user_settings_${identity.actorId}';
+  }
 
+  Future<SettingsData> load() async {
+    final kvData = await _kvClient.get(await _settingsKey());
+    if (kvData != null && kvData['model'] is String) {
+      return SettingsData(model: kvData['model'] as String);
+    }
+
+    final preferences = await SharedPreferences.getInstance();
     final savedModel = preferences.getString(modelPreferenceKey) ?? '';
     final fallbackModel = const String.fromEnvironment(
       'OPENROUTER_MODEL',
@@ -28,8 +43,11 @@ class SettingsStore {
   }
 
   Future<void> save({required String model}) async {
+    final cleanModel = model.trim();
     final preferences = await SharedPreferences.getInstance();
-    await preferences.remove(apiKeyPreferenceKey);
-    await preferences.setString(modelPreferenceKey, model.trim());
+    await preferences.setString(modelPreferenceKey, cleanModel);
+    await _kvClient.put(await _settingsKey(), <String, dynamic>{
+      'model': cleanModel,
+    });
   }
 }

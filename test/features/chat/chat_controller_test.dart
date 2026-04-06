@@ -1,10 +1,11 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'dart:typed_data';
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_controller.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
 import 'package:yinling_zhiban_demo/features/chat/memory_store.dart';
 import 'package:yinling_zhiban_demo/services/audio_playback_service.dart';
+import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
 import 'package:yinling_zhiban_demo/services/tts_client.dart';
 import 'package:yinling_zhiban_demo/services/web_speech_service.dart';
 
@@ -14,6 +15,17 @@ class _TestMemoryStore extends MemoryStore {
 
   @override
   Future<void> save(List<String> memory) async {}
+}
+
+class _FakeIdentityStore extends DemoIdentityStore {
+  @override
+  Future<DemoIdentity> loadOrCreate() async {
+    return const DemoIdentity(
+      actorId: 'guest-test',
+      displayName: 'Test User',
+      identityLabel: 'Resident',
+    );
+  }
 }
 
 class _FakeChatRepository extends ChatRepository {
@@ -43,7 +55,7 @@ class _RecordingSpeechService extends WebSpeechService {
       );
 
   final bool supported;
-  final List<String> spokenTexts = [];
+  final List<String> spokenTexts = <String>[];
 
   @override
   void speak(String text) {
@@ -52,10 +64,11 @@ class _RecordingSpeechService extends WebSpeechService {
 }
 
 class _FakeTTSClient extends TTSClient {
-  _FakeTTSClient({this.shouldThrow = false, this.audio = const [1, 2, 3]});
+  _FakeTTSClient({this.shouldThrow = false})
+    : super(proxyUri: Uri.parse('https://tts.example.com/tts'));
 
   final bool shouldThrow;
-  final List<int> audio;
+  final List<int> audio = const <int>[1, 2, 3];
   int calls = 0;
 
   @override
@@ -63,6 +76,7 @@ class _FakeTTSClient extends TTSClient {
     required String text,
     String voice = 'Bella',
     double speed = 1.0,
+    String format = 'mp3',
   }) async {
     calls += 1;
     if (shouldThrow) {
@@ -81,7 +95,7 @@ class _RecordingAudioPlaybackService extends AudioPlaybackService {
       );
 
   final bool supported;
-  final List<Uint8List> playedAudio = [];
+  final List<Uint8List> playedAudio = <Uint8List>[];
 
   @override
   Future<void> playBytes(Uint8List bytes, {String mimeType = 'audio/wav'}) async {
@@ -90,6 +104,24 @@ class _RecordingAudioPlaybackService extends AudioPlaybackService {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  ChatController createController({
+    ChatRepository? repository,
+    WebSpeechService? speechService,
+    TTSClient? ttsClient,
+    AudioPlaybackService? audioPlaybackService,
+  }) {
+    return ChatController(
+      repository: repository,
+      speechService: speechService,
+      ttsClient: ttsClient,
+      audioPlaybackService: audioPlaybackService,
+      memoryStore: _TestMemoryStore(),
+      identityStore: _FakeIdentityStore(),
+    );
+  }
+
   test('startRecognition keeps recognizing false when unsupported', () {
     final speechService = WebSpeechService(
       isWeb: () => false,
@@ -97,10 +129,7 @@ void main() {
         throw StateError('should not be called when unsupported');
       },
     );
-    final controller = ChatController(
-      speechService: speechService,
-      memoryStore: _TestMemoryStore(),
-    );
+    final controller = createController(speechService: speechService);
 
     controller.startRecognition();
 
@@ -120,10 +149,7 @@ void main() {
         stopCalls += 1;
       },
     );
-    final controller = ChatController(
-      speechService: speechService,
-      memoryStore: _TestMemoryStore(),
-    );
+    final controller = createController(speechService: speechService);
 
     controller.startRecognition();
     expect(controller.isRecognizing, isTrue);
@@ -136,54 +162,60 @@ void main() {
   });
 
   test('sendText maps proxy not configured failures to safe service message', () async {
-    final controller = ChatController(
+    final controller = createController(
       repository: _FakeChatRepository(
         errorToThrow: StateError(
           'OpenRouter request failed: 404 proxy route missing at https://proxy.example.com/api/chat',
         ),
       ),
-      memoryStore: _TestMemoryStore(),
     );
 
     await controller.sendText('hello');
 
-    expect(controller.error, 'AI 服务配置不可用，请稍后再试');
+    expect(
+      controller.error,
+      'AI service configuration is unavailable. Please try again later.',
+    );
     expect(controller.error, isNot(contains('proxy.example.com')));
     expect(controller.error, isNot(contains('OpenRouter request failed')));
     expect(controller.messages, hasLength(1));
   });
 
   test('sendText maps 400 failures to safe invalid request message', () async {
-    final controller = ChatController(
+    final controller = createController(
       repository: _FakeChatRepository(
         errorToThrow: StateError(
           'OpenRouter request failed: 400 invalid model sk-test-key https://api.example.com/v1/chat',
         ),
       ),
-      memoryStore: _TestMemoryStore(),
     );
 
     await controller.sendText('hello');
 
-    expect(controller.error, '请求内容无效，请修改后重试');
+    expect(
+      controller.error,
+      'Request content is invalid. Please revise it and try again.',
+    );
     expect(controller.error, isNot(contains('sk-test-key')));
     expect(controller.error, isNot(contains('api.example.com')));
     expect(controller.error, isNot(contains('400')));
   });
 
   test('sendText maps upstream unavailable failures to temporary service message', () async {
-    final controller = ChatController(
+    final controller = createController(
       repository: _FakeChatRepository(
         errorToThrow: StateError(
           'OpenRouter request failed: 504 upstream timeout at https://proxy.example.com/api/chat',
         ),
       ),
-      memoryStore: _TestMemoryStore(),
     );
 
     await controller.sendText('hello');
 
-    expect(controller.error, 'AI 服务暂时不可用，请稍后再试');
+    expect(
+      controller.error,
+      'AI service is temporarily unavailable. Please try again later.',
+    );
     expect(controller.error, isNot(contains('proxy.example.com')));
     expect(controller.error, isNot(contains('upstream')));
     expect(controller.error, isNot(contains('504')));
@@ -193,13 +225,11 @@ void main() {
     final speechService = _RecordingSpeechService();
     final ttsClient = _FakeTTSClient();
     final audioPlaybackService = _RecordingAudioPlaybackService();
-    ttsClient.configureBaseUri('https://tts.example.com/tts');
-    final controller = ChatController(
+    final controller = createController(
       repository: _FakeChatRepository(reply: 'assistant ok'),
       speechService: speechService,
       ttsClient: ttsClient,
       audioPlaybackService: audioPlaybackService,
-      memoryStore: _TestMemoryStore(),
     );
 
     await controller.sendText('hello');
@@ -209,7 +239,9 @@ void main() {
     expect(controller.messages.first.content, 'hello');
     expect(controller.messages.last.content, 'assistant ok');
     expect(ttsClient.calls, 1);
-    expect(audioPlaybackService.playedAudio, [Uint8List.fromList([1, 2, 3])]);
+    expect(audioPlaybackService.playedAudio, <Uint8List>[
+      Uint8List.fromList(<int>[1, 2, 3]),
+    ]);
     expect(speechService.spokenTexts, isEmpty);
   });
 
@@ -217,32 +249,27 @@ void main() {
     final speechService = _RecordingSpeechService();
     final ttsClient = _FakeTTSClient(shouldThrow: true);
     final audioPlaybackService = _RecordingAudioPlaybackService();
-    ttsClient.configureBaseUri('https://tts.example.com/tts');
-    final controller = ChatController(
+    final controller = createController(
       repository: _FakeChatRepository(reply: 'assistant ok'),
       speechService: speechService,
       ttsClient: ttsClient,
       audioPlaybackService: audioPlaybackService,
-      memoryStore: _TestMemoryStore(),
     );
 
     await controller.sendText('hello');
 
     expect(ttsClient.calls, 1);
     expect(audioPlaybackService.playedAudio, isEmpty);
-    expect(speechService.spokenTexts, ['assistant ok']);
+    expect(speechService.spokenTexts, <String>['assistant ok']);
   });
 
   test('can replay last assistant message when speech is enabled', () async {
     final speechService = _RecordingSpeechService();
-    final controller = ChatController(
-      speechService: speechService,
-      memoryStore: _TestMemoryStore(),
-    );
+    final controller = createController(speechService: speechService);
 
-    controller.debugAddAssistantMessage('再次问候');
+    controller.debugAddAssistantMessage('replay me');
     await controller.replayLastAssistantMessage();
 
-    expect(speechService.spokenTexts, ['再次问候']);
+    expect(speechService.spokenTexts, <String>['replay me']);
   });
 }

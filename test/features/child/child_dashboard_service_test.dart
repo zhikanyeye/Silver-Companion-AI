@@ -11,8 +11,8 @@ void main() {
     expect(dashboard.overviewMetrics, isNotEmpty);
     expect(dashboard.statusCards, isNotEmpty);
     expect(dashboard.alerts, isNotEmpty);
-    expect(dashboard.overviewMetrics.first.label, '今日整体状态');
-    expect(dashboard.statusCards.first.label, '今日活跃');
-    expect(dashboard.alerts.first.title, '按时喝水提醒');
+    expect(dashboard.overviewMetrics.first.label, 'Today overall');
+    expect(dashboard.statusCards.first.label, 'Daily activity');
+    expect(dashboard.alerts.first.title, 'Drink water reminder');
   });
 }

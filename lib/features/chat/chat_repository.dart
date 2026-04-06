@@ -1,10 +1,10 @@
-import 'package:yinling_zhiban_demo/services/openrouter_client.dart';
+import 'package:yinling_zhiban_demo/services/ai_chat_client.dart';
 
 class ChatRepository {
-  ChatRepository({OpenRouterClient? client})
-      : _client = client ?? OpenRouterClient();
+  ChatRepository({AiChatClient? client})
+      : _client = client ?? AiChatClient();
 
-  final OpenRouterClient _client;
+  final AiChatClient _client;
 
   Future<String> sendMessage({
     required String model,

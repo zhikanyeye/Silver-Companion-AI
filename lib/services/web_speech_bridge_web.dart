@@ -1,4 +1,4 @@
-// ignore: avoid_web_libraries_in_flutter
+// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:js' as js;
 
 bool speechIsSupportedOnWebBridge() {
@@ -34,15 +34,15 @@ void speechSetCallbacksOnWebBridge({
   required void Function() onEnd,
 }) {
   try {
-    js.context['onSpeechInterimResult'] = js.allowInterop((dynamic text) {
+    js.context['onSpeechInterimResult'] = (dynamic text) {
       onInterim(text?.toString() ?? '');
-    });
-    js.context['onSpeechFinalResult'] = js.allowInterop((dynamic text) {
+    };
+    js.context['onSpeechFinalResult'] = (dynamic text) {
       onFinal(text?.toString() ?? '');
-    });
-    js.context['onSpeechEnd'] = js.allowInterop(() {
+    };
+    js.context['onSpeechEnd'] = () {
       onEnd();
-    });
+    };
   } catch (_) {}
 }
 

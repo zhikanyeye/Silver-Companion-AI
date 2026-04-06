@@ -23,18 +23,18 @@ void main() {
       landingRoute,
     );
 
-    await tester.tap(find.widgetWithText(ElevatedButton, '登录'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pumpAndSettle();
 
     final authPage = find.byType(AuthPage);
 
     expect(authPage, findsOneWidget);
     expect(ModalRoute.of(tester.element(authPage))?.settings.name, authRoute);
-    expect(find.text('欢迎回来'), findsOneWidget);
+    expect(find.text('Welcome back'), findsOneWidget);
 
     await tester.enterText(find.byType(TextFormField).at(0), '13800138000');
     await tester.enterText(find.byType(TextFormField).at(1), 'password123');
-    await tester.tap(find.widgetWithText(ElevatedButton, '进入角色选择'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Enter role selection'));
     await tester.pumpAndSettle();
 
     final roleSelectPage = find.byType(RoleSelectPage);
@@ -44,9 +44,9 @@ void main() {
       ModalRoute.of(tester.element(roleSelectPage))?.settings.name,
       roleSelectRoute,
     );
-    expect(find.widgetWithText(ElevatedButton, '我是老人'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, '我是子女'), findsOneWidget);
-    expect(find.text('平台端'), findsNothing);
+    expect(find.widgetWithText(ElevatedButton, 'I am an elder'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, 'I am a child'), findsOneWidget);
+    expect(find.text('Platform'), findsNothing);
   });
 
   testWidgets('keeps elderly and child routes reachable from role selection', (
@@ -54,14 +54,14 @@ void main() {
   ) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.widgetWithText(ElevatedButton, '登录'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), '13800138000');
     await tester.enterText(find.byType(TextFormField).at(1), 'password123');
-    await tester.tap(find.widgetWithText(ElevatedButton, '进入角色选择'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Enter role selection'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, '我是老人'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'I am an elder'));
     await tester.pumpAndSettle();
 
     final elderlyPage = find.byType(ElderlyHomePage);
@@ -75,7 +75,7 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, '我是子女'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'I am a child'));
     await tester.pumpAndSettle();
 
     final childPage = find.byType(ChildHomePage);

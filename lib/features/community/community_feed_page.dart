@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
+import 'package:yinling_zhiban_demo/features/community/community_feed_service.dart';
 import 'package:yinling_zhiban_demo/features/community/mock_posts.dart';
+import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
 import 'package:yinling_zhiban_demo/theme/app_theme.dart';
 
 class CommunityFeedPage extends StatefulWidget {
-  const CommunityFeedPage({super.key, this.posts = mockPosts});
+  const CommunityFeedPage({
+    super.key,
+    this.posts = mockPosts,
+    CommunityFeedService? service,
+  }) : _service = service;
 
   final List<CommunityPost> posts;
+  final CommunityFeedService? _service;
 
   @override
   State<CommunityFeedPage> createState() => _CommunityFeedPageState();
@@ -14,125 +21,265 @@ class CommunityFeedPage extends StatefulWidget {
 
 class _CommunityFeedPageState extends State<CommunityFeedPage> {
   CommunityFeedBucket _selectedBucket = CommunityFeedBucket.recommended;
+  late final CommunityFeedService _service;
+  late List<CommunityPost> _posts;
+  DemoIdentity? _identity;
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  List<CommunityPost> get _visiblePosts => widget.posts
-      .where((post) => post.bucket == _selectedBucket)
+  @override
+  void initState() {
+    super.initState();
+    _service = widget._service ?? CommunityFeedService();
+    _posts = List<CommunityPost>.from(widget.posts);
+    _loadPosts();
+  }
+
+  Future<void> _loadPosts() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final identity = await _service.loadIdentity();
+    final posts = await _service.loadPosts();
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _identity = identity;
+      _posts = posts;
+      _isLoading = false;
+    });
+  }
+
+  List<CommunityPost> get _myPublishedPosts {
+    final actorId = _identity?.actorId ?? '';
+    if (actorId.isEmpty) {
+      return const <CommunityPost>[];
+    }
+    return _posts
+        .where((post) => post.ownerActorId == actorId)
+        .toList(growable: false);
+  }
+
+  List<CommunityPost> get _myRespondedPosts => _posts
+      .where((post) => post.respondedByMe)
       .toList(growable: false);
+
+  List<CommunityPost> get _visiblePosts {
+    final items = List<CommunityPost>.from(_posts);
+    if (_selectedBucket == CommunityFeedBucket.latest) {
+      items.sort((left, right) => right.createdAtEpochMs.compareTo(left.createdAtEpochMs));
+      return items;
+    }
+
+    items.sort((left, right) {
+      final responseOrder = right.responseCount.compareTo(left.responseCount);
+      if (responseOrder != 0) {
+        return responseOrder;
+      }
+      return right.createdAtEpochMs.compareTo(left.createdAtEpochMs);
+    });
+    return items;
+  }
+
+  Future<void> _openPublishDialog() async {
+    final draft = await showDialog<_CommunityPostDraft>(
+      context: context,
+      builder: (context) => const _PublishCommunityPostDialog(),
+    );
+    if (draft == null) {
+      return;
+    }
+
+    try {
+      final created = await _service.publishPost(
+        username: draft.username,
+        identity: draft.identity,
+        tag: draft.tag,
+        title: draft.title,
+        location: draft.location,
+        summary: draft.summary,
+      );
+      final identity = await _service.loadIdentity();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _identity = identity;
+        _selectedBucket = CommunityFeedBucket.latest;
+        _posts = <CommunityPost>[created, ..._posts];
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _errorMessage = 'Publish failed. Please verify the KV binding.';
+      });
+    }
+  }
+
+  Future<void> _respondToPost(CommunityPost post) async {
+    if (post.respondedByMe) {
+      return;
+    }
+
+    try {
+      final updated = await _service.respondToPost(post.id);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _posts = _posts
+            .map((item) => item.id == updated.id ? updated : item)
+            .toList(growable: false);
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _errorMessage = 'Respond failed. Please try again.';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('社区互助')),
+      appBar: AppBar(title: const Text('Community Board')),
       body: Container(
         key: const Key('communityServiceShell'),
-        decoration: const BoxDecoration(
-          gradient: AppTheme.serviceGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppTheme.serviceGradient),
         child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-            children: [
-              const _CommunityHeroCard(),
-              const SizedBox(height: 16),
-              const _PinnedNoticeSection(),
-              const SizedBox(height: 16),
-              _FeedSwitcher(
-                selectedBucket: _selectedBucket,
-                onChanged: (bucket) {
-                  setState(() {
-                    _selectedBucket = bucket;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              ..._buildPostCards(context),
-            ],
+          child: RefreshIndicator(
+            onRefresh: _loadPosts,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+              children: [
+                const Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Neighborhood help board',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'View nearby requests, respond to others, or publish a new help request.',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _MyCommunitySummaryCard(
+                  identity: _identity,
+                  publishedPosts: _myPublishedPosts,
+                  respondedPosts: _myRespondedPosts,
+                ),
+                const SizedBox(height: 16),
+                if (_errorMessage != null) ...[
+                  _ErrorBanner(message: _errorMessage!),
+                  const SizedBox(height: 16),
+                ],
+                _FeedSwitcher(
+                  selectedBucket: _selectedBucket,
+                  onChanged: (bucket) {
+                    setState(() {
+                      _selectedBucket = bucket;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                if (_isLoading && _posts.isEmpty)
+                  const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  )
+                else if (_visiblePosts.isEmpty)
+                  const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text('No community posts yet.'),
+                    ),
+                  )
+                else
+                  ..._visiblePosts.map(
+                    (post) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _CommunityPostCard(
+                        post: post,
+                        onRespond: () => _respondToPost(post),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('已收到发布请求')),
-          );
-        },
+        onPressed: _openPublishDialog,
         icon: const Icon(Icons.edit_outlined),
-        label: const Text('发布互助'),
+        label: const Text('Publish'),
       ),
     );
   }
-
-  List<Widget> _buildPostCards(BuildContext context) {
-    if (_visiblePosts.isEmpty) {
-      return const [
-        _EmptyFeedCard(
-          title: '暂时还没有新的社区动态',
-          subtitle: '可以切换到其他分栏，或先发布一条互助信息。',
-        ),
-      ];
-    }
-
-    return List<Widget>.generate(_visiblePosts.length, (index) {
-      final post = _visiblePosts[index];
-      return Padding(
-        padding: EdgeInsets.only(bottom: index == _visiblePosts.length - 1 ? 0 : 12),
-        child: _CommunityPostCard(
-          key: Key('communityPostCard_$index'),
-          post: post,
-        ),
-      );
-    });
-  }
 }
 
-class _CommunityHeroCard extends StatelessWidget {
-  const _CommunityHeroCard();
+class _MyCommunitySummaryCard extends StatelessWidget {
+  const _MyCommunitySummaryCard({
+    required this.identity,
+    required this.publishedPosts,
+    required this.respondedPosts,
+  });
+
+  final DemoIdentity? identity;
+  final List<CommunityPost> publishedPosts;
+  final List<CommunityPost> respondedPosts;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final displayName = identity?.displayName ?? 'Neighbor';
+    final identityLabel = identity?.identityLabel ?? 'Resident';
 
     return Card(
-      color: AppTheme.surfaceAlt,
+      key: const Key('communityMySummaryCard'),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 58,
-              height: 58,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(
-                Icons.groups_rounded,
-                color: AppTheme.primary,
-                size: 30,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text('邻里互助广场', style: theme.textTheme.headlineMedium),
-            const SizedBox(height: 8),
             Text(
-              '看看邻里间正在发生的帮助与回应',
-              style: theme.textTheme.bodyLarge,
+              '$displayName · $identityLabel',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 16),
-            const Wrap(
-              spacing: 10,
-              runSpacing: 10,
+            const SizedBox(height: 12),
+            Row(
               children: [
-                 _HeroBadge(
-                   icon: Icons.notifications_active_outlined,
-                   title: '重要提醒',
-                   subtitle: '社区公告与防诈提示',
+                Expanded(
+                  child: _MetricTile(
+                    label: 'Published',
+                    value: '${publishedPosts.length}',
+                    valueKey: const Key('communityMyPublishedCount'),
+                  ),
                 ),
-                _HeroBadge(
-                  icon: Icons.volunteer_activism_outlined,
-                  title: '邻里响应',
-                  subtitle: '看见帮助，也更容易参与',
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _MetricTile(
+                    label: 'Responded',
+                    value: '${respondedPosts.length}',
+                    valueKey: const Key('communityMyRespondedCount'),
+                  ),
                 ),
               ],
             ),
@@ -143,160 +290,32 @@ class _CommunityHeroCard extends StatelessWidget {
   }
 }
 
-class _HeroBadge extends StatelessWidget {
-  const _HeroBadge({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
+class _MetricTile extends StatelessWidget {
+  const _MetricTile({
+    required this.label,
+    required this.value,
+    required this.valueKey,
   });
 
-  final IconData icon;
-  final String title;
-  final String subtitle;
+  final String label;
+  final String value;
+  final Key valueKey;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-         color: const Color(0xFFEFF5FF),
-        borderRadius: BorderRadius.circular(20),
+        color: const Color(0xFFF7FAFF),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: AppTheme.primary),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(title, style: theme.textTheme.labelLarge?.copyWith(color: AppTheme.textStrong)),
-              Text(
-                subtitle,
-                style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textMuted),
-              ),
-            ],
-          ),
+          Text(label),
+          const SizedBox(height: 4),
+          Text(key: valueKey, value),
         ],
-      ),
-    );
-  }
-}
-
-class _PinnedNoticeSection extends StatelessWidget {
-  const _PinnedNoticeSection();
-
-  static const _items = [
-    _NoticeItem(
-      title: '社区公告',
-      description: '本周五下午有健康义诊，请提前到服务站登记。',
-      icon: Icons.campaign_outlined,
-      color: Color(0xFFFFEBD9),
-    ),
-    _NoticeItem(
-      title: '防诈提醒',
-      description: '遇到陌生来电索要验证码或转账，请先联系家人确认。',
-      icon: Icons.shield_outlined,
-      color: Color(0xFFFFF3E8),
-    ),
-    _NoticeItem(
-      title: '本周活动',
-      description: '周六上午社区合唱活动开放报名，欢迎邻里结伴参加。',
-      icon: Icons.event_available_outlined,
-      color: Color(0xFFFFF7F0),
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      color: AppTheme.surfaceAlt,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('重要提醒', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-            for (final item in _items) ...[
-              _PinnedNoticeTile(item: item),
-              if (item != _items.last) const SizedBox(height: 10),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NoticeItem {
-  const _NoticeItem({
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.color,
-  });
-
-  final String title;
-  final String description;
-  final IconData icon;
-  final Color color;
-}
-
-class _PinnedNoticeTile extends StatelessWidget {
-  const _PinnedNoticeTile({required this.item});
-
-  final _NoticeItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(22),
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${item.title}内容已打开')),
-        );
-      },
-      child: Ink(
-        decoration: BoxDecoration(
-          color: item.color,
-          borderRadius: BorderRadius.circular(22),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.88),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(item.icon, color: AppTheme.primary),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item.title, style: theme.textTheme.titleSmall?.copyWith(color: AppTheme.textStrong)),
-                    const SizedBox(height: 4),
-                    Text(item.description, style: theme.textTheme.bodyMedium),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -314,65 +333,28 @@ class _FeedSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
           children: [
             Expanded(
-              child: _FeedSwitchButton(
-                label: '推荐',
+              child: ChoiceChip(
+                key: const Key('communityFeedRecommendedTab'),
+                label: const Text('Recommended'),
                 selected: selectedBucket == CommunityFeedBucket.recommended,
-                onTap: () => onChanged(CommunityFeedBucket.recommended),
+                onSelected: (_) => onChanged(CommunityFeedBucket.recommended),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _FeedSwitchButton(
-                label: '最新',
+              child: ChoiceChip(
+                key: const Key('communityFeedLatestTab'),
+                label: const Text('Latest'),
                 selected: selectedBucket == CommunityFeedBucket.latest,
-                onTap: () => onChanged(CommunityFeedBucket.latest),
+                onSelected: (_) => onChanged(CommunityFeedBucket.latest),
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FeedSwitchButton extends StatelessWidget {
-  const _FeedSwitchButton({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-           color: selected ? const Color(0xFFE8F1FF) : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: theme.textTheme.titleMedium?.copyWith(
-               color: selected ? AppTheme.serviceBluePrimary : AppTheme.textMuted,
-            ),
-          ),
         ),
       ),
     );
@@ -380,101 +362,76 @@ class _FeedSwitchButton extends StatelessWidget {
 }
 
 class _CommunityPostCard extends StatelessWidget {
-  const _CommunityPostCard({super.key, required this.post});
+  const _CommunityPostCard({
+    required this.post,
+    required this.onRespond,
+  });
 
   final CommunityPost post;
+  final VoidCallback onRespond;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Card(
-      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                     color: const Color(0xFFEAF2FF),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    post.username.substring(0, 1),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                       color: AppTheme.serviceBluePrimary,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(post.username, style: theme.textTheme.titleMedium),
-                      const SizedBox(height: 4),
-                      Text(post.identity, style: theme.textTheme.bodySmall),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                     color: const Color(0xFFE8F1FF),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    post.tag,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                       color: AppTheme.serviceBluePrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Text(post.title, style: theme.textTheme.titleLarge),
+            Text(post.title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            Text(post.summary, style: theme.textTheme.bodyLarge?.copyWith(color: AppTheme.textStrong)),
+            Text(post.summary),
             const SizedBox(height: 12),
             Wrap(
-              spacing: 10,
-              runSpacing: 10,
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                _MetaChip(icon: Icons.place_outlined, label: post.location),
-                _MetaChip(icon: Icons.schedule_outlined, label: post.time),
-                _MetaChip(icon: Icons.volunteer_activism_outlined, label: post.responseStatus),
+                Chip(label: Text(post.username)),
+                Chip(label: Text(post.location)),
+                Chip(label: Text(post.responseStatus)),
               ],
             ),
-            const SizedBox(height: 14),
+            if (post.helperNames.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text('Recent helpers: ${post.helperNames.join(', ')}'),
+            ],
+            const SizedBox(height: 12),
             Row(
               children: [
                 OutlinedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('已打开详情')),
+                    showDialog<void>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(post.title),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(post.summary),
+                            const SizedBox(height: 12),
+                            Text('Location: ${post.location}'),
+                            const SizedBox(height: 8),
+                            Text('Status: ${post.responseStatus}'),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      ),
                     );
                   },
-                  child: const Text('查看详情'),
+                  child: const Text('Details'),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('已记录帮助意向')),
-                      );
-                    },
-                    child: const Text('我来帮忙'),
+                    key: Key('communityRespondButton_${post.id}'),
+                    onPressed: post.respondedByMe ? null : onRespond,
+                    child: Text(post.respondedByMe ? 'Responded' : 'I can help'),
                   ),
                 ),
               ],
@@ -486,82 +443,166 @@ class _CommunityPostCard extends StatelessWidget {
   }
 }
 
-class _EmptyFeedCard extends StatelessWidget {
-  const _EmptyFeedCard({required this.title, required this.subtitle});
+class _ErrorBanner extends StatelessWidget {
+  const _ErrorBanner({required this.message});
 
-  final String title;
-  final String subtitle;
+  final String message;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: const BoxDecoration(
-                color: Color(0xFFEAF2FF),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.volunteer_activism_rounded,
-                size: 50,
-                color: AppTheme.serviceBluePrimary,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(title, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
-            const SizedBox(height: 12),
-            Text(subtitle, textAlign: TextAlign.center, style: theme.textTheme.bodyLarge),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('已收到互助请求，功能开发中')),
-                );
-              },
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('发布第一条社区互助'),
-            ),
-          ],
-        ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.dangerSoft,
+        borderRadius: BorderRadius.circular(16),
       ),
+      child: Text(message),
     );
   }
 }
 
-class _MetaChip extends StatelessWidget {
-  const _MetaChip({required this.icon, required this.label});
+class _CommunityPostDraft {
+  const _CommunityPostDraft({
+    required this.username,
+    required this.identity,
+    required this.tag,
+    required this.title,
+    required this.location,
+    required this.summary,
+  });
 
-  final IconData icon;
-  final String label;
+  final String username;
+  final String identity;
+  final String tag;
+  final String title;
+  final String location;
+  final String summary;
+}
+
+class _PublishCommunityPostDialog extends StatefulWidget {
+  const _PublishCommunityPostDialog();
+
+  @override
+  State<_PublishCommunityPostDialog> createState() =>
+      _PublishCommunityPostDialogState();
+}
+
+class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _identityController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _summaryController = TextEditingController();
+  String _selectedTag = 'Help';
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _identityController.dispose();
+    _titleController.dispose();
+    _locationController.dispose();
+    _summaryController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-         color: const Color(0xFFEFF5FF),
-        borderRadius: BorderRadius.circular(999),
+    return AlertDialog(
+      title: const Text('Publish community post'),
+      content: SizedBox(
+        width: 420,
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  key: const Key('communityPublishNameField'),
+                  controller: _usernameController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                  validator: _requiredValidator,
+                ),
+                TextFormField(
+                  key: const Key('communityPublishIdentityField'),
+                  controller: _identityController,
+                  decoration: const InputDecoration(labelText: 'Identity'),
+                  validator: _requiredValidator,
+                ),
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedTag,
+                  decoration: const InputDecoration(labelText: 'Type'),
+                  items: const [
+                    DropdownMenuItem(value: 'Help', child: Text('Help')),
+                    DropdownMenuItem(value: 'Mutual aid', child: Text('Mutual aid')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedTag = value;
+                      });
+                    }
+                  },
+                ),
+                TextFormField(
+                  key: const Key('communityPublishTitleField'),
+                  controller: _titleController,
+                  decoration: const InputDecoration(labelText: 'Title'),
+                  validator: _requiredValidator,
+                ),
+                TextFormField(
+                  key: const Key('communityPublishLocationField'),
+                  controller: _locationController,
+                  decoration: const InputDecoration(labelText: 'Location'),
+                  validator: _requiredValidator,
+                ),
+                TextFormField(
+                  key: const Key('communityPublishSummaryField'),
+                  controller: _summaryController,
+                  minLines: 3,
+                  maxLines: 5,
+                  decoration: const InputDecoration(labelText: 'Summary'),
+                  validator: _requiredValidator,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-           Icon(icon, size: 18, color: AppTheme.serviceBluePrimary),
-          const SizedBox(width: 6),
-          Text(label, style: theme.textTheme.bodyMedium?.copyWith(color: AppTheme.textStrong)),
-        ],
-      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          key: const Key('communityPublishSubmitButton'),
+          onPressed: () {
+            if (!(_formKey.currentState?.validate() ?? false)) {
+              return;
+            }
+            Navigator.of(context).pop(
+              _CommunityPostDraft(
+                username: _usernameController.text,
+                identity: _identityController.text,
+                tag: _selectedTag,
+                title: _titleController.text,
+                location: _locationController.text,
+                summary: _summaryController.text,
+              ),
+            );
+          },
+          child: const Text('Publish'),
+        ),
+      ],
     );
+  }
+
+  String? _requiredValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required.';
+    }
+    return null;
   }
 }

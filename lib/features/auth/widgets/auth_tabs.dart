@@ -24,14 +24,14 @@ class AuthTabs extends StatelessWidget {
         children: [
           Expanded(
             child: _AuthTabButton(
-              label: '登录',
+              label: 'Login',
               isSelected: selectedTab == AuthTabSelection.login,
               onPressed: () => onChanged(AuthTabSelection.login),
             ),
           ),
           Expanded(
             child: _AuthTabButton(
-              label: '注册',
+              label: 'Register',
               isSelected: selectedTab == AuthTabSelection.register,
               onPressed: () => onChanged(AuthTabSelection.register),
             ),
@@ -61,27 +61,9 @@ class _AuthTabButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: isSelected ? Colors.white : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: isSelected
-            ? const [
-                BoxShadow(
-                  color: Color(0x0A000000),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ]
-            : null,
       ),
       child: TextButton(
         onPressed: onPressed,
-        style: TextButton.styleFrom(
-          foregroundColor: isSelected ? const Color(0xFF0369A1) : const Color(0xFF94A3B8),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          textStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-          ),
-        ),
         child: Text(label),
       ),
     );
