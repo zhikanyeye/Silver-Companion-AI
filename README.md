@@ -1,67 +1,79 @@
-# Silver Companion AI Demo
+# Silver Companion AI Demo / 银龄智伴演示项目
 
-Silver Companion AI is a Flutter Web demo focused on elder care scenarios. The project combines:
+`Silver Companion AI` 是一个面向养老与家庭关怀场景的 Flutter Web 演示项目。  
+This project is a Flutter Web demo focused on elder care and family support scenarios.
 
-- AI chat and speech assistance
-- Family care dashboard views
-- Community mutual-aid interactions
-- Lightweight Cloudflare Pages Functions backends
+## 项目包含什么 / What This Project Includes
 
-## Current Features
+- AI 聊天与语音辅助 / AI chat and speech assistance
+- 子女关怀看板 / family care dashboard views
+- 社区互助互动 / community mutual-aid interactions
+- Cloudflare Pages Functions 轻量后端 / lightweight Cloudflare Pages Functions backends
 
-- Elderly side: service hub, AI chat, community feed, activities
-- Child side: dashboard overview, charts, reminder timeline
-- Settings page: model display and care-mode toggle
-- Speech support: browser speech recognition and reply playback
-- Server-side API proxy: `/api/chat`, `/api/tts`, `/api/kv`
+## 当前功能 / Current Features
 
-## Local Development
+- 老人端：服务大厅、AI 聊天、社区互助、活动页面  
+  Elderly side: service hub, AI chat, community feed, activities
+- 子女端：概览、图表、提醒时间线  
+  Child side: dashboard overview, charts, reminder timeline
+- 设置页：模型显示、关怀模式切换  
+  Settings page: model display and care-mode toggle
+- 语音能力：浏览器语音识别与回复播放  
+  Speech support: browser speech recognition and reply playback
+- 服务端代理：`/api/chat`、`/api/tts`、`/api/kv`  
+  Server-side API proxy: `/api/chat`, `/api/tts`, `/api/kv`
 
-1. Enable Flutter Web:
+## 本地开发 / Local Development
+
+1. 启用 Flutter Web / Enable Flutter Web
 
 ```bash
 flutter config --enable-web
 ```
 
-2. Install dependencies:
+2. 安装依赖 / Install dependencies
 
 ```bash
 flutter pub get
 ```
 
-3. Run locally:
+3. 本地运行 / Run locally
 
 ```bash
 flutter run -d chrome
 ```
 
-4. Run tests:
+4. 运行测试 / Run tests
 
 ```bash
 flutter test
 ```
 
-## Deployment Notes
+## 部署说明 / Deployment Notes
 
+这个项目不适合只上传 `build/web` 作为纯静态站点。  
 This project should not be deployed as a static `build/web` upload only.
 
-Why:
+原因 / Why:
 
-- chat depends on `functions/api/chat.js`
-- speech depends on `functions/api/tts.js`
-- KV-backed persistence depends on `functions/api/kv/[key].js`
+- 聊天依赖 `functions/api/chat.js`
+- 语音依赖 `functions/api/tts.js`
+- KV 持久化依赖 `functions/api/kv/[key].js`
 
-Recommended deployment mode:
+推荐部署方式 / Recommended deployment mode:
 
-- connect the GitHub repository to Cloudflare Pages
-- let Pages build `build/web`
-- deploy the repository-root `functions/` directory together with the frontend
+- 将 GitHub 仓库接入 Cloudflare Pages  
+  connect the GitHub repository to Cloudflare Pages
+- 由 Pages 构建 `build/web`  
+  let Pages build `build/web`
+- 同时部署仓库根目录下的 `functions/`  
+  deploy the repository-root `functions/` directory together with the frontend
 
-Detailed deployment steps:
+详细部署步骤 / Detailed deployment steps:
 
-- [Cloudflare Pages Deployment Guide](docs/cloudflare-pages-deployment.md)
+- [Cloudflare Pages Deployment Guide / Cloudflare Pages 部署指南](docs/cloudflare-pages-deployment.md)
 
-## Cloudflare Pages Configuration
+## Cloudflare Pages 配置 / Cloudflare Pages Configuration
 
 ### AI
 
@@ -78,31 +90,34 @@ Detailed deployment steps:
 
 - `SILVER_KV`
 
+需要在 `Settings -> Functions -> KV namespace bindings` 中绑定 `SILVER_KV`。  
 Bind `SILVER_KV` in `Settings -> Functions -> KV namespace bindings`.
 
-## Documentation
+## 文档入口 / Documentation
 
-- [KV Storage Guide](docs/kv-storage-guide.md)
-- [Cloudflare Pages Deployment Guide](docs/cloudflare-pages-deployment.md)
-- [Demo Script](docs/demo-script.md)
-- `docs/plans/` contains implementation and design notes from earlier iterations
+- [KV Storage Guide / KV 存储使用指南](docs/kv-storage-guide.md)
+- [Cloudflare Pages Deployment Guide / Cloudflare Pages 部署指南](docs/cloudflare-pages-deployment.md)
+- [Demo Script / 演示脚本](docs/demo-script.md)
+- `docs/plans/`：历史设计与实现记录 / historical implementation and design notes
 
-## Project Structure
+## 目录结构 / Project Structure
 
-- `lib/`: Flutter app code
-- `functions/`: Cloudflare Pages Functions
-- `web/`: Flutter Web static assets and config
-- `docs/`: deployment and implementation documentation
+- `lib/`：Flutter 应用代码 / Flutter app code
+- `functions/`：Cloudflare Pages Functions
+- `web/`：Flutter Web 静态资源与配置 / Flutter Web static assets and config
+- `docs/`：部署与实现文档 / deployment and implementation documentation
 
-## KV Storage Summary
+## KV 存储摘要 / KV Storage Summary
 
+当前 KV 用于以下场景：  
 KV is currently used for:
 
-- per-identity chat history
-- per-identity settings
-- community post state
-- activities state
+- 按 demo 身份隔离的聊天历史 / per-identity chat history
+- 按 demo 身份隔离的用户设置 / per-identity settings
+- 社区帖子与互动状态 / community post state
+- 活动帖子与报名状态 / activities state
 
+完整说明见：  
 See the full guide here:
 
-- [KV Storage Guide](docs/kv-storage-guide.md)
+- [KV Storage Guide / KV 存储使用指南](docs/kv-storage-guide.md)
