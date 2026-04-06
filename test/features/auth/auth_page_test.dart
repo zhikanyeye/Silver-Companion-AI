@@ -13,7 +13,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);
@@ -33,7 +33,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Register'));
+    await tester.tap(find.widgetWithText(ElevatedButton, '立即开始'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);
@@ -78,7 +78,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextFormField).at(0), '13800138000');

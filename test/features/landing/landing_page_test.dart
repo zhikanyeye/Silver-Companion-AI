@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:yinling_zhiban_demo/app.dart';
 import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
-import 'package:yinling_zhiban_demo/widgets/brand_hero.dart';
 import 'package:yinling_zhiban_demo/routes.dart';
 
 void main() {
@@ -15,11 +14,10 @@ void main() {
     final scaffold = find.byType(Scaffold).first;
 
     expect(ModalRoute.of(tester.element(scaffold))?.settings.name, landingRoute);
-    expect(find.text('Silver Companion'), findsWidgets);
-    expect(find.text('Login'), findsOneWidget);
-    expect(find.text('Register'), findsOneWidget);
-    expect(find.byType(BrandHero), findsOneWidget);
-    expect(find.byKey(const Key('landingBrandActionBar')), findsOneWidget);
+    expect(find.text('银龄智伴'), findsOneWidget);
+    expect(find.text('立即开始'), findsOneWidget);
+    expect(find.text('观看演示'), findsOneWidget);
+    expect(find.text('用户心声'), findsOneWidget);
   });
 
   testWidgets('landing keeps a single hero and auth actions on small and wide screens', (
@@ -36,22 +34,20 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await pumpAt(const Size(375, 812));
-    expect(find.byType(BrandHero), findsOneWidget);
-    expect(find.byKey(const Key('landingBrandActionBar')), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, 'Register'), findsOneWidget);
+    expect(find.text('银龄智伴'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '立即开始'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, '观看演示'), findsOneWidget);
 
     await pumpAt(const Size(1280, 900));
-    expect(find.byType(BrandHero), findsOneWidget);
-    expect(find.byKey(const Key('landingBrandActionBar')), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, 'Register'), findsOneWidget);
+    expect(find.text('银龄智伴'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, '立即开始'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, '观看演示'), findsOneWidget);
   });
 
   testWidgets('landing login action routes to auth', (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);
@@ -68,7 +64,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Register'));
+    await tester.tap(find.widgetWithText(ElevatedButton, '立即开始'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);
