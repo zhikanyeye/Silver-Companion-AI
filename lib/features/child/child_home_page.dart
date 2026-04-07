@@ -92,7 +92,7 @@ class _ChildHomePageState extends State<ChildHomePage> {
       }
       setState(() {
         _isRefreshing = false;
-        _refreshMessage = '刷新失败，请稍后再试';
+        _refreshMessage = '刷新失败，请稍后重试';
       });
     }
   }
@@ -302,38 +302,57 @@ class _ChildOverviewHero extends StatelessWidget {
           Text('今天的照护重点已经为您整理好。', style: theme.textTheme.headlineMedium),
           const SizedBox(height: 8),
           Text(
-            '先看整体状态，再看指标变化和提醒时间线，远程关怀会更有条理。',
+            '先看整体状态，再看趋势变化和提醒时间线，远程关怀会更有条理。',
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 18),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.82),
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.white.withValues(alpha: 0.84),
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(color: const Color(0xFFDCE7FF)),
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.priority_high_rounded,
-                  color: AppTheme.serviceBluePrimary,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    '建议优先处理',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF3FF),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.priority_high_rounded,
+                    color: AppTheme.serviceBluePrimary,
                   ),
                 ),
-                Text('2项', style: theme.textTheme.titleMedium),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('今日优先事项', style: theme.textTheme.titleMedium),
+                      const SizedBox(height: 4),
+                      Text(
+                        '建议先确认提醒完成情况，再关注活跃度和情绪趋势。',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '2项',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: AppTheme.serviceBluePrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -359,6 +378,7 @@ class _OverviewMetric extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
+      constraints: const BoxConstraints(minWidth: 150),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -439,6 +459,9 @@ class _StatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final icon = item.label.contains('情绪')
+        ? Icons.sentiment_satisfied_alt_rounded
+        : Icons.monitor_heart_outlined;
 
     return Card(
       color: Colors.white,
@@ -454,10 +477,7 @@ class _StatusCard extends StatelessWidget {
                 color: const Color(0xFFEAF2FF),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(
-                Icons.monitor_heart_outlined,
-                color: AppTheme.primary,
-              ),
+              child: Icon(icon, color: AppTheme.primary),
             ),
             const SizedBox(width: 14),
             Expanded(

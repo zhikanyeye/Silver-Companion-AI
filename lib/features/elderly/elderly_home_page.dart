@@ -29,7 +29,7 @@ class ElderlyHomePage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('需要哪类帮助', style: theme.textTheme.titleLarge),
+                      Text('您需要哪类帮助？', style: theme.textTheme.titleLarge),
                       const SizedBox(height: 6),
                       Text(
                         '可先联系家人或社区服务，如需产品协助也可以联系平台客服。',
@@ -62,7 +62,7 @@ class ElderlyHomePage extends StatelessWidget {
                               ClipboardData(text: contact.phone),
                             );
                             setModalState(() {
-                              copiedMessage = '已复制联系电话';
+                              copiedMessage = '联系电话已复制';
                             });
                           },
                         ),
@@ -92,7 +92,7 @@ class ElderlyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('老人端'),
+        title: const Text('长辈首页'),
         actions: [
           IconButton(
             icon: const Icon(Icons.home_rounded),
@@ -135,7 +135,7 @@ class ElderlyHomePage extends StatelessWidget {
                 ),
                 _ElderlyServiceItem(
                   key: const Key('elderlyHelpEntry'),
-                  title: '一键求助',
+                  title: '求助',
                   description: '遇到需要帮助的时候，快速联系支持。',
                   icon: Icons.support_agent_rounded,
                   accent: const Color(0xFFFFF0E8),
@@ -145,7 +145,7 @@ class ElderlyHomePage extends StatelessWidget {
                 ),
                 _ElderlyServiceItem(
                   key: const Key('elderlyCommunityEntry'),
-                  title: '社区互助',
+                  title: '社区',
                   description: '看看邻里今天有哪些互助信息。',
                   icon: Icons.groups_2_outlined,
                   accent: const Color(0xFFEEF7FF),
@@ -165,7 +165,7 @@ class ElderlyHomePage extends StatelessWidget {
                 _ElderlyServiceItem(
                   key: const Key('childAvatarEntry'),
                   title: '小灵在线',
-                  description: '像家人一样陪你聊几句，也能继续进入聊天。',
+                  description: '像家人一样陪您聊几句，也能继续进入聊天。',
                   icon: Icons.child_care_outlined,
                   accent: const Color(0xFFEAF3FF),
                   iconColor: const Color(0xFF2563EB),
@@ -197,7 +197,7 @@ class ElderlyHomePage extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              '把最常用的陪伴、求助和互助入口放到更显眼的位置。',
+                              '把最常用的陪伴、求助和社区入口放到更显眼的位置。',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -327,10 +327,10 @@ class _ServiceHallHero extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Text('您好，今天想先用哪项服务？', style: theme.textTheme.headlineMedium),
+          Text('今天想先使用哪项服务？', style: theme.textTheme.headlineMedium),
           const SizedBox(height: 8),
           Text(
-            '常用入口已经为您排好，想聊天、求助或看看社区信息，都能更快找到。',
+            '聊天、求助、社区和活动入口都已经整理好，点击更直接，辨认也更轻松。',
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 18),
@@ -338,15 +338,41 @@ class _ServiceHallHero extends StatelessWidget {
           const SizedBox(height: 8),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.84),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(color: const Color(0xFFD9E6FF)),
             ),
-            child: Text(
-              '先试试 AI 陪伴和一键求助，今天常用服务已为您排在前面。',
-              style: theme.textTheme.bodyMedium,
+            child: Row(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF0E8),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.support_agent_rounded,
+                    color: Color(0xFFDA6A2A),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('建议优先熟悉求助入口', style: theme.textTheme.titleMedium),
+                      const SizedBox(height: 4),
+                      Text(
+                        '需要帮助时可以更快联系家人、社区或平台支持。',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 18),
@@ -354,9 +380,9 @@ class _ServiceHallHero extends StatelessWidget {
             spacing: 10,
             runSpacing: 10,
             children: [
-              _HallTag(label: '服务更清楚'),
-              _HallTag(label: '求助更显眼'),
-              _HallTag(label: '家人可协同'),
+              _HallTag(label: '字更清楚'),
+              _HallTag(label: '入口更直观'),
+              _HallTag(label: '操作更轻松'),
             ],
           ),
         ],

@@ -86,11 +86,15 @@ void main() {
 
     expect(find.byKey(const Key('activitiesMySummaryCard')), findsOneWidget);
     expect(
-      tester.widget<Text>(find.byKey(const Key('activitiesMyCreatedCount'))).data,
+      tester
+          .widget<Text>(find.byKey(const Key('activitiesMyCreatedCount')))
+          .data,
       '0',
     );
     expect(
-      tester.widget<Text>(find.byKey(const Key('activitiesMyJoinedCount'))).data,
+      tester
+          .widget<Text>(find.byKey(const Key('activitiesMyJoinedCount')))
+          .data,
       '0',
     );
 
@@ -120,7 +124,9 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(
-      tester.widget<Text>(find.byKey(const Key('activitiesMyJoinedCount'))).data,
+      tester
+          .widget<Text>(find.byKey(const Key('activitiesMyJoinedCount')))
+          .data,
       '1',
     );
   });
@@ -169,7 +175,9 @@ void main() {
 
     expect(service._items.first.title, '周五茶话会');
     expect(
-      tester.widget<Text>(find.byKey(const Key('activitiesMyCreatedCount'))).data,
+      tester
+          .widget<Text>(find.byKey(const Key('activitiesMyCreatedCount')))
+          .data,
       '1',
     );
   });

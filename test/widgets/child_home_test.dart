@@ -37,7 +37,10 @@ void main() {
     expect(find.byKey(const Key('childOverviewHero')), findsOneWidget);
     expect(find.byType(RefreshIndicator), findsOneWidget);
     expect(find.byType(WeeklyTrendChart, skipOffstage: false), findsOneWidget);
-    expect(find.text(mockChildDashboardData.overviewMetrics.first.value), findsOneWidget);
+    expect(
+      find.text(mockChildDashboardData.overviewMetrics.first.value),
+      findsOneWidget,
+    );
   });
 
   testWidgets('child care dashboard switches from stacked to split layout', (

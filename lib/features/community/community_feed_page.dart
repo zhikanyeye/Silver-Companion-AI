@@ -579,7 +579,7 @@ class _CommunityPostCard extends StatelessWidget {
             if (post.helperNames.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
-                '最近响应: ${post.helperNames.join('、')}',
+                '最近响应：${post.helperNames.join('、')}',
                 style: theme.textTheme.bodyMedium,
               ),
             ],

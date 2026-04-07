@@ -71,18 +71,24 @@ void main() {
     final service = _FakeCommunityFeedService(mockPosts);
 
     await tester.pumpWidget(
-      MaterialApp(home: CommunityFeedPage(posts: mockPosts, service: service)),
+      MaterialApp(
+        home: CommunityFeedPage(posts: mockPosts, service: service),
+      ),
     );
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('communityServiceShell')), findsOneWidget);
     expect(find.byKey(const Key('communityMySummaryCard')), findsOneWidget);
     expect(
-      tester.widget<Text>(find.byKey(const Key('communityMyPublishedCount'))).data,
+      tester
+          .widget<Text>(find.byKey(const Key('communityMyPublishedCount')))
+          .data,
       '0',
     );
     expect(
-      tester.widget<Text>(find.byKey(const Key('communityMyRespondedCount'))).data,
+      tester
+          .widget<Text>(find.byKey(const Key('communityMyRespondedCount')))
+          .data,
       '0',
     );
     expect(find.byType(FloatingActionButton), findsOneWidget);
@@ -94,7 +100,9 @@ void main() {
     final service = _FakeCommunityFeedService(mockPosts);
 
     await tester.pumpWidget(
-      MaterialApp(home: CommunityFeedPage(posts: mockPosts, service: service)),
+      MaterialApp(
+        home: CommunityFeedPage(posts: mockPosts, service: service),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -109,7 +117,9 @@ void main() {
       300,
       scrollable: find.byType(Scrollable),
     );
-    final respondAction = tester.widget<ElevatedButton>(respondButton).onPressed;
+    final respondAction = tester
+        .widget<ElevatedButton>(respondButton)
+        .onPressed;
     expect(respondAction, isNotNull);
     respondAction!.call();
     await tester.pumpAndSettle();
@@ -127,7 +137,9 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(
-      tester.widget<Text>(find.byKey(const Key('communityMyRespondedCount'))).data,
+      tester
+          .widget<Text>(find.byKey(const Key('communityMyRespondedCount')))
+          .data,
       '1',
     );
 
@@ -159,7 +171,9 @@ void main() {
 
     expect(service._items.first.title, '明天下午去门诊，想找人陪同');
     expect(
-      tester.widget<Text>(find.byKey(const Key('communityMyPublishedCount'))).data,
+      tester
+          .widget<Text>(find.byKey(const Key('communityMyPublishedCount')))
+          .data,
       '1',
     );
   });
