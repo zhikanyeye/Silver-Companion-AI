@@ -69,9 +69,8 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
         .toList(growable: false);
   }
 
-  List<ElderlyActivityItem> get _myJoinedItems => _items
-      .where((item) => item.joinedByMe)
-      .toList(growable: false);
+  List<ElderlyActivityItem> get _myJoinedItems =>
+      _items.where((item) => item.joinedByMe).toList(growable: false);
 
   Future<void> _joinActivity(ElderlyActivityItem item) async {
     if (item.joinedByMe) {
@@ -93,7 +92,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
         return;
       }
       setState(() {
-        _errorMessage = '报名失败，请稍后重试。';
+        _errorMessage = '报名失败，请稍后再试。';
       });
     }
   }
@@ -130,7 +129,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
         return;
       }
       setState(() {
-        _errorMessage = '发布失败，请检查服务配置。';
+        _errorMessage = '发布失败，请检查活动服务配置。';
       });
     }
   }
@@ -138,7 +137,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('活动日程')),
+      appBar: AppBar(title: const Text('活动安排')),
       body: Container(
         decoration: const BoxDecoration(gradient: AppTheme.serviceGradient),
         child: SafeArea(
@@ -147,24 +146,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               children: [
-                const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                           '社区活动',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                           '查看今日与本周活动，可报名参与或发布新活动。',
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                const _ActivitiesHeroCard(),
                 const SizedBox(height: 18),
                 _MyActivitiesSummaryCard(
                   identity: _identity,
@@ -185,15 +167,15 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
                   )
                 else ...[
                   _ActivitySection(
-                    title: '今日活动',
-                    subtitle: '现在就可以参加的活动。',
+                    title: '今日推荐',
+                    subtitle: '优先看看今天就能参加的活动与服务。',
                     items: _todayItems,
                     onJoin: _joinActivity,
                   ),
                   const SizedBox(height: 18),
                   _ActivitySection(
                     title: '本周活动',
-                    subtitle: '可提前安排参与的活动。',
+                    subtitle: '提前安排更从容，也方便和家人一起商量。',
                     items: _weeklyItems,
                     onJoin: _joinActivity,
                   ),
@@ -212,6 +194,60 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
   }
 }
 
+class _ActivitiesHeroCard extends StatelessWidget {
+  const _ActivitiesHeroCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFEAF3FF), Color(0xFFF9FCFF), Color(0xFFFFF1E8)],
+        ),
+        border: Border.all(color: const Color(0xFFDCE7FF)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x102563EB),
+            blurRadius: 24,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.82),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '社区活动',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: AppTheme.serviceBluePrimary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text('把今天和本周活动排得更清楚', style: theme.textTheme.headlineMedium),
+            const SizedBox(height: 8),
+            Text('既能查看活动安排，也能直接报名或发布新的活动邀请。', style: theme.textTheme.bodyLarge),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _MyActivitiesSummaryCard extends StatelessWidget {
   const _MyActivitiesSummaryCard({
     required this.identity,
@@ -225,22 +261,25 @@ class _MyActivitiesSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = identity?.displayName ?? '社区伙伴';
+    final displayName = identity?.displayName ?? '社区活动伙伴';
+    final theme = Theme.of(context);
 
     return Card(
       key: const Key('activitiesMySummaryCard'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(displayName, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
+            Text(displayName, style: theme.textTheme.titleLarge),
+            const SizedBox(height: 6),
+            Text('这里会汇总您发起和已报名的活动。', style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
                   child: _MetricTile(
-                     label: '我发布的',
+                    label: '我发起的',
                     value: '${createdItems.length}',
                     valueKey: const Key('activitiesMyCreatedCount'),
                   ),
@@ -248,7 +287,7 @@ class _MyActivitiesSummaryCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _MetricTile(
-                     label: '我报名的',
+                    label: '我报名的',
                     value: '${joinedItems.length}',
                     valueKey: const Key('activitiesMyJoinedCount'),
                   ),
@@ -275,18 +314,20 @@ class _MetricTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF7F0),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label),
-          const SizedBox(height: 4),
-          Text(key: valueKey, value),
+          Text(label, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 6),
+          Text(key: valueKey, value, style: theme.textTheme.headlineSmall),
         ],
       ),
     );
@@ -313,13 +354,13 @@ class _ActivitySection extends StatelessWidget {
       children: [
         Text(title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 6),
-        Text(subtitle),
+        Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: 12),
         if (items.isEmpty)
           const Card(
             child: Padding(
               padding: EdgeInsets.all(20),
-               child: Text('暂无已发布活动。'),
+              child: Text('暂时还没有活动发布。'),
             ),
           )
         else
@@ -342,6 +383,8 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -352,32 +395,38 @@ class _ActivityCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                Chip(label: Text(item.time)),
-                Chip(label: Text(item.tag)),
+                _TagChip(label: item.time, background: const Color(0xFFEAF3FF)),
+                _TagChip(label: item.tag, background: const Color(0xFFFFF1E7)),
               ],
             ),
             const SizedBox(height: 12),
-            Text(item.title, style: Theme.of(context).textTheme.titleLarge),
+            Text(item.title, style: theme.textTheme.titleLarge),
             const SizedBox(height: 6),
-            Text(item.location),
+            Text(item.location, style: theme.textTheme.titleSmall),
             const SizedBox(height: 6),
-            Text(item.description),
+            Text(item.description, style: theme.textTheme.bodyMedium),
             const SizedBox(height: 12),
-             Text('组织者：${item.organizerName}'),
+            Text(
+              '组织方：${item.organizerName}',
+              style: theme.textTheme.bodyMedium,
+            ),
             if (item.participantNames.isNotEmpty) ...[
               const SizedBox(height: 6),
-               Text('近期报名：${item.participantNames.join('、')}'),
+              Text(
+                '最近报名：${item.participantNames.join('、')}',
+                style: theme.textTheme.bodyMedium,
+              ),
             ],
             const SizedBox(height: 12),
             Row(
               children: [
-                 Expanded(child: Text('已报名 ${item.joinedCount} 人')),
+                Expanded(child: Text('已报名 ${item.joinedCount} 人')),
                 SizedBox(
-                  width: 112,
+                  width: 120,
                   child: ElevatedButton(
                     key: Key('activityJoinButton_${item.id}'),
                     onPressed: item.joinedByMe ? null : onJoin,
-                     child: Text(item.joinedByMe ? '已报名' : '报名参加'),
+                    child: Text(item.joinedByMe ? '已报名' : '报名参加'),
                   ),
                 ),
               ],
@@ -385,6 +434,25 @@ class _ActivityCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _TagChip extends StatelessWidget {
+  const _TagChip({required this.label, required this.background});
+
+  final String label;
+  final Color background;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Text(label, style: Theme.of(context).textTheme.titleSmall),
     );
   }
 }
@@ -442,7 +510,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
-  String _tag = '文化';
+  String _tag = '文娱';
   ElderlyActivityGroup _group = ElderlyActivityGroup.weekly;
 
   @override
@@ -470,7 +538,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
                 TextFormField(
                   key: const Key('activityPublishOrganizerField'),
                   controller: _organizerController,
-                  decoration: const InputDecoration(labelText: '组织者'),
+                  decoration: const InputDecoration(labelText: '组织方'),
                   validator: _requiredValidator,
                 ),
                 TextFormField(
@@ -493,12 +561,12 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
                 ),
                 DropdownButtonFormField<String>(
                   initialValue: _tag,
-                   decoration: const InputDecoration(labelText: '活动类型'),
+                  decoration: const InputDecoration(labelText: '活动类型'),
                   items: const [
-                     DropdownMenuItem(value: '文化', child: Text('文化')),
-                     DropdownMenuItem(value: '健康', child: Text('健康')),
-                     DropdownMenuItem(value: '服务', child: Text('服务')),
-                     DropdownMenuItem(value: '运动', child: Text('运动')),
+                    DropdownMenuItem(value: '文娱', child: Text('文娱')),
+                    DropdownMenuItem(value: '健康', child: Text('健康')),
+                    DropdownMenuItem(value: '服务', child: Text('服务')),
+                    DropdownMenuItem(value: '锻炼', child: Text('锻炼')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -510,15 +578,15 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
                 ),
                 DropdownButtonFormField<ElderlyActivityGroup>(
                   initialValue: _group,
-                   decoration: const InputDecoration(labelText: '分组'),
+                  decoration: const InputDecoration(labelText: '活动分组'),
                   items: const [
                     DropdownMenuItem(
                       value: ElderlyActivityGroup.today,
-                       child: Text('今日活动'),
+                      child: Text('今日推荐'),
                     ),
                     DropdownMenuItem(
                       value: ElderlyActivityGroup.weekly,
-                       child: Text('本周活动'),
+                      child: Text('本周活动'),
                     ),
                   ],
                   onChanged: (value) {
@@ -534,7 +602,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
                   controller: _descriptionController,
                   minLines: 3,
                   maxLines: 5,
-                  decoration: const InputDecoration(labelText: '活动简介'),
+                  decoration: const InputDecoration(labelText: '活动说明'),
                   validator: _requiredValidator,
                 ),
               ],
@@ -545,7 +613,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-           child: const Text('取消'),
+          child: const Text('取消'),
         ),
         ElevatedButton(
           key: const Key('activityPublishSubmitButton'),
@@ -565,7 +633,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
               ),
             );
           },
-           child: const Text('发布'),
+          child: const Text('发布'),
         ),
       ],
     );
@@ -573,7 +641,7 @@ class _PublishActivityDialogState extends State<_PublishActivityDialog> {
 
   String? _requiredValidator(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return '该字段不能为空';
+      return '此项不能为空';
     }
     return null;
   }

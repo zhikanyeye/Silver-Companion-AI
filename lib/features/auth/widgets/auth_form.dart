@@ -4,11 +4,7 @@ import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
 import 'package:yinling_zhiban_demo/theme/app_theme.dart';
 
 class AuthForm extends StatefulWidget {
-  const AuthForm({
-    super.key,
-    required this.tab,
-    required this.onSuccess,
-  });
+  const AuthForm({super.key, required this.tab, required this.onSuccess});
 
   final AuthTabSelection tab;
   final VoidCallback onSuccess;
@@ -18,10 +14,10 @@ class AuthForm extends StatefulWidget {
 }
 
 class _AuthFormState extends State<AuthForm> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
@@ -30,6 +26,45 @@ class _AuthFormState extends State<AuthForm> {
     _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  InputDecoration _inputDecoration({
+    required String label,
+    required String hint,
+    required IconData prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: Icon(prefixIcon, color: const Color(0xFF94A3B8), size: 20),
+      suffixIcon: suffixIcon,
+      labelStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 15),
+      hintStyle: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 15),
+      filled: true,
+      fillColor: const Color(0xFFF8FAFC),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFF0369A1), width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444)),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+      ),
+    );
   }
 
   @override
@@ -44,7 +79,12 @@ class _AuthFormState extends State<AuthForm> {
           if (isRegister) ...[
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: '姓名'),
+              decoration: _inputDecoration(
+                label: '姓名',
+                hint: '请输入您的姓名',
+                prefixIcon: Icons.person_rounded,
+              ),
+              style: const TextStyle(fontSize: 16),
               validator: (value) {
                 if (!isRegister) {
                   return null;
@@ -59,7 +99,13 @@ class _AuthFormState extends State<AuthForm> {
           ],
           TextFormField(
             controller: _phoneController,
-            decoration: const InputDecoration(labelText: '手机号'),
+            decoration: _inputDecoration(
+              label: '手机号',
+              hint: '请输入手机号码',
+              prefixIcon: Icons.phone_rounded,
+            ),
+            keyboardType: TextInputType.phone,
+            style: const TextStyle(fontSize: 16),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return '请输入手机号';
@@ -70,20 +116,24 @@ class _AuthFormState extends State<AuthForm> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _passwordController,
-            obscureText: _obscurePassword,
-            decoration: InputDecoration(
-              labelText: '密码',
+            decoration: _inputDecoration(
+              label: '密码',
+              hint: '请输入密码',
+              prefixIcon: Icons.lock_rounded,
               suffixIcon: IconButton(
                 icon: Icon(
-                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  _obscurePassword
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                  color: const Color(0xFF94A3B8),
+                  size: 20,
                 ),
-                onPressed: () {
-                  setState(() {
-                    _obscurePassword = !_obscurePassword;
-                  });
-                },
+                onPressed: () =>
+                    setState(() => _obscurePassword = !_obscurePassword),
               ),
             ),
+            obscureText: _obscurePassword,
+            style: const TextStyle(fontSize: 16),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return '请输入密码';
@@ -99,10 +149,36 @@ class _AuthFormState extends State<AuthForm> {
               }
             },
             style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0369A1),
+              foregroundColor: Colors.white,
               minimumSize: const Size.fromHeight(AppTheme.minButtonHeight),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 0,
+              textStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            child: const Text('进入角色选择'),
+            child: Text(isRegister ? '创建账号' : '登录'),
           ),
+          if (!isRegister) ...[
+            const SizedBox(height: 16),
+            Center(
+              child: TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF0369A1),
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                child: const Text('忘记密码？'),
+              ),
+            ),
+          ],
         ],
       ),
     );

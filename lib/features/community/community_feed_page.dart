@@ -64,14 +64,16 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
         .toList(growable: false);
   }
 
-  List<CommunityPost> get _myRespondedPosts => _posts
-      .where((post) => post.respondedByMe)
-      .toList(growable: false);
+  List<CommunityPost> get _myRespondedPosts =>
+      _posts.where((post) => post.respondedByMe).toList(growable: false);
 
   List<CommunityPost> get _visiblePosts {
     final items = List<CommunityPost>.from(_posts);
     if (_selectedBucket == CommunityFeedBucket.latest) {
-      items.sort((left, right) => right.createdAtEpochMs.compareTo(left.createdAtEpochMs));
+      items.sort(
+        (left, right) =>
+            right.createdAtEpochMs.compareTo(left.createdAtEpochMs),
+      );
       return items;
     }
 
@@ -117,7 +119,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
         return;
       }
       setState(() {
-        _errorMessage = '发布失败，请检查 KV 配置。';
+        _errorMessage = '发布失败，请检查 KV 绑定是否正确。';
       });
     }
   }
@@ -142,7 +144,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
         return;
       }
       setState(() {
-        _errorMessage = '响应失败，请稍后重试。';
+        _errorMessage = '响应失败，请稍后再试。';
       });
     }
   }
@@ -160,24 +162,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               children: [
-                const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                           '邻里互助看板',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                           '查看周边求助信息、响应他人需求，或发布新的互助请求。',
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                const _CommunityHeroCard(),
                 const SizedBox(height: 16),
                 _MyCommunitySummaryCard(
                   identity: _identity,
@@ -206,17 +191,16 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
                     ),
                   )
                 else if (_visiblePosts.isEmpty)
-                  const Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                       child: Text('暂无社区帖子。'),
-                    ),
+                  const _EmptyFeedCard(
+                    title: '暂时还没有新的社区动态',
+                    subtitle: '可以切换到其他分栏，或先发布一条互助信息。',
                   )
                 else
                   ..._visiblePosts.map(
                     (post) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _CommunityPostCard(
+                        key: Key('communityPostCard_${post.id}'),
                         post: post,
                         onRespond: () => _respondToPost(post),
                       ),
@@ -230,7 +214,104 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openPublishDialog,
         icon: const Icon(Icons.edit_outlined),
-        label: const Text('发布求助'),
+        label: const Text('发布互助'),
+      ),
+    );
+  }
+}
+
+class _CommunityHeroCard extends StatelessWidget {
+  const _CommunityHeroCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFEAF3FF), Color(0xFFF9FCFF), Color(0xFFFFF1E8)],
+        ),
+        border: Border.all(color: const Color(0xFFDCE7FF)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x102563EB),
+            blurRadius: 24,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.82),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '邻里互助广场',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: AppTheme.serviceBluePrimary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text('看看今天社区里谁需要帮助', style: theme.textTheme.headlineMedium),
+            const SizedBox(height: 8),
+            Text(
+              '既能查看附近求助，也能发布新的互助信息，让关怀在社区里流动起来。',
+              style: theme.textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            const Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                _HeroBadge(icon: Icons.campaign_outlined, title: '社区公告'),
+                _HeroBadge(
+                  icon: Icons.volunteer_activism_outlined,
+                  title: '邻里响应',
+                ),
+                _HeroBadge(icon: Icons.shield_outlined, title: '防诈提醒'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroBadge extends StatelessWidget {
+  const _HeroBadge({required this.icon, required this.title});
+
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFDCE7FF)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: AppTheme.serviceBluePrimary),
+          const SizedBox(width: 8),
+          Text(title, style: Theme.of(context).textTheme.titleSmall),
+        ],
       ),
     );
   }
@@ -250,25 +331,28 @@ class _MyCommunitySummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayName = identity?.displayName ?? '邻里用户';
-    final identityLabel = identity?.identityLabel ?? '社区居民';
+    final identityLabel = identity?.identityLabel ?? '社区住户';
+    final theme = Theme.of(context);
 
     return Card(
       key: const Key('communityMySummaryCard'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               '$displayName · $identityLabel',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: theme.textTheme.titleLarge,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
+            Text('这里会汇总您发布和已响应的互助信息。', style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
                   child: _MetricTile(
-                     label: '我发布的',
+                    label: '我发布的',
                     value: '${publishedPosts.length}',
                     valueKey: const Key('communityMyPublishedCount'),
                   ),
@@ -276,7 +360,7 @@ class _MyCommunitySummaryCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _MetricTile(
-                     label: '我响应的',
+                    label: '我响应的',
                     value: '${respondedPosts.length}',
                     valueKey: const Key('communityMyRespondedCount'),
                   ),
@@ -303,18 +387,20 @@ class _MetricTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFFF7FAFF),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label),
-          const SizedBox(height: 4),
-          Text(key: valueKey, value),
+          Text(label, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 6),
+          Text(key: valueKey, value, style: theme.textTheme.headlineSmall),
         ],
       ),
     );
@@ -322,10 +408,7 @@ class _MetricTile extends StatelessWidget {
 }
 
 class _FeedSwitcher extends StatelessWidget {
-  const _FeedSwitcher({
-    required this.selectedBucket,
-    required this.onChanged,
-  });
+  const _FeedSwitcher({required this.selectedBucket, required this.onChanged});
 
   final CommunityFeedBucket selectedBucket;
   final ValueChanged<CommunityFeedBucket> onChanged;
@@ -338,20 +421,20 @@ class _FeedSwitcher extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: ChoiceChip(
+              child: _SwitchButton(
                 key: const Key('communityFeedRecommendedTab'),
-                label: const Text('推荐'),
+                label: '推荐',
                 selected: selectedBucket == CommunityFeedBucket.recommended,
-                onSelected: (_) => onChanged(CommunityFeedBucket.recommended),
+                onTap: () => onChanged(CommunityFeedBucket.recommended),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: ChoiceChip(
+              child: _SwitchButton(
                 key: const Key('communityFeedLatestTab'),
-                label: const Text('最新'),
+                label: '最新',
                 selected: selectedBucket == CommunityFeedBucket.latest,
-                onSelected: (_) => onChanged(CommunityFeedBucket.latest),
+                onTap: () => onChanged(CommunityFeedBucket.latest),
               ),
             ),
           ],
@@ -361,8 +444,50 @@ class _FeedSwitcher extends StatelessWidget {
   }
 }
 
+class _SwitchButton extends StatelessWidget {
+  const _SwitchButton({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFFE8F1FF) : Colors.transparent,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: selected
+                  ? AppTheme.serviceBluePrimary
+                  : AppTheme.textMuted,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _CommunityPostCard extends StatelessWidget {
   const _CommunityPostCard({
+    super.key,
     required this.post,
     required this.onRespond,
   });
@@ -372,30 +497,93 @@ class _CommunityPostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(post.title, style: Theme.of(context).textTheme.titleLarge),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF2FF),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    post.username.substring(0, 1),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: AppTheme.serviceBluePrimary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(post.username, style: theme.textTheme.titleMedium),
+                      const SizedBox(height: 4),
+                      Text(post.identity, style: theme.textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F1FF),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    post.tag,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: AppTheme.serviceBluePrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(post.title, style: theme.textTheme.titleLarge),
             const SizedBox(height: 8),
-            Text(post.summary),
+            Text(
+              post.summary,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: AppTheme.textStrong,
+              ),
+            ),
             const SizedBox(height: 12),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                Chip(label: Text(post.username)),
-                Chip(label: Text(post.location)),
-                Chip(label: Text(post.responseStatus)),
+                _MetaChip(icon: Icons.place_outlined, label: post.location),
+                _MetaChip(icon: Icons.schedule_outlined, label: post.time),
+                _MetaChip(
+                  icon: Icons.volunteer_activism_outlined,
+                  label: post.responseStatus,
+                ),
               ],
             ),
             if (post.helperNames.isNotEmpty) ...[
               const SizedBox(height: 12),
-              Text('近期帮助者：${post.helperNames.join('、')}'),
+              Text(
+                '最近响应: ${post.helperNames.join('、')}',
+                style: theme.textTheme.bodyMedium,
+              ),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Row(
               children: [
                 OutlinedButton(
@@ -424,20 +612,79 @@ class _CommunityPostCard extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('详情'),
+                  child: const Text('查看详情'),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
                     key: Key('communityRespondButton_${post.id}'),
                     onPressed: post.respondedByMe ? null : onRespond,
-                     child: Text(post.respondedByMe ? '已响应' : '我来帮忙'),
+                    child: Text(post.respondedByMe ? '已响应' : '我来帮忙'),
                   ),
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _EmptyFeedCard extends StatelessWidget {
+  const _EmptyFeedCard({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(subtitle, style: theme.textTheme.bodyMedium),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MetaChip extends StatelessWidget {
+  const _MetaChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF5FF),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: AppTheme.serviceBluePrimary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppTheme.textStrong,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -488,7 +735,8 @@ class _PublishCommunityPostDialog extends StatefulWidget {
       _PublishCommunityPostDialogState();
 }
 
-class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog> {
+class _PublishCommunityPostDialogState
+    extends State<_PublishCommunityPostDialog> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _identityController = TextEditingController();
@@ -522,7 +770,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
                 TextFormField(
                   key: const Key('communityPublishNameField'),
                   controller: _usernameController,
-                  decoration: const InputDecoration(labelText: '姓名'),
+                  decoration: const InputDecoration(labelText: '称呼'),
                   validator: _requiredValidator,
                 ),
                 TextFormField(
@@ -533,10 +781,10 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
                 ),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedTag,
-                   decoration: const InputDecoration(labelText: '类型'),
+                  decoration: const InputDecoration(labelText: '类型'),
                   items: const [
-                     DropdownMenuItem(value: '求助', child: Text('求助')),
-                     DropdownMenuItem(value: '互助', child: Text('互助')),
+                    DropdownMenuItem(value: '求助', child: Text('求助')),
+                    DropdownMenuItem(value: '互助', child: Text('互助')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -563,7 +811,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
                   controller: _summaryController,
                   minLines: 3,
                   maxLines: 5,
-                  decoration: const InputDecoration(labelText: '内容简介'),
+                  decoration: const InputDecoration(labelText: '内容说明'),
                   validator: _requiredValidator,
                 ),
               ],
@@ -574,7 +822,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-           child: const Text('取消'),
+          child: const Text('取消'),
         ),
         ElevatedButton(
           key: const Key('communityPublishSubmitButton'),
@@ -593,7 +841,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
               ),
             );
           },
-           child: const Text('发布'),
+          child: const Text('发布'),
         ),
       ],
     );
@@ -601,7 +849,7 @@ class _PublishCommunityPostDialogState extends State<_PublishCommunityPostDialog
 
   String? _requiredValidator(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return '该字段不能为空';
+      return '此项不能为空';
     }
     return null;
   }

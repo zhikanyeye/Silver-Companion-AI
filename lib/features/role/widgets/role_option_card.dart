@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class RoleOptionCard extends StatelessWidget {
+class RoleOptionCard extends StatefulWidget {
   const RoleOptionCard({
     super.key,
     required this.title,
@@ -19,42 +19,103 @@ class RoleOptionCard extends StatelessWidget {
   final Color iconBg;
 
   @override
+  State<RoleOptionCard> createState() => _RoleOptionCardState();
+}
+
+class _RoleOptionCardState extends State<RoleOptionCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0C4A6E),
-        elevation: 0,
-        padding: const EdgeInsets.all(20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        child: Semantics(
+          label: '${widget.title}，${widget.subtitle}',
+          button: true,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(18),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _isHovered
+                    ? const Color(0xFF0369A1).withValues(alpha: 0.3)
+                    : const Color(0xFFE2E8F0),
+                width: _isHovered ? 1.5 : 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _isHovered
+                      ? const Color(0x140369A1)
+                      : const Color(0x06000000),
+                  blurRadius: _isHovered ? 24 : 16,
+                  offset: Offset(0, _isHovered ? 8 : 4),
+                ),
+              ],
             ),
-            child: Icon(icon, color: iconColor, size: 28),
-          ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(fontSize: 14)),
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: widget.iconBg,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Icon(widget.icon, color: widget.iconColor, size: 28),
+                ),
+                const SizedBox(width: 18),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0C4A6E),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.subtitle,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF64748B),
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _isHovered
+                        ? const Color(0xFF0369A1).withValues(alpha: 0.08)
+                        : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 20,
+                    color: _isHovered
+                        ? const Color(0xFF0369A1)
+                        : const Color(0xFF94A3B8),
+                  ),
+                ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
