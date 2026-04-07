@@ -6,19 +6,34 @@ function resolveSpeechRecognitionCtor() {
 }
 
 window.speechIsSupported = function() {
-  const hasRecognition = resolveSpeechRecognitionCtor() !== null;
-  const hasSynthesis =
+  return (
+    window.speechRecognitionIsSupported() ||
+    window.speechPlaybackIsSupported()
+  );
+};
+
+window.speechRecognitionIsSupported = function() {
+  return resolveSpeechRecognitionCtor() !== null;
+};
+
+window.speechPlaybackIsSupported = function() {
+  return (
     typeof window !== 'undefined' &&
     typeof window.speechSynthesis !== 'undefined' &&
-    typeof window.SpeechSynthesisUtterance !== 'undefined';
-  return hasRecognition || hasSynthesis;
+    typeof window.SpeechSynthesisUtterance !== 'undefined'
+  );
 };
 
 window.speechStartRecognition = function() {
   const SpeechRecognitionCtor = resolveSpeechRecognitionCtor();
-  if (SpeechRecognitionCtor === null) return;
+  if (SpeechRecognitionCtor === null) return false;
 
   // Re-create instance each time to avoid stale state
+  if (speechRecognitionInstance !== null) {
+    try {
+      speechRecognitionInstance.abort();
+    } catch (_) {}
+  }
   speechRecognitionInstance = new SpeechRecognitionCtor();
   speechRecognitionInstance.continuous = false;
   speechRecognitionInstance.interimResults = true;
@@ -53,7 +68,10 @@ window.speechStartRecognition = function() {
 
   try {
     speechRecognitionInstance.start();
-  } catch (_) {}
+    return true;
+  } catch (_) {
+    return false;
+  }
 };
 
 window.speechStopRecognition = function() {

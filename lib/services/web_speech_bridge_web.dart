@@ -1,19 +1,25 @@
 // ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:js' as js;
 
-bool speechIsSupportedOnWebBridge() {
+bool _callBool(String methodName, [List<dynamic> args = const <dynamic>[]]) {
   try {
-    final result = js.context.callMethod('speechIsSupported');
+    final result = js.context.callMethod(methodName, args);
     return result == true;
   } catch (_) {
     return false;
   }
 }
 
-void speechStartRecognitionOnWebBridge() {
-  try {
-    js.context.callMethod('speechStartRecognition');
-  } catch (_) {}
+bool speechRecognitionIsSupportedOnWebBridge() {
+  return _callBool('speechRecognitionIsSupported');
+}
+
+bool speechPlaybackIsSupportedOnWebBridge() {
+  return _callBool('speechPlaybackIsSupported');
+}
+
+bool speechStartRecognitionOnWebBridge() {
+  return _callBool('speechStartRecognition');
 }
 
 void speechStopRecognitionOnWebBridge() {

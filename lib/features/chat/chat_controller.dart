@@ -61,6 +61,10 @@ class ChatController extends ChangeNotifier {
 
   String get model => _model;
   bool get isSpeechSupported => _speechService.isSpeechSupported();
+  bool get isSpeechInputSupported => _speechService.isRecognitionSupported();
+  bool get isSpeechOutputSupported =>
+      _speechService.isPlaybackSupported() ||
+      (_ttsClient.isConfigured && _audioPlaybackService.isSupported());
   bool get isTTSConfigured => _ttsClient.isConfigured;
   List<ChatMessage> get messages => List<ChatMessage>.unmodifiable(_messages);
 
@@ -152,7 +156,7 @@ class ChatController extends ChangeNotifier {
       }
     }
 
-    if (_speechService.isSpeechSupported()) {
+    if (_speechService.isPlaybackSupported()) {
       _speechService.speak(text);
     }
   }
@@ -209,15 +213,21 @@ class ChatController extends ChangeNotifier {
   }
 
   void startRecognition() {
-    if (!isSpeechSupported) {
+    if (!isSpeechInputSupported) {
       isRecognizing = false;
+      error = '当前浏览器暂不支持语音输入，请检查浏览器和麦克风权限。';
       notifyListeners();
       return;
     }
 
     _speechService.unlockAudio();
-    _speechService.startRecognition();
-    isRecognizing = true;
+    final started = _speechService.startRecognition();
+    isRecognizing = started;
+    if (!started) {
+      error = '语音输入启动失败，请检查麦克风权限后重试。';
+    } else {
+      error = null;
+    }
     notifyListeners();
   }
 

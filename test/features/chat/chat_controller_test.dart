@@ -47,14 +47,21 @@ class _FakeChatRepository extends ChatRepository {
 }
 
 class _RecordingSpeechService extends WebSpeechService {
-  _RecordingSpeechService({this.supported = true})
-    : super(
-        isWeb: () => true,
-        isSpeechSupportedOnWeb: () => supported,
-        speakOnWeb: (text) {},
-      );
+  _RecordingSpeechService({
+    this.recognitionSupported = true,
+    this.playbackSupported = true,
+    this.startSucceeds = true,
+  }) : super(
+         isWeb: () => true,
+         isRecognitionSupportedOnWeb: () => recognitionSupported,
+         isPlaybackSupportedOnWeb: () => playbackSupported,
+         startRecognitionOnWeb: () => startSucceeds,
+         speakOnWeb: (text) {},
+       );
 
-  final bool supported;
+  final bool recognitionSupported;
+  final bool playbackSupported;
+  final bool startSucceeds;
   final List<String> spokenTexts = <String>[];
 
   @override
@@ -98,7 +105,10 @@ class _RecordingAudioPlaybackService extends AudioPlaybackService {
   final List<Uint8List> playedAudio = <Uint8List>[];
 
   @override
-  Future<void> playBytes(Uint8List bytes, {String mimeType = 'audio/wav'}) async {
+  Future<void> playBytes(
+    Uint8List bytes, {
+    String mimeType = 'audio/wav',
+  }) async {
     playedAudio.add(bytes);
   }
 }
@@ -141,9 +151,10 @@ void main() {
     var stopCalls = 0;
     final speechService = WebSpeechService(
       isWeb: () => true,
-      isSpeechSupportedOnWeb: () => true,
+      isRecognitionSupportedOnWeb: () => true,
       startRecognitionOnWeb: () {
         startCalls += 1;
+        return true;
       },
       stopRecognitionOnWeb: () {
         stopCalls += 1;
@@ -161,25 +172,53 @@ void main() {
     expect(stopCalls, 1);
   });
 
-  test('sendText maps proxy not configured failures to safe service message', () async {
-    final controller = createController(
-      repository: _FakeChatRepository(
-        errorToThrow: StateError(
-          'OpenRouter request failed: 404 proxy route missing at https://proxy.example.com/api/chat',
-        ),
-      ),
+  test('startRecognition keeps recognizing false when web start fails', () {
+    final speechService = WebSpeechService(
+      isWeb: () => true,
+      isRecognitionSupportedOnWeb: () => true,
+      startRecognitionOnWeb: () => false,
     );
+    final controller = createController(speechService: speechService);
 
-    await controller.sendText('hello');
+    controller.startRecognition();
 
-    expect(
-      controller.error,
-      'AI service configuration is unavailable. Please try again later.',
-    );
-    expect(controller.error, isNot(contains('proxy.example.com')));
-    expect(controller.error, isNot(contains('OpenRouter request failed')));
-    expect(controller.messages, hasLength(1));
+    expect(controller.isRecognizing, isFalse);
+    expect(controller.error, '语音输入启动失败，请检查麦克风权限后重试。');
   });
+
+  test('speech input and output capabilities are separated', () {
+    final speechService = _RecordingSpeechService(
+      recognitionSupported: false,
+      playbackSupported: true,
+    );
+    final controller = createController(speechService: speechService);
+
+    expect(controller.isSpeechInputSupported, isFalse);
+    expect(controller.isSpeechOutputSupported, isTrue);
+  });
+
+  test(
+    'sendText maps proxy not configured failures to safe service message',
+    () async {
+      final controller = createController(
+        repository: _FakeChatRepository(
+          errorToThrow: StateError(
+            'OpenRouter request failed: 404 proxy route missing at https://proxy.example.com/api/chat',
+          ),
+        ),
+      );
+
+      await controller.sendText('hello');
+
+      expect(
+        controller.error,
+        'AI service configuration is unavailable. Please try again later.',
+      );
+      expect(controller.error, isNot(contains('proxy.example.com')));
+      expect(controller.error, isNot(contains('OpenRouter request failed')));
+      expect(controller.messages, hasLength(1));
+    },
+  );
 
   test('sendText maps 400 failures to safe invalid request message', () async {
     final controller = createController(
@@ -201,25 +240,28 @@ void main() {
     expect(controller.error, isNot(contains('400')));
   });
 
-  test('sendText maps upstream unavailable failures to temporary service message', () async {
-    final controller = createController(
-      repository: _FakeChatRepository(
-        errorToThrow: StateError(
-          'OpenRouter request failed: 504 upstream timeout at https://proxy.example.com/api/chat',
+  test(
+    'sendText maps upstream unavailable failures to temporary service message',
+    () async {
+      final controller = createController(
+        repository: _FakeChatRepository(
+          errorToThrow: StateError(
+            'OpenRouter request failed: 504 upstream timeout at https://proxy.example.com/api/chat',
+          ),
         ),
-      ),
-    );
+      );
 
-    await controller.sendText('hello');
+      await controller.sendText('hello');
 
-    expect(
-      controller.error,
-      'AI service is temporarily unavailable. Please try again later.',
-    );
-    expect(controller.error, isNot(contains('proxy.example.com')));
-    expect(controller.error, isNot(contains('upstream')));
-    expect(controller.error, isNot(contains('504')));
-  });
+      expect(
+        controller.error,
+        'AI service is temporarily unavailable. Please try again later.',
+      );
+      expect(controller.error, isNot(contains('proxy.example.com')));
+      expect(controller.error, isNot(contains('upstream')));
+      expect(controller.error, isNot(contains('504')));
+    },
+  );
 
   test('sendText keeps success behavior intact', () async {
     final speechService = _RecordingSpeechService();

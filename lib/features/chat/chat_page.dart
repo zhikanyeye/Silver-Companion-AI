@@ -29,7 +29,9 @@ class _ChatPageState extends State<ChatPage> {
           return;
         }
         _inputController.text = text;
-        _inputController.selection = TextSelection.collapsed(offset: text.length);
+        _inputController.selection = TextSelection.collapsed(
+          offset: text.length,
+        );
       }
       ..onFinalText = (text) {
         if (!mounted) {
@@ -91,9 +93,8 @@ class _ChatPageState extends State<ChatPage> {
     await _controller.sendText(text);
   }
 
-  bool get _hasAssistantMessage => _controller.messages.any(
-    (message) => message.role == ChatRole.assistant,
-  );
+  bool get _hasAssistantMessage =>
+      _controller.messages.any((message) => message.role == ChatRole.assistant);
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +104,7 @@ class _ChatPageState extends State<ChatPage> {
         actions: [
           IconButton(
             key: const Key('chatSpeechToggle'),
-            onPressed: _controller.isSpeechSupported
+            onPressed: _controller.isSpeechOutputSupported
                 ? _controller.toggleSpeechPlayback
                 : null,
             icon: Icon(
@@ -111,9 +112,7 @@ class _ChatPageState extends State<ChatPage> {
                   ? Icons.volume_up_rounded
                   : Icons.volume_off_rounded,
             ),
-            tooltip: _controller.isSpeechPlaybackEnabled
-                ? '关闭语音播报'
-                : '开启语音播报',
+            tooltip: _controller.isSpeechPlaybackEnabled ? '关闭语音播报' : '开启语音播报',
           ),
           PopupMenuButton<String>(
             onSelected: (value) async {
@@ -128,14 +127,11 @@ class _ChatPageState extends State<ChatPage> {
               }
             },
             itemBuilder: (context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'clear',
-                child: Text('清空会话'),
-              ),
+              const PopupMenuItem<String>(value: 'clear', child: Text('清空会话')),
               CheckedPopupMenuItem<String>(
                 value: 'auto_send',
                 checked: _autoSendVoice,
-                 child: const Text('语音自动发送'),
+                child: const Text('语音自动发送'),
               ),
             ],
           ),
@@ -150,8 +146,7 @@ class _ChatPageState extends State<ChatPage> {
               _Banner(
                 color: AppTheme.warningSoft,
                 icon: Icons.warning_amber_rounded,
-                message:
-                    '风险提醒：未与家人核实前，请勿转账或透露验证码。',
+                message: '风险提醒：未与家人核实前，请勿转账或透露验证码。',
               ),
             if (_controller.error != null)
               _Banner(
@@ -159,7 +154,7 @@ class _ChatPageState extends State<ChatPage> {
                 icon: Icons.error_outline,
                 message: _controller.error!,
               ),
-            if (_controller.isSpeechSupported)
+            if (_controller.isSpeechOutputSupported)
               _Banner(
                 color: const Color(0xFFEFF5FF),
                 icon: _controller.isSpeechPlaybackEnabled
@@ -180,12 +175,13 @@ class _ChatPageState extends State<ChatPage> {
                   return _MessageBubble(
                     message: message,
                     isUser: isUser,
-                    showReplay: !isUser &&
+                    showReplay:
+                        !isUser &&
                         index ==
                             _controller.messages.lastIndexWhere(
                               (entry) => entry.role == ChatRole.assistant,
                             ),
-                    onReplay: _controller.isSpeechSupported
+                    onReplay: _controller.isSpeechOutputSupported
                         ? _controller.replayLastAssistantMessage
                         : null,
                   );
@@ -232,9 +228,7 @@ class _ChatPageState extends State<ChatPage> {
         child: Row(
           children: [
             Semantics(
-              label: _controller.isRecognizing
-                  ? '停止语音输入'
-                  : '语音输入',
+              label: _controller.isRecognizing ? '停止语音输入' : '语音输入',
               button: true,
               child: Container(
                 width: AppTheme.minTouchTarget,
@@ -248,7 +242,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 child: IconButton(
                   key: const Key('voiceButton'),
-                  onPressed: _controller.isSpeechSupported
+                  onPressed: _controller.isSpeechInputSupported
                       ? () {
                           if (_controller.isRecognizing) {
                             _controller.stopRecognition();
@@ -263,9 +257,7 @@ class _ChatPageState extends State<ChatPage> {
                         ? const Color(0xFFE74C3C)
                         : AppTheme.serviceBluePrimary,
                   ),
-                  tooltip: _controller.isRecognizing
-                      ? '停止语音输入'
-                      : '语音输入',
+                  tooltip: _controller.isRecognizing ? '停止语音输入' : '语音输入',
                 ),
               ),
             ),
@@ -281,7 +273,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 child: IconButton(
                   key: const Key('chatReplayLastAssistantButton'),
-                  onPressed: _controller.isSpeechSupported
+                  onPressed: _controller.isSpeechOutputSupported
                       ? _controller.replayLastAssistantMessage
                       : null,
                   icon: const Icon(
@@ -306,9 +298,7 @@ class _ChatPageState extends State<ChatPage> {
                   enabled: !_controller.isRecognizing,
                   onSubmitted: (_) => _sendCurrentText(),
                   decoration: InputDecoration(
-                    hintText: _controller.isRecognizing
-                        ? '正在聆听...'
-                        : '请输入消息',
+                    hintText: _controller.isRecognizing ? '正在聆听...' : '请输入消息',
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -394,8 +384,9 @@ class _MessageBubble extends StatelessWidget {
       child: Align(
         alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
         child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isUser
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Container(
               constraints: BoxConstraints(

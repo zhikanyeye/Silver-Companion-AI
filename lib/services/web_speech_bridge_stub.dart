@@ -1,6 +1,8 @@
-bool speechIsSupportedOnWebBridge() => false;
+bool speechRecognitionIsSupportedOnWebBridge() => false;
 
-void speechStartRecognitionOnWebBridge() {}
+bool speechPlaybackIsSupportedOnWebBridge() => false;
+
+bool speechStartRecognitionOnWebBridge() => false;
 
 void speechStopRecognitionOnWebBridge() {}
 

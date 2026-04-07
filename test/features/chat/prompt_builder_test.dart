@@ -1,27 +1,30 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:yinling_zhiban_demo/features/chat/assistant_role_profile.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
 import 'package:yinling_zhiban_demo/features/chat/prompt_builder.dart';
 
 void main() {
-  test('builds system message with empathy and anti-fraud plus last history', () {
+  test('builds project role prompt and keeps latest history entries', () {
     const builder = PromptBuilder();
     final history = <ChatMessage>[
       const ChatMessage(role: ChatRole.user, content: '你好'),
-      const ChatMessage(role: ChatRole.assistant, content: '您好'),
-      const ChatMessage(role: ChatRole.user, content: '我想去散步'),
+      const ChatMessage(role: ChatRole.assistant, content: '您好，我在这里陪您聊天。'),
+      const ChatMessage(role: ChatRole.user, content: '我想出去散步'),
     ];
 
     final messages = builder.build(history: history, maxHistory: 2);
 
     expect(messages.first['role'], 'system');
-    expect(messages.first['content'], contains('请耐心、温和地陪伴长者'));
-    expect(messages.first['content'], contains('严禁引导转账或索要验证码'));
+    expect(messages.first['content'], silverCompanionAssistantRole);
+    expect(messages.first['content'], contains('银龄智伴'));
+    expect(messages.first['content'], contains('严禁引导转账'));
+    expect(messages.first['content'], contains('验证码'));
     expect(messages, hasLength(3));
     expect(messages[1]['role'], 'assistant');
-    expect(messages[1]['content'], '您好');
+    expect(messages[1]['content'], '您好，我在这里陪您聊天。');
     expect(messages[2]['role'], 'user');
-    expect(messages[2]['content'], '我想去散步');
+    expect(messages[2]['content'], '我想出去散步');
   });
 
   test('returns only system message when history is empty', () {
@@ -31,6 +34,7 @@ void main() {
 
     expect(messages, hasLength(1));
     expect(messages.first['role'], 'system');
+    expect(messages.first['content'], silverCompanionAssistantRole);
   });
 
   test('returns only system message when maxHistory is zero', () {
@@ -44,6 +48,7 @@ void main() {
 
     expect(messages, hasLength(1));
     expect(messages.first['role'], 'system');
+    expect(messages.first['content'], silverCompanionAssistantRole);
   });
 
   test('maps system role explicitly', () {

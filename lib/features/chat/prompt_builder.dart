@@ -1,3 +1,4 @@
+import 'package:yinling_zhiban_demo/features/chat/assistant_role_profile.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
 
 class PromptBuilder {
@@ -9,10 +10,7 @@ class PromptBuilder {
   }) {
     final safeMaxHistory = maxHistory < 0 ? 0 : maxHistory;
     final messages = <Map<String, String>>[
-      {
-        'role': 'system',
-        'content': '请耐心、温和地陪伴长者，简洁易懂地交流。严禁引导转账或索要验证码。',
-      },
+      {'role': 'system', 'content': silverCompanionAssistantRole},
     ];
 
     final start = history.length > safeMaxHistory
@@ -25,10 +23,7 @@ class PromptBuilder {
         ChatRole.assistant => 'assistant',
         ChatRole.system => 'system',
       };
-      messages.add({
-        'role': role,
-        'content': message.content,
-      });
+      messages.add({'role': role, 'content': message.content});
     }
 
     return messages;
