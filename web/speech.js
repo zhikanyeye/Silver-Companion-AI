@@ -1,4 +1,6 @@
 let speechRecognitionInstance = null;
+let pendingRecognitionText = '';
+let emittedFinalText = false;
 
 function resolveSpeechRecognitionCtor() {
   if (typeof window === 'undefined') return null;
@@ -35,6 +37,8 @@ window.speechStartRecognition = function() {
     } catch (_) {}
   }
   speechRecognitionInstance = new SpeechRecognitionCtor();
+  pendingRecognitionText = '';
+  emittedFinalText = false;
   speechRecognitionInstance.continuous = false;
   speechRecognitionInstance.interimResults = true;
   speechRecognitionInstance.lang = 'zh-CN';
@@ -50,19 +54,42 @@ window.speechStartRecognition = function() {
         interim += t;
       }
     }
+    const latestText = (final || interim).trim();
+    if (latestText) {
+      pendingRecognitionText = latestText;
+    }
     if (interim && typeof window.onSpeechInterimResult === 'function') {
       window.onSpeechInterimResult(interim);
     }
     if (final && typeof window.onSpeechFinalResult === 'function') {
+      emittedFinalText = true;
       window.onSpeechFinalResult(final);
     }
   };
 
   speechRecognitionInstance.onend = function() {
+    if (
+      !emittedFinalText &&
+      pendingRecognitionText &&
+      typeof window.onSpeechFinalResult === 'function'
+    ) {
+      window.onSpeechFinalResult(pendingRecognitionText);
+    }
+    pendingRecognitionText = '';
+    emittedFinalText = false;
     if (typeof window.onSpeechEnd === 'function') window.onSpeechEnd();
   };
 
   speechRecognitionInstance.onerror = function() {
+    if (
+      !emittedFinalText &&
+      pendingRecognitionText &&
+      typeof window.onSpeechFinalResult === 'function'
+    ) {
+      window.onSpeechFinalResult(pendingRecognitionText);
+    }
+    pendingRecognitionText = '';
+    emittedFinalText = false;
     if (typeof window.onSpeechEnd === 'function') window.onSpeechEnd();
   };
 
