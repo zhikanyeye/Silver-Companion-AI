@@ -64,6 +64,27 @@ class _RecordingSpeechService extends WebSpeechService {
   final bool startSucceeds;
   final List<String> spokenTexts = <String>[];
 
+  void Function()? onStartCallback;
+  void Function(String)? onInterimCallback;
+  void Function(String)? onFinalCallback;
+  void Function(String)? onErrorCallback;
+  void Function()? onEndCallback;
+
+  @override
+  void setRecognitionCallbacks({
+    required void Function() onStart,
+    required void Function(String) onInterim,
+    required void Function(String) onFinal,
+    required void Function(String) onError,
+    required void Function() onEnd,
+  }) {
+    onStartCallback = onStart;
+    onInterimCallback = onInterim;
+    onFinalCallback = onFinal;
+    onErrorCallback = onError;
+    onEndCallback = onEnd;
+  }
+
   @override
   void speak(String text) {
     spokenTexts.add(text);
@@ -184,6 +205,33 @@ void main() {
 
     expect(controller.isRecognizing, isFalse);
     expect(controller.error, '语音输入启动失败，请检查麦克风权限后重试。');
+  });
+
+  test(
+    'speech callbacks are registered immediately on controller creation',
+    () {
+      final speechService = _RecordingSpeechService();
+
+      createController(speechService: speechService);
+
+      expect(speechService.onStartCallback, isNotNull);
+      expect(speechService.onInterimCallback, isNotNull);
+      expect(speechService.onFinalCallback, isNotNull);
+      expect(speechService.onErrorCallback, isNotNull);
+      expect(speechService.onEndCallback, isNotNull);
+    },
+  );
+
+  test('speech error callback maps no-speech to user-friendly message', () {
+    final speechService = _RecordingSpeechService();
+    final controller = createController(speechService: speechService);
+
+    speechService.onErrorCallback?.call('no-speech');
+
+    expect(
+      controller.error,
+      '\u6ca1\u6709\u8bc6\u522b\u5230\u8bed\u97f3\uff0c\u8bf7\u9760\u8fd1\u9ea6\u514b\u98ce\u540e\u518d\u8bd5\u4e00\u6b21\u3002',
+    );
   });
 
   test('speech input and output capabilities are separated', () {

@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:js' as js;
 
+import 'package:js/js.dart';
+
 bool _callBool(String methodName, [List<dynamic> args = const <dynamic>[]]) {
   try {
     final result = js.context.callMethod(methodName, args);
@@ -35,20 +37,28 @@ void speechSpeakTextOnWebBridge(String text) {
 }
 
 void speechSetCallbacksOnWebBridge({
+  required void Function() onStart,
   required void Function(String) onInterim,
   required void Function(String) onFinal,
+  required void Function(String) onError,
   required void Function() onEnd,
 }) {
   try {
-    js.context['onSpeechInterimResult'] = (dynamic text) {
+    js.context['onSpeechStart'] = allowInterop(() {
+      onStart();
+    });
+    js.context['onSpeechInterimResult'] = allowInterop((dynamic text) {
       onInterim(text?.toString() ?? '');
-    };
-    js.context['onSpeechFinalResult'] = (dynamic text) {
+    });
+    js.context['onSpeechFinalResult'] = allowInterop((dynamic text) {
       onFinal(text?.toString() ?? '');
-    };
-    js.context['onSpeechEnd'] = () {
+    });
+    js.context['onSpeechError'] = allowInterop((dynamic error) {
+      onError(error?.toString() ?? '');
+    });
+    js.context['onSpeechEnd'] = allowInterop(() {
       onEnd();
-    };
+    });
   } catch (_) {}
 }
 
