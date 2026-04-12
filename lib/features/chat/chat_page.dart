@@ -25,22 +25,10 @@ class _ChatPageState extends State<ChatPage> {
     _controller = ChatController()
       ..addListener(_onControllerChanged)
       ..onInterimText = (text) {
-        if (!mounted) {
-          return;
-        }
-        _inputController.text = text;
-        _inputController.selection = TextSelection.collapsed(
-          offset: text.length,
-        );
+        _applyRecognizedText(text);
       }
       ..onFinalText = (text) {
-        if (!mounted) {
-          return;
-        }
-        _inputController.text = text;
-        _inputController.selection = TextSelection.collapsed(
-          offset: text.length,
-        );
+        _applyRecognizedText(text);
         if (_autoSendVoice) {
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
@@ -50,6 +38,19 @@ class _ChatPageState extends State<ChatPage> {
         }
       };
     _loadConfig();
+  }
+
+  void _applyRecognizedText(String text) {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _inputController.value = TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
+      );
+    });
   }
 
   @override
@@ -298,7 +299,8 @@ class _ChatPageState extends State<ChatPage> {
                 child: TextField(
                   key: const Key('chatInputField'),
                   controller: _inputController,
-                  enabled: !_controller.isRecognizing,
+                  readOnly: _controller.isRecognizing,
+                  showCursor: !_controller.isRecognizing,
                   onSubmitted: (_) => _sendCurrentText(),
                   decoration: InputDecoration(
                     hintText: _controller.isRecognizing ? '正在聆听...' : '请输入消息',
