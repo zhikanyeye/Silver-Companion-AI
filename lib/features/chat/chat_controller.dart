@@ -33,6 +33,7 @@ class ChatController extends ChangeNotifier {
        _kvClient = kvClient ?? const KvClient(),
        _identityStore = identityStore ?? DemoIdentityStore(),
        _model = model ?? 'openai/gpt-4o-mini' {
+    _bindSpeechCallbacks();
     _loadMemory();
   }
 
@@ -88,9 +89,38 @@ class ChatController extends ChangeNotifier {
         );
     }
 
+    notifyListeners();
+  }
+
+  void _bindSpeechCallbacks() {
     _speechService.setRecognitionCallbacks(
+      onStart: () {
+        if (!isRecognizing) {
+          isRecognizing = true;
+          error = null;
+          notifyListeners();
+        }
+      },
       onInterim: (text) => onInterimText?.call(text),
       onFinal: (text) => onFinalText?.call(text),
+      onError: (message) {
+        final normalized = message.trim().toLowerCase();
+        if (normalized.isEmpty || normalized == 'no-speech') {
+          error = '没有识别到语音，请靠近麦克风后再试一次。';
+        } else if (normalized == 'not-allowed' ||
+            normalized == 'service-not-allowed') {
+          error = '麦克风权限被拒绝，请在浏览器中允许麦克风访问后重试。';
+        } else if (normalized == 'audio-capture') {
+          error = '未检测到可用麦克风，请检查设备后重试。';
+        } else if (normalized == 'network') {
+          error = '语音识别网络异常，请稍后再试。';
+        } else if (normalized == 'aborted') {
+          error = null;
+        } else {
+          error = '语音输入中断，请稍后重试。';
+        }
+        notifyListeners();
+      },
       onEnd: () {
         if (isRecognizing) {
           isRecognizing = false;
@@ -98,7 +128,6 @@ class ChatController extends ChangeNotifier {
         }
       },
     );
-    notifyListeners();
   }
 
   Future<void> _syncToKV() async {

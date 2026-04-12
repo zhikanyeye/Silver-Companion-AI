@@ -38,6 +38,9 @@ class _ChatPageState extends State<ChatPage> {
           return;
         }
         _inputController.text = text;
+        _inputController.selection = TextSelection.collapsed(
+          offset: text.length,
+        );
         if (_autoSendVoice) {
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {

@@ -53,16 +53,20 @@ class WebSpeechService {
   bool isSpeechSupported() => isRecognitionSupported() || isPlaybackSupported();
 
   void setRecognitionCallbacks({
+    required void Function() onStart,
     required void Function(String) onInterim,
     required void Function(String) onFinal,
+    required void Function(String) onError,
     required void Function() onEnd,
   }) {
     if (!_isWeb()) {
       return;
     }
     speechSetCallbacksOnWebBridge(
+      onStart: onStart,
       onInterim: onInterim,
       onFinal: onFinal,
+      onError: onError,
       onEnd: onEnd,
     );
   }

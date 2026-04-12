@@ -1,10 +1,37 @@
 let speechRecognitionInstance = null;
 let pendingRecognitionText = '';
 let emittedFinalText = false;
+let activeRecognitionToken = 0;
 
 function resolveSpeechRecognitionCtor() {
   if (typeof window === 'undefined') return null;
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function emitFinalIfNeeded() {
+  if (
+    !emittedFinalText &&
+    pendingRecognitionText &&
+    typeof window.onSpeechFinalResult === 'function'
+  ) {
+    emittedFinalText = true;
+    window.onSpeechFinalResult(pendingRecognitionText);
+  }
+}
+
+function finishRecognition(token) {
+  if (token !== activeRecognitionToken) {
+    return;
+  }
+
+  emitFinalIfNeeded();
+  pendingRecognitionText = '';
+  emittedFinalText = false;
+  speechRecognitionInstance = null;
+
+  if (typeof window.onSpeechEnd === 'function') {
+    window.onSpeechEnd();
+  }
 }
 
 window.speechIsSupported = function() {
@@ -30,73 +57,107 @@ window.speechStartRecognition = function() {
   const SpeechRecognitionCtor = resolveSpeechRecognitionCtor();
   if (SpeechRecognitionCtor === null) return false;
 
-  // Re-create instance each time to avoid stale state
+  activeRecognitionToken += 1;
+  const token = activeRecognitionToken;
+
   if (speechRecognitionInstance !== null) {
     try {
       speechRecognitionInstance.abort();
     } catch (_) {}
   }
-  speechRecognitionInstance = new SpeechRecognitionCtor();
+
+  const recognition = new SpeechRecognitionCtor();
+  speechRecognitionInstance = recognition;
   pendingRecognitionText = '';
   emittedFinalText = false;
-  speechRecognitionInstance.continuous = false;
-  speechRecognitionInstance.interimResults = true;
-  speechRecognitionInstance.lang = 'zh-CN';
 
-  speechRecognitionInstance.onresult = function(event) {
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+  recognition.lang = 'zh-CN';
+
+  recognition.onstart = function() {
+    if (token !== activeRecognitionToken) {
+      return;
+    }
+    if (typeof window.onSpeechStart === 'function') {
+      window.onSpeechStart();
+    }
+  };
+
+  recognition.onresult = function(event) {
+    if (token !== activeRecognitionToken) {
+      return;
+    }
+
     let interim = '';
-    let final = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const t = event.results[i][0].transcript;
+    let finalText = '';
+
+    for (let i = event.resultIndex; i < event.results.length; i += 1) {
+      const transcript = (event.results[i][0].transcript || '').trim();
+      if (!transcript) {
+        continue;
+      }
+
       if (event.results[i].isFinal) {
-        final += t;
+        finalText += transcript;
       } else {
-        interim += t;
+        interim += transcript;
       }
     }
-    const latestText = (final || interim).trim();
+
+    const latestText = (finalText || interim).trim();
     if (latestText) {
       pendingRecognitionText = latestText;
     }
-    if (interim && typeof window.onSpeechInterimResult === 'function') {
-      window.onSpeechInterimResult(interim);
+
+    if (latestText && typeof window.onSpeechInterimResult === 'function') {
+      window.onSpeechInterimResult(latestText);
     }
-    if (final && typeof window.onSpeechFinalResult === 'function') {
+
+    if (finalText && typeof window.onSpeechFinalResult === 'function') {
       emittedFinalText = true;
-      window.onSpeechFinalResult(final);
+      window.onSpeechFinalResult(finalText.trim());
     }
   };
 
-  speechRecognitionInstance.onend = function() {
-    if (
-      !emittedFinalText &&
-      pendingRecognitionText &&
-      typeof window.onSpeechFinalResult === 'function'
-    ) {
-      window.onSpeechFinalResult(pendingRecognitionText);
+  recognition.onnomatch = function() {
+    if (token !== activeRecognitionToken) {
+      return;
     }
-    pendingRecognitionText = '';
-    emittedFinalText = false;
-    if (typeof window.onSpeechEnd === 'function') window.onSpeechEnd();
+    if (typeof window.onSpeechError === 'function') {
+      window.onSpeechError('no-speech');
+    }
   };
 
-  speechRecognitionInstance.onerror = function() {
-    if (
-      !emittedFinalText &&
-      pendingRecognitionText &&
-      typeof window.onSpeechFinalResult === 'function'
-    ) {
-      window.onSpeechFinalResult(pendingRecognitionText);
+  recognition.onerror = function(event) {
+    if (token !== activeRecognitionToken) {
+      return;
     }
-    pendingRecognitionText = '';
-    emittedFinalText = false;
-    if (typeof window.onSpeechEnd === 'function') window.onSpeechEnd();
+
+    const errorCode =
+      event && typeof event.error === 'string' ? event.error : 'unknown';
+
+    if (errorCode !== 'aborted') {
+      emitFinalIfNeeded();
+    }
+
+    if (typeof window.onSpeechError === 'function') {
+      window.onSpeechError(errorCode);
+    }
+  };
+
+  recognition.onend = function() {
+    finishRecognition(token);
   };
 
   try {
-    speechRecognitionInstance.start();
+    recognition.start();
     return true;
   } catch (_) {
+    speechRecognitionInstance = null;
+    pendingRecognitionText = '';
+    emittedFinalText = false;
     return false;
   }
 };
@@ -113,7 +174,9 @@ window.speechSpeakText = function(text) {
     typeof window === 'undefined' ||
     typeof window.speechSynthesis === 'undefined' ||
     typeof window.SpeechSynthesisUtterance === 'undefined'
-  ) return;
+  ) {
+    return;
+  }
 
   const value = typeof text === 'string' ? text : String(text ?? '');
   if (value.length === 0) return;
@@ -127,7 +190,6 @@ window.speechSpeakText = function(text) {
   } catch (_) {}
 };
 
-// Called from Dart on first user interaction to unlock browser audio autoplay policy
 window.unlockAudioContext = function() {
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;

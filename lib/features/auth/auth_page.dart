@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:yinling_zhiban_demo/features/auth/widgets/auth_form.dart';
 import 'package:yinling_zhiban_demo/features/auth/widgets/auth_tabs.dart';
@@ -23,11 +26,19 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage>
     with SingleTickerProviderStateMixin {
+  static const _testNoticeDuration = Duration(seconds: 5);
+  static const _testNoticeAnimationDuration = Duration(milliseconds: 240);
+  static const _loginNoticePreferenceKey = 'auth_test_notice_seen_login';
+  static const _registerNoticePreferenceKey = 'auth_test_notice_seen_register';
+
   late final AnimationController _animCtrl;
   late final Animation<double> _fadeIn;
   late final Animation<Offset> _slideUp;
 
   AuthTabSelection? _selectedTab;
+  AuthTabSelection? _noticeTab;
+  Timer? _noticeTimer;
+  final Set<AuthTabSelection> _noticeChecksInFlight = <AuthTabSelection>{};
 
   @override
   void initState() {
@@ -50,6 +61,7 @@ class _AuthPageState extends State<AuthPage>
 
   @override
   void dispose() {
+    _noticeTimer?.cancel();
     _animCtrl.dispose();
     super.dispose();
   }
@@ -57,9 +69,14 @@ class _AuthPageState extends State<AuthPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _selectedTab ??= AuthPage.tabFromRouteArguments(
+    if (_selectedTab != null) {
+      return;
+    }
+
+    _selectedTab = AuthPage.tabFromRouteArguments(
       ModalRoute.of(context)?.settings.arguments,
     );
+    _maybeShowTestNotice(_selectedTab!);
   }
 
   @override
@@ -146,8 +163,7 @@ class _AuthPageState extends State<AuthPage>
                                     children: [
                                       AuthTabs(
                                         selectedTab: selectedTab,
-                                        onChanged: (tab) =>
-                                            setState(() => _selectedTab = tab),
+                                        onChanged: _handleTabChanged,
                                       ),
                                       const SizedBox(height: 28),
                                       AuthForm(
@@ -187,6 +203,38 @@ class _AuthPageState extends State<AuthPage>
                     ),
                   ),
                   Positioned(
+                    top: isCompact ? 12 : 20,
+                    left: horizontalPadding,
+                    right: horizontalPadding,
+                    child: IgnorePointer(
+                      ignoring: _noticeTab == null,
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 440),
+                          child: AnimatedSlide(
+                            offset: _noticeTab == null
+                                ? const Offset(0, -0.08)
+                                : Offset.zero,
+                            duration: _testNoticeAnimationDuration,
+                            curve: Curves.easeOutCubic,
+                            child: AnimatedOpacity(
+                              opacity: _noticeTab == null ? 0 : 1,
+                              duration: _testNoticeAnimationDuration,
+                              curve: Curves.easeOut,
+                              child: _noticeTab == null
+                                  ? const SizedBox.shrink()
+                                  : _AuthTestStageNotice(
+                                      tab: _noticeTab!,
+                                      onDismiss: _hideTestNotice,
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
                     top: 8,
                     left: 8,
                     child: Semantics(
@@ -219,6 +267,56 @@ class _AuthPageState extends State<AuthPage>
       ),
     );
   }
+
+  void _handleTabChanged(AuthTabSelection tab) {
+    if (_selectedTab == tab) {
+      return;
+    }
+
+    setState(() => _selectedTab = tab);
+    _maybeShowTestNotice(tab);
+  }
+
+  Future<void> _maybeShowTestNotice(AuthTabSelection tab) async {
+    if (_noticeChecksInFlight.contains(tab)) {
+      return;
+    }
+    _noticeChecksInFlight.add(tab);
+
+    final preferences = await SharedPreferences.getInstance();
+    final preferenceKey = _noticePreferenceKey(tab);
+    final hasSeenNotice = preferences.getBool(preferenceKey) ?? false;
+    _noticeChecksInFlight.remove(tab);
+
+    if (hasSeenNotice || !mounted) {
+      return;
+    }
+
+    await preferences.setBool(preferenceKey, true);
+    if (!mounted) {
+      return;
+    }
+
+    _noticeTimer?.cancel();
+    setState(() => _noticeTab = tab);
+    _noticeTimer = Timer(_testNoticeDuration, _hideTestNotice);
+  }
+
+  void _hideTestNotice() {
+    _noticeTimer?.cancel();
+    _noticeTimer = null;
+    if (!mounted || _noticeTab == null) {
+      return;
+    }
+    setState(() => _noticeTab = null);
+  }
+
+  String _noticePreferenceKey(AuthTabSelection tab) {
+    return switch (tab) {
+      AuthTabSelection.login => _loginNoticePreferenceKey,
+      AuthTabSelection.register => _registerNoticePreferenceKey,
+    };
+  }
 }
 
 class _TrustBadge extends StatelessWidget {
@@ -239,6 +337,99 @@ class _TrustBadge extends StatelessWidget {
           style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
         ),
       ],
+    );
+  }
+}
+
+class _AuthTestStageNotice extends StatelessWidget {
+  const _AuthTestStageNotice({required this.tab, required this.onDismiss});
+
+  final AuthTabSelection tab;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = tab == AuthTabSelection.login ? '登录测试提醒' : '注册测试提醒';
+    final message = tab == AuthTabSelection.login
+        ? '当前页面仍处于测试阶段，账号和密码可随意填写，提交后即可继续体验。'
+        : '当前页面仍处于测试阶段，注册信息可随意填写，提交后即可继续体验。';
+
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      label: '$title。$message',
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 14, 10, 14),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.97),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFD7E7F6)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x120C4A6E),
+                blurRadius: 24,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppTheme.warningSoft,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.info_outline_rounded,
+                  color: Color(0xFFB45309),
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0C4A6E),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      message,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        height: 1.45,
+                        color: Color(0xFF475569),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: onDismiss,
+                tooltip: '关闭提醒',
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(
+                  Icons.close_rounded,
+                  size: 18,
+                  color: Color(0xFF94A3B8),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
