@@ -12,11 +12,10 @@ void main() {
       const MaterialApp(home: RoleSelectPage()),
     );
 
-    expect(find.text('请选择您的身份'), findsOneWidget);
-    expect(find.text('我们将带您进入对应身份的服务页面。'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, '我是长者'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, '我是子女'), findsOneWidget);
-    expect(find.byType(ElevatedButton), findsNWidgets(2));
+    expect(find.text('选择您的身份'), findsOneWidget);
+    expect(find.text('我是长辈'), findsOneWidget);
+    expect(find.text('我是子女'), findsOneWidget);
+    expect(find.byType(RoleSelectPage), findsOneWidget);
   });
 
   testWidgets('routes elderly option to its existing destination', (
@@ -32,8 +31,8 @@ void main() {
       ),
     );
 
-    final elderlyButton = find.widgetWithText(ElevatedButton, '我是长者');
-    await tester.tap(elderlyButton);
+    final elderlyCard = find.text('我是长辈');
+    await tester.tap(elderlyCard);
     await tester.pumpAndSettle();
 
     expect(find.text('elderly target'), findsOneWidget);
@@ -52,8 +51,8 @@ void main() {
       ),
     );
 
-    final childButton = find.widgetWithText(ElevatedButton, '我是子女');
-    await tester.tap(childButton);
+    final childCard = find.text('我是子女');
+    await tester.tap(childCard);
     await tester.pumpAndSettle();
 
     expect(find.text('child target'), findsOneWidget);

@@ -1,4 +1,4 @@
-# Silver Companion AI Demo / 银龄智伴演示项目
+# Silver Companion AI Demo / 银聆演示项目
 
 `Silver Companion AI` 是一个面向养老与家庭关怀场景的 Flutter Web 演示项目。  
 This project is a Flutter Web demo focused on elder care and family support scenarios.

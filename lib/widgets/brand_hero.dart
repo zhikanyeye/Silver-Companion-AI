@@ -103,18 +103,18 @@ class _BrandHeroState extends State<BrandHero> {
                           children: [
                             BrandLogo(variant: BrandLogoVariant.hero),
                             SizedBox(width: 12),
-                            Text('银龄智伴'),
+                            Text('银聆'),
                           ],
                         ),
                       ),
                       SizedBox(height: isCompact ? 18 : 24),
                       Text(
-                        '让长辈在熟悉的关怀里，获得更安心的数字陪伴。',
+                        '听得见孤独，触得到温度。',
                         style: heroTitleStyle,
                       ),
                       SizedBox(height: isCompact ? 10 : 12),
                       Text(
-                        '从 AI 虚拟家人、健康提醒到社区互助，银龄智伴把温暖陪伴与日常支持整合到同一条简单清晰的产品路径中。',
+                        '中国首个AI情感养老社区化实践者，把 AI 情感陪伴、健康提醒与社区互助整合到同一条清晰可达的服务路径中。',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           height: isCompact ? 1.55 : 1.6,
                         ),

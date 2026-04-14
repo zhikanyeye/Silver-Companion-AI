@@ -1,11 +1,11 @@
 {
-    "name": "银龄智伴",
-    "short_name": "银龄智伴",
+    "name": "银聆",
+    "short_name": "银聆",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFF4EA",
     "theme_color": "#C96A43",
-    "description": "银龄智伴：AI虚拟家人 + 社区互助的智慧养老平台 Demo。",
+    "description": "银聆：中国首个AI情感养老社区化实践者。听得见孤独，触得到温度。",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

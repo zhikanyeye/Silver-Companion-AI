@@ -150,7 +150,7 @@ const List<ElderlySupportContact> elderlySupportContacts =
       ),
       ElderlySupportContact(
         label: '平台客服',
-        name: '银龄智伴客服',
+        name: '银聆客服',
         phone: '400-860-8899',
         description: '如需产品协助或人工转接，可拨打平台客服热线。',
         icon: Icons.support_agent_rounded,

@@ -124,7 +124,7 @@ class _TopBar extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.asset(
-              'web/assets/branding/yinling-logo-symbol.png',
+              'web/assets/branding/yinling-website-logo.png',
               width: 40,
               height: 40,
               fit: BoxFit.cover,
@@ -132,7 +132,7 @@ class _TopBar extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            '银龄智伴',
+            '银聆',
             style: TextStyle(
               fontSize: isCompact ? 18 : 20,
               fontWeight: FontWeight.w700,
@@ -169,7 +169,7 @@ class _HeroSection extends StatelessWidget {
               Icon(Icons.verified_rounded, size: 18, color: Color(0xFF0369A1)),
               SizedBox(width: 6),
               Text(
-                '国家适老化标准 · WCAG AAA 无障碍认证',
+                'AI情感养老社区化实践',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -181,7 +181,7 @@ class _HeroSection extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          '让长辈在熟悉的关怀里\n获得更安心的数字陪伴',
+          '中国首个AI情感养老社区化实践者',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: isCompact ? 28 : 40,
@@ -195,7 +195,7 @@ class _HeroSection extends StatelessWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: Text(
-            '从 AI 虚拟家人、健康提醒到社区互助，银龄智伴把温暖陪伴与日常支持整合到同一条简单清晰的产品路径中。',
+            '听得见孤独，触得到温度。银聆把 AI 情感陪伴、健康提醒与社区互助整合到同一条简单清晰的服务路径中。',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: isCompact ? 16 : 18,
@@ -457,7 +457,7 @@ class _SocialProofSection extends StatelessWidget {
               avatarColor: Color(0xFF2563EB),
             ),
             _TestimonialCard(
-              quote: '老伴走后最怕孤单，现在有了银龄智伴，每天都有人陪我说说话，感觉日子也没那么难了。',
+              quote: '老伴走后最怕孤单，现在有了银聆，每天都有人陪我说说话，感觉日子也没那么难了。',
               name: '李大爷',
               role: '上海 · 78 岁用户',
               avatarColor: Color(0xFF16A34A),
@@ -608,7 +608,7 @@ class _CTASection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const Text(
-            '无论您身在何方，银龄智伴帮您守护长辈的每一天。',
+            '无论您身在何方，银聆帮您守护长辈的每一天。',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Colors.white70, height: 1.5),
           ),

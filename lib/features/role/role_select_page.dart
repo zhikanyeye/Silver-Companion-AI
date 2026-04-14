@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:yinling_zhiban_demo/features/role/widgets/role_option_card.dart';
 import 'package:yinling_zhiban_demo/routes.dart';
 import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling_zhiban_demo/widgets/brand_logo.dart';
 
 class RoleSelectPage extends StatefulWidget {
   const RoleSelectPage({super.key});
@@ -85,10 +86,9 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                                     ).withValues(alpha: 0.08),
                                     borderRadius: BorderRadius.circular(22),
                                   ),
-                                  child: const Icon(
-                                    Icons.people_alt_rounded,
-                                    size: 36,
-                                    color: Color(0xFF0369A1),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: BrandLogo(),
                                   ),
                                 ),
                                 const SizedBox(height: 20),

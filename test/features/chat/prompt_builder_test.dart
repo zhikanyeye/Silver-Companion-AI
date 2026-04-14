@@ -17,7 +17,7 @@ void main() {
 
     expect(messages.first['role'], 'system');
     expect(messages.first['content'], silverCompanionAssistantRole);
-    expect(messages.first['content'], contains('银龄智伴'));
+    expect(messages.first['content'], contains('银聆'));
     expect(messages.first['content'], contains('严禁引导转账'));
     expect(messages.first['content'], contains('验证码'));
     expect(messages, hasLength(3));

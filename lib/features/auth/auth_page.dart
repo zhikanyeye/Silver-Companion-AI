@@ -118,7 +118,7 @@ class _AuthPageState extends State<AuthPage>
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(20),
                                   child: Image.asset(
-                                    'web/assets/branding/yinling-logo-symbol.png',
+                                    'web/assets/branding/yinling-website-logo.png',
                                     width: 64,
                                     height: 64,
                                     fit: BoxFit.cover,
@@ -126,7 +126,7 @@ class _AuthPageState extends State<AuthPage>
                                 ),
                                 const SizedBox(height: 16),
                                 const Text(
-                                  '银龄智伴',
+                                  '银聆',
                                   style: TextStyle(
                                     fontSize: 26,
                                     fontWeight: FontWeight.w800,
@@ -135,7 +135,7 @@ class _AuthPageState extends State<AuthPage>
                                 ),
                                 const SizedBox(height: 6),
                                 const Text(
-                                  '安心陪伴，从这里开始',
+                                  '听得见孤独，触得到温度。',
                                   style: TextStyle(
                                     fontSize: 15,
                                     color: Color(0xFF64748B),

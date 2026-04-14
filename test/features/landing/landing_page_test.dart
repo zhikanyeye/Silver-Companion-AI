@@ -14,7 +14,7 @@ void main() {
     final scaffold = find.byType(Scaffold).first;
 
     expect(ModalRoute.of(tester.element(scaffold))?.settings.name, landingRoute);
-    expect(find.text('银龄智伴'), findsOneWidget);
+    expect(find.text('银聆'), findsOneWidget);
     expect(find.text('立即开始'), findsOneWidget);
     expect(find.text('观看演示'), findsOneWidget);
     expect(find.text('用户心声'), findsOneWidget);
@@ -34,12 +34,12 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await pumpAt(const Size(375, 812));
-    expect(find.text('银龄智伴'), findsOneWidget);
+    expect(find.text('银聆'), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, '立即开始'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, '观看演示'), findsOneWidget);
 
     await pumpAt(const Size(1280, 900));
-    expect(find.text('银龄智伴'), findsOneWidget);
+    expect(find.text('银聆'), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, '立即开始'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, '观看演示'), findsOneWidget);
   });
@@ -51,7 +51,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);
-    expect(find.text('欢迎回来'), findsOneWidget);
+    expect(find.text('登录'), findsWidgets);
     expect(find.text('创建账号'), findsNothing);
     expect(
       ModalRoute.of(tester.element(find.byType(AuthPage)))?.settings.name,
@@ -69,7 +69,7 @@ void main() {
 
     expect(find.byType(AuthPage), findsOneWidget);
     expect(find.text('创建账号'), findsOneWidget);
-    expect(find.text('欢迎回来'), findsNothing);
+    expect(find.text('登录'), findsWidgets);
     expect(
       ModalRoute.of(tester.element(find.byType(AuthPage)))?.settings.name,
       authRoute,

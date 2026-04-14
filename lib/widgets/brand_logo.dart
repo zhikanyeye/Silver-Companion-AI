@@ -8,8 +8,8 @@ class BrandLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final image = Image.asset(
-      'web/assets/branding/yinling-logo-primary.png',
-      semanticLabel: '银龄智伴品牌标识',
+      'web/assets/branding/yinling-app-logo.png',
+      semanticLabel: '银聆项目品牌标识',
       fit: BoxFit.contain,
       filterQuality: FilterQuality.medium,
     );
