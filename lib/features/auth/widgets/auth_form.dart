@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/features/auth/auth_page.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 class AuthForm extends StatefulWidget {
   const AuthForm({super.key, required this.tab, required this.onSuccess});

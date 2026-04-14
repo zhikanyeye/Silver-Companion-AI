@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
-import 'package:yinling_zhiban_demo/services/kv_client.dart';
+import 'package:yinling/services/demo_identity_store.dart';
+import 'package:yinling/services/kv_client.dart';
 
 class SettingsData {
   const SettingsData({required this.model});

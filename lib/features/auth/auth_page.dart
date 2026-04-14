@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:yinling_zhiban_demo/features/auth/widgets/auth_form.dart';
-import 'package:yinling_zhiban_demo/features/auth/widgets/auth_tabs.dart';
-import 'package:yinling_zhiban_demo/routes.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/features/auth/widgets/auth_form.dart';
+import 'package:yinling/features/auth/widgets/auth_tabs.dart';
+import 'package:yinling/routes.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 enum AuthTabSelection { login, register }
 

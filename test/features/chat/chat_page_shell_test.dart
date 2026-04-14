@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/features/chat/chat_page.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/features/chat/chat_page.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 void main() {
   testWidgets('chat page exposes unified service shell markers', (

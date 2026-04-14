@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/features/chat/scam_rules.dart';
+import 'package:yinling/features/chat/scam_rules.dart';
 
 void main() {
   group('ScamRules.containsRisk', () {

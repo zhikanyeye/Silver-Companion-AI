@@ -1,5 +1,5 @@
-import 'package:yinling_zhiban_demo/features/chat/assistant_role_profile.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
+import 'package:yinling/features/chat/assistant_role_profile.dart';
+import 'package:yinling/features/chat/chat_message.dart';
 
 class PromptBuilder {
   const PromptBuilder();
@@ -10,7 +10,7 @@ class PromptBuilder {
   }) {
     final safeMaxHistory = maxHistory < 0 ? 0 : maxHistory;
     final messages = <Map<String, String>>[
-      {'role': 'system', 'content': silverCompanionAssistantRole},
+      {'role': 'system', 'content': yinlingAssistantRole},
     ];
 
     final start = history.length > safeMaxHistory

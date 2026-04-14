@@ -1,4 +1,4 @@
-import 'package:yinling_zhiban_demo/services/ai_chat_client.dart';
+import 'package:yinling/services/ai_chat_client.dart';
 
 class ChatRepository {
   ChatRepository({AiChatClient? client})

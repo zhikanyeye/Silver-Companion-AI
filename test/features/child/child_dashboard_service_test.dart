@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/features/child/child_dashboard_service.dart';
+import 'package:yinling/features/child/child_dashboard_service.dart';
 
 void main() {
   test('service returns structured child dashboard data', () async {

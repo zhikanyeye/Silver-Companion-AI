@@ -1,20 +1,20 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_action_planner.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_controller.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_publish_action.dart';
-import 'package:yinling_zhiban_demo/features/chat/memory_store.dart';
-import 'package:yinling_zhiban_demo/features/community/community_feed_service.dart';
-import 'package:yinling_zhiban_demo/features/community/mock_posts.dart';
-import 'package:yinling_zhiban_demo/features/elderly/elderly_activities_service.dart';
-import 'package:yinling_zhiban_demo/features/elderly/mock_service_data.dart';
-import 'package:yinling_zhiban_demo/services/audio_playback_service.dart';
-import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
-import 'package:yinling_zhiban_demo/services/tts_client.dart';
-import 'package:yinling_zhiban_demo/services/web_speech_service.dart';
+import 'package:yinling/features/chat/chat_action_planner.dart';
+import 'package:yinling/features/chat/chat_controller.dart';
+import 'package:yinling/features/chat/chat_repository.dart';
+import 'package:yinling/features/chat/chat_message.dart';
+import 'package:yinling/features/chat/chat_publish_action.dart';
+import 'package:yinling/features/chat/memory_store.dart';
+import 'package:yinling/features/community/community_feed_service.dart';
+import 'package:yinling/features/community/mock_posts.dart';
+import 'package:yinling/features/elderly/elderly_activities_service.dart';
+import 'package:yinling/features/elderly/mock_service_data.dart';
+import 'package:yinling/services/audio_playback_service.dart';
+import 'package:yinling/services/demo_identity_store.dart';
+import 'package:yinling/services/tts_client.dart';
+import 'package:yinling/services/web_speech_service.dart';
 
 class _TestMemoryStore extends MemoryStore {
   @override

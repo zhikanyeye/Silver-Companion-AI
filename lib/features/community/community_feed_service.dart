@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:yinling_zhiban_demo/features/community/mock_posts.dart';
-import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
+import 'package:yinling/features/community/mock_posts.dart';
+import 'package:yinling/services/demo_identity_store.dart';
 
 class CommunityFeedService {
   CommunityFeedService({

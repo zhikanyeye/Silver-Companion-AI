@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
-import 'package:yinling_zhiban_demo/services/ai_chat_client.dart';
+import 'package:yinling/features/chat/chat_repository.dart';
+import 'package:yinling/services/ai_chat_client.dart';
 
 class _FakeAiChatClient extends AiChatClient {
   _FakeAiChatClient({required this.response}) : super();

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:yinling_zhiban_demo/services/web_speech_bridge.dart';
+import 'package:yinling/services/web_speech_bridge.dart';
 
 typedef BoolCallback = bool Function();
 typedef StartRecognitionCallback = bool Function();

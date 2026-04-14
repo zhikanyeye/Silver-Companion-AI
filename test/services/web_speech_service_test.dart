@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yinling_zhiban_demo/services/web_speech_service.dart';
+import 'package:yinling/services/web_speech_service.dart';
 
 void main() {
   test('speech capabilities return false on non-web platforms', () {

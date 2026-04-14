@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:yinling_zhiban_demo/features/elderly/mock_service_data.dart';
-import 'package:yinling_zhiban_demo/routes.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/features/elderly/mock_service_data.dart';
+import 'package:yinling/routes.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 class ElderlyHomePage extends StatelessWidget {
   const ElderlyHomePage({super.key});

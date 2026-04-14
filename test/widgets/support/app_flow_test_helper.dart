@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/app.dart';
+import 'package:yinling/app.dart';
 
 Future<void> pumpAppToRoleSelect(WidgetTester tester) async {
   await tester.pumpWidget(const App());

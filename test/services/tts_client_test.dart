@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:yinling_zhiban_demo/services/tts_client.dart';
+import 'package:yinling/services/tts_client.dart';
 
 class _FakeHttpClient extends http.BaseClient {
   _FakeHttpClient(this._handler);

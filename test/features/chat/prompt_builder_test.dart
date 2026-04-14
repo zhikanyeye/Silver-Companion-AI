@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/features/chat/assistant_role_profile.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
-import 'package:yinling_zhiban_demo/features/chat/prompt_builder.dart';
+import 'package:yinling/features/chat/assistant_role_profile.dart';
+import 'package:yinling/features/chat/chat_message.dart';
+import 'package:yinling/features/chat/prompt_builder.dart';
 
 void main() {
   test('builds project role prompt and keeps latest history entries', () {
@@ -16,7 +16,7 @@ void main() {
     final messages = builder.build(history: history, maxHistory: 2);
 
     expect(messages.first['role'], 'system');
-    expect(messages.first['content'], silverCompanionAssistantRole);
+    expect(messages.first['content'], yinlingAssistantRole);
     expect(messages.first['content'], contains('银聆'));
     expect(messages.first['content'], contains('严禁引导转账'));
     expect(messages.first['content'], contains('验证码'));
@@ -34,7 +34,7 @@ void main() {
 
     expect(messages, hasLength(1));
     expect(messages.first['role'], 'system');
-    expect(messages.first['content'], silverCompanionAssistantRole);
+    expect(messages.first['content'], yinlingAssistantRole);
   });
 
   test('returns only system message when maxHistory is zero', () {
@@ -48,7 +48,7 @@ void main() {
 
     expect(messages, hasLength(1));
     expect(messages.first['role'], 'system');
-    expect(messages.first['content'], silverCompanionAssistantRole);
+    expect(messages.first['content'], yinlingAssistantRole);
   });
 
   test('maps system role explicitly', () {

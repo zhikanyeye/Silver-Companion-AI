@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 class RoleEntryCard extends StatelessWidget {
   const RoleEntryCard({

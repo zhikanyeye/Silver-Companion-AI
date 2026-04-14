@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/app.dart';
-import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
-import 'package:yinling_zhiban_demo/routes.dart';
+import 'package:yinling/app.dart';
+import 'package:yinling/features/auth/auth_page.dart';
+import 'package:yinling/routes.dart';
 
 void main() {
   testWidgets('landing shows brand-first entry with auth actions only', (

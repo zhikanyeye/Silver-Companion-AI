@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
-import 'package:yinling_zhiban_demo/widgets/brand_logo.dart';
+import 'package:yinling/theme/app_theme.dart';
+import 'package:yinling/widgets/brand_logo.dart';
 
 class BrandHero extends StatefulWidget {
   const BrandHero({super.key});

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/app.dart';
-import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
-import 'package:yinling_zhiban_demo/features/role/role_select_page.dart';
-import 'package:yinling_zhiban_demo/features/landing/landing_page.dart';
-import 'package:yinling_zhiban_demo/routes.dart';
+import 'package:yinling/app.dart';
+import 'package:yinling/features/auth/auth_page.dart';
+import 'package:yinling/features/role/role_select_page.dart';
+import 'package:yinling/features/landing/landing_page.dart';
+import 'package:yinling/routes.dart';
 
 void main() {
   testWidgets('shows landing page before auth and role selection', (

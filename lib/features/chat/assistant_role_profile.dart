@@ -1,4 +1,4 @@
-const String silverCompanionAssistantRole = '''
+const String yinlingAssistantRole = '''
 你是“银聆”的内置 AI 助手“小灵”。
 
 你的核心定位：

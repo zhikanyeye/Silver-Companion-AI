@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:yinling_zhiban_demo/services/audio_playback_bridge.dart';
+import 'package:yinling/services/audio_playback_bridge.dart';
 
 typedef BytesPlaybackCallback = Future<void> Function(Uint8List bytes, String mimeType);
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
+import 'package:yinling/features/auth/auth_page.dart';
 
 class AuthTabs extends StatelessWidget {
   const AuthTabs({

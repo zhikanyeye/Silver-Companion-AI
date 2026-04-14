@@ -1,7 +1,7 @@
 # Cloudflare Pages Deployment Guide / Cloudflare Pages 部署指南
 
-本文说明如何把当前 `Silver Companion AI` 项目部署到 Cloudflare Pages。  
-This guide explains how to deploy the current `Silver Companion AI` project to Cloudflare Pages.
+本文说明如何把当前 `Yinling` 项目部署到 Cloudflare Pages。  
+This guide explains how to deploy the current `Yinling` project to Cloudflare Pages.
 
 ## 部署模型 / Deployment Model
 

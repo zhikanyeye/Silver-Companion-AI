@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:yinling_zhiban_demo/config/app_config.dart';
+import 'package:yinling/config/app_config.dart';
 
 class ConfigLoader {
   Future<AppConfig?> load() async {

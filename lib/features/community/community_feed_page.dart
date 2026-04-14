@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/features/community/community_feed_service.dart';
-import 'package:yinling_zhiban_demo/features/community/mock_posts.dart';
-import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/features/community/community_feed_service.dart';
+import 'package:yinling/features/community/mock_posts.dart';
+import 'package:yinling/services/demo_identity_store.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 class CommunityFeedPage extends StatefulWidget {
   const CommunityFeedPage({

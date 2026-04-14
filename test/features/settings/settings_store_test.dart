@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
-import 'package:yinling_zhiban_demo/services/kv_client.dart';
-import 'package:yinling_zhiban_demo/services/settings_store.dart';
+import 'package:yinling/services/demo_identity_store.dart';
+import 'package:yinling/services/kv_client.dart';
+import 'package:yinling/services/settings_store.dart';
 
 class _FakeKvClient extends KvClient {
   _FakeKvClient({this.data});

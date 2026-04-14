@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/app.dart';
-import 'package:yinling_zhiban_demo/services/settings_store.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/app.dart';
+import 'package:yinling/services/settings_store.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, SettingsStore? store}) : _store = store;

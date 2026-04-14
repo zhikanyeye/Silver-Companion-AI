@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_publish_action.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
-import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
+import 'package:yinling/features/chat/chat_message.dart';
+import 'package:yinling/features/chat/chat_publish_action.dart';
+import 'package:yinling/features/chat/chat_repository.dart';
+import 'package:yinling/services/demo_identity_store.dart';
 
 abstract class ChatActionPlanner {
   Future<ChatPublishIntent> analyze({

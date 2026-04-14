@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/config/config_loader.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_controller.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
-import 'package:yinling_zhiban_demo/features/chat/chat_publish_action.dart';
-import 'package:yinling_zhiban_demo/features/elderly/mock_service_data.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/config/config_loader.dart';
+import 'package:yinling/features/chat/chat_controller.dart';
+import 'package:yinling/features/chat/chat_message.dart';
+import 'package:yinling/features/chat/chat_publish_action.dart';
+import 'package:yinling/features/elderly/mock_service_data.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key, ChatController? controller})

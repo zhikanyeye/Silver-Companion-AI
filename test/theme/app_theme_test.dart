@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 void main() {
   test('app theme exposes unified warm and service design tokens', () {

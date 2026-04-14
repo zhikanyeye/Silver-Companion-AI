@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:yinling_zhiban_demo/features/community/community_feed_page.dart';
-import 'package:yinling_zhiban_demo/features/community/community_feed_service.dart';
-import 'package:yinling_zhiban_demo/features/community/mock_posts.dart';
+import 'package:yinling/features/community/community_feed_page.dart';
+import 'package:yinling/features/community/community_feed_service.dart';
+import 'package:yinling/features/community/mock_posts.dart';
 
 class _FakeCommunityFeedService extends CommunityFeedService {
   static const actorId = 'guest-test-community';

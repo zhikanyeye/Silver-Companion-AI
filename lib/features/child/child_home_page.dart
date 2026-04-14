@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/features/child/child_dashboard_charts.dart';
-import 'package:yinling_zhiban_demo/features/child/child_dashboard_service.dart';
-import 'package:yinling_zhiban_demo/features/child/mock_family_data.dart';
-import 'package:yinling_zhiban_demo/routes.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/features/child/child_dashboard_charts.dart';
+import 'package:yinling/features/child/child_dashboard_service.dart';
+import 'package:yinling/features/child/mock_family_data.dart';
+import 'package:yinling/routes.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 class ChildHomePage extends StatefulWidget {
   const ChildHomePage({

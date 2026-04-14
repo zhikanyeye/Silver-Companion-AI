@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'dart:math' as math;
 
-import 'package:yinling_zhiban_demo/routes.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/routes.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 class App extends StatelessWidget {
   const App({super.key, this.initialRoute = landingRoute});

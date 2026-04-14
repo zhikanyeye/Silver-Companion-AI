@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/app.dart';
-import 'package:yinling_zhiban_demo/features/landing/landing_page.dart';
-import 'package:yinling_zhiban_demo/routes.dart';
+import 'package:yinling/app.dart';
+import 'package:yinling/features/landing/landing_page.dart';
+import 'package:yinling/routes.dart';
 
 import 'support/app_flow_test_helper.dart';
 

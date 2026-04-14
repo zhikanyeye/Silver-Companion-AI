@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:yinling_zhiban_demo/features/auth/auth_page.dart';
-import 'package:yinling_zhiban_demo/routes.dart';
+import 'package:yinling/features/auth/auth_page.dart';
+import 'package:yinling/routes.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});

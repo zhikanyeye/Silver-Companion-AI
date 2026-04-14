@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling_zhiban_demo/features/elderly/elderly_home_page.dart';
-import 'package:yinling_zhiban_demo/theme/app_theme.dart';
+import 'package:yinling/features/elderly/elderly_home_page.dart';
+import 'package:yinling/theme/app_theme.dart';
 
 import 'support/app_flow_test_helper.dart';
 
