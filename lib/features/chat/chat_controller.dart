@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:yinling_zhiban_demo/config/app_config.dart';
+import 'package:yinling_zhiban_demo/features/chat/chat_action_planner.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
+import 'package:yinling_zhiban_demo/features/chat/chat_publish_action.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
 import 'package:yinling_zhiban_demo/features/chat/memory_store.dart';
 import 'package:yinling_zhiban_demo/features/chat/prompt_builder.dart';
 import 'package:yinling_zhiban_demo/features/chat/scam_rules.dart';
+import 'package:yinling_zhiban_demo/features/community/community_feed_service.dart';
+import 'package:yinling_zhiban_demo/features/elderly/elderly_activities_service.dart';
 import 'package:yinling_zhiban_demo/services/audio_playback_service.dart';
 import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
 import 'package:yinling_zhiban_demo/services/kv_client.dart';
@@ -20,19 +24,27 @@ class ChatController extends ChangeNotifier {
     TTSClient? ttsClient,
     AudioPlaybackService? audioPlaybackService,
     MemoryStore? memoryStore,
+    ChatActionPlanner? actionPlanner,
+    CommunityFeedService? communityFeedService,
+    ElderlyActivitiesService? activitiesService,
     String? model,
     KvClient? kvClient,
     DemoIdentityStore? identityStore,
     this.maxHistory = 12,
   }) : _repository = repository ?? ChatRepository(),
        _promptBuilder = promptBuilder ?? const PromptBuilder(),
-       _speechService = speechService ?? WebSpeechService(),
-       _ttsClient = ttsClient ?? TTSClient(),
-       _audioPlaybackService = audioPlaybackService ?? AudioPlaybackService(),
-       _memoryStore = memoryStore ?? MemoryStore(),
-       _kvClient = kvClient ?? const KvClient(),
-       _identityStore = identityStore ?? DemoIdentityStore(),
-       _model = model ?? 'openai/gpt-4o-mini' {
+        _speechService = speechService ?? WebSpeechService(),
+        _ttsClient = ttsClient ?? TTSClient(),
+        _audioPlaybackService = audioPlaybackService ?? AudioPlaybackService(),
+        _memoryStore = memoryStore ?? MemoryStore(),
+        _actionPlanner =
+            actionPlanner ?? AiChatActionPlanner(repository: repository),
+        _communityFeedService = communityFeedService ?? CommunityFeedService(),
+        _activitiesService =
+            activitiesService ?? ElderlyActivitiesService(),
+        _kvClient = kvClient ?? const KvClient(),
+        _identityStore = identityStore ?? DemoIdentityStore(),
+        _model = model ?? 'openai/gpt-4o-mini' {
     _bindSpeechCallbacks();
     _loadMemory();
   }
@@ -43,6 +55,9 @@ class ChatController extends ChangeNotifier {
   final TTSClient _ttsClient;
   final AudioPlaybackService _audioPlaybackService;
   final MemoryStore _memoryStore;
+  final ChatActionPlanner _actionPlanner;
+  final CommunityFeedService _communityFeedService;
+  final ElderlyActivitiesService _activitiesService;
   final KvClient _kvClient;
   final DemoIdentityStore _identityStore;
   final int maxHistory;
@@ -50,6 +65,7 @@ class ChatController extends ChangeNotifier {
   final List<ChatMessage> _messages = <ChatMessage>[];
   List<String> _memory = <String>[];
   String _model;
+  ChatPublishIntent? _pendingPublishIntent;
 
   void Function(String text)? onInterimText;
   void Function(String text)? onFinalText;
@@ -68,6 +84,7 @@ class ChatController extends ChangeNotifier {
       (_ttsClient.isConfigured && _audioPlaybackService.isSupported());
   bool get isTTSConfigured => _ttsClient.isConfigured;
   List<ChatMessage> get messages => List<ChatMessage>.unmodifiable(_messages);
+  ChatPublishIntent? get pendingPublishIntent => _pendingPublishIntent;
 
   Future<String> _historyKey() async {
     final identity = await _identityStore.loadOrCreate();
@@ -136,6 +153,25 @@ class ChatController extends ChangeNotifier {
     });
   }
 
+  Future<void> _appendAssistantMessage(String text) async {
+    final content = text.trim();
+    if (content.isEmpty) {
+      return;
+    }
+
+    _messages.add(
+      ChatMessage(
+        role: ChatRole.assistant,
+        content: content,
+        createdAt: DateTime.now(),
+      ),
+    );
+    _memory.add(content);
+    await _memoryStore.save(_memory);
+    await _syncToKV();
+    await _playAssistantSpeech(content);
+  }
+
   void applyConfig(AppConfig config) {
     _model = config.modelName.isNotEmpty ? config.modelName : _model;
     notifyListeners();
@@ -143,6 +179,11 @@ class ChatController extends ChangeNotifier {
 
   String _mapToUserSafeError(Object value) {
     final raw = value.toString().toLowerCase();
+
+    if (raw.contains('community publish failed') ||
+        raw.contains('activity publish failed')) {
+      return '发布失败，请稍后重试。';
+    }
 
     if (raw.contains(' 400 ') || raw.endsWith(' 400')) {
       return 'Request content is invalid. Please revise it and try again.';
@@ -190,6 +231,208 @@ class ChatController extends ChangeNotifier {
     }
   }
 
+  bool _looksLikePublishIntent(String content) {
+    final normalized = content.trim().toLowerCase();
+    if (normalized.isEmpty) {
+      return false;
+    }
+
+    final publishHints = <String>[
+      '发布',
+      '发个',
+      '发一条',
+      '帮我发',
+      '替我发',
+      '代我发',
+      '创建',
+      '建个',
+      '建一个',
+      '组织',
+      '办个',
+      '想发',
+      '想发布',
+    ];
+    final communityHints = <String>['互助', '求助', '邻里', '社区', '帮忙'];
+    final activityHints = <String>['活动', '茶话会', '讲座', '义诊', '课程', '联谊'];
+
+    final hasPublishHint = publishHints.any(normalized.contains);
+    final hasCommunityHint = communityHints.any(normalized.contains);
+    final hasActivityHint = activityHints.any(normalized.contains);
+
+    return (hasPublishHint && (hasCommunityHint || hasActivityHint)) ||
+        (hasActivityHint &&
+            (normalized.contains('办') ||
+                normalized.contains('建') ||
+                normalized.contains('组织'))) ||
+        (hasCommunityHint &&
+            (normalized.contains('发') ||
+                normalized.contains('发布') ||
+                normalized.contains('求助')));
+  }
+
+  bool _isPublishConfirmation(String content) {
+    final normalized = content.replaceAll(RegExp(r'\s+'), '');
+    const confirmPhrases = <String>{
+      '确认',
+      '确认发布',
+      '发布',
+      '发布吧',
+      '就这样发布',
+      '帮我发布',
+      '确定发布',
+      '可以发布',
+      '好，发布',
+      '好的，发布',
+    };
+    return confirmPhrases.contains(normalized);
+  }
+
+  bool _isPublishCancellation(String content) {
+    final normalized = content.replaceAll(RegExp(r'\s+'), '');
+    const cancelPhrases = <String>{
+      '取消',
+      '取消发布',
+      '先不发布',
+      '不用发布了',
+      '算了',
+      '撤销',
+      '不要发布',
+    };
+    return cancelPhrases.contains(normalized);
+  }
+
+  String _fallbackPublishReply(ChatPublishIntent intent) {
+    if (intent.isReadyForConfirmation) {
+      return switch (intent.target) {
+        ChatPublishTarget.community => '我已经整理好这条互助信息，确认后就帮您发布。',
+        ChatPublishTarget.activity => '我已经整理好这场社区活动，确认后就帮您发布。',
+        null => '',
+      };
+    }
+
+    if (intent.missingFields.isEmpty) {
+      return '我先帮您整理发布内容，您也可以继续补充细节。';
+    }
+
+    return '我还差一点信息，您补充后我就能继续整理发布草稿。';
+  }
+
+  Future<bool> _maybeHandlePublishFlow(String content) async {
+    if (_pendingPublishIntent == null && !_looksLikePublishIntent(content)) {
+      return false;
+    }
+
+    try {
+      final identity = await _identityStore.loadOrCreate();
+      final intent = await _actionPlanner.analyze(
+        history: messages,
+        identity: identity,
+        model: model,
+        pendingIntent: _pendingPublishIntent,
+      );
+
+      if (!intent.isPublishIntent) {
+        return false;
+      }
+
+      _pendingPublishIntent = intent;
+      await _appendAssistantMessage(
+        intent.reply.isNotEmpty ? intent.reply : _fallbackPublishReply(intent),
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _confirmPendingPublishInternal() async {
+    final pending = _pendingPublishIntent;
+    if (pending == null || !pending.isReadyForConfirmation) {
+      return;
+    }
+
+    final identity = await _identityStore.loadOrCreate();
+
+    switch (pending.target) {
+      case ChatPublishTarget.community:
+        final draft = pending.communityDraft?.withDefaults(identity);
+        if (draft == null) {
+          return;
+        }
+        final created = await _communityFeedService.publishPost(
+          username: draft.username,
+          identity: draft.identity,
+          tag: draft.tag,
+          title: draft.title,
+          location: draft.location,
+          summary: draft.summary,
+        );
+        _pendingPublishIntent = null;
+        await _appendAssistantMessage(
+          '已帮您发布社区互助“${created.title}”，您可以去社区页面查看。',
+        );
+        return;
+      case ChatPublishTarget.activity:
+        final draft = pending.activityDraft?.withDefaults(identity);
+        if (draft == null) {
+          return;
+        }
+        final created = await _activitiesService.publishActivity(
+          organizerName: draft.organizerName,
+          title: draft.title,
+          location: draft.location,
+          description: draft.description,
+          tag: draft.tag,
+          time: draft.time,
+          group: draft.group,
+        );
+        _pendingPublishIntent = null;
+        await _appendAssistantMessage(
+          '已帮您创建社区活动“${created.title}”，您可以去活动页面查看。',
+        );
+        return;
+      case null:
+        return;
+    }
+  }
+
+  Future<void> _cancelPendingPublishInternal() async {
+    if (_pendingPublishIntent == null) {
+      return;
+    }
+
+    _pendingPublishIntent = null;
+    await _appendAssistantMessage('好的，这次发布草稿已经取消。');
+  }
+
+  Future<void> confirmPendingPublish() async {
+    if (isLoading) {
+      return;
+    }
+
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      await _confirmPendingPublishInternal();
+    } catch (_) {
+      error = '发布失败，请稍后重试。';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> cancelPendingPublish() async {
+    if (isLoading) {
+      return;
+    }
+
+    await _cancelPendingPublishInternal();
+    notifyListeners();
+  }
+
   Future<void> sendText(String text) async {
     final content = text.trim();
     if (content.isEmpty || isLoading) {
@@ -212,6 +455,20 @@ class ChatController extends ChangeNotifier {
       _memory.add(content);
       await _memoryStore.save(_memory);
 
+      if (_pendingPublishIntent != null && _isPublishConfirmation(content)) {
+        await _confirmPendingPublishInternal();
+        return;
+      }
+
+      if (_pendingPublishIntent != null && _isPublishCancellation(content)) {
+        await _cancelPendingPublishInternal();
+        return;
+      }
+
+      if (await _maybeHandlePublishFlow(content)) {
+        return;
+      }
+
       final prompt = _promptBuilder.build(
         history: _messages,
         maxHistory: maxHistory,
@@ -221,18 +478,7 @@ class ChatController extends ChangeNotifier {
         messages: prompt,
       );
 
-      _messages.add(
-        ChatMessage(
-          role: ChatRole.assistant,
-          content: reply,
-          createdAt: DateTime.now(),
-        ),
-      );
-      _memory.add(reply);
-      await _memoryStore.save(_memory);
-
-      _syncToKV();
-      await _playAssistantSpeech(reply);
+      await _appendAssistantMessage(reply);
     } catch (value) {
       error = _mapToUserSafeError(value);
     } finally {
@@ -294,6 +540,7 @@ class ChatController extends ChangeNotifier {
   Future<void> clearMessages() async {
     _messages.clear();
     _memory.clear();
+    _pendingPublishIntent = null;
     await _memoryStore.save(<String>[]);
     await _kvClient.delete(await _historyKey());
 

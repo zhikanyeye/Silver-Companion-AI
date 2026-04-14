@@ -1,9 +1,16 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yinling_zhiban_demo/features/chat/chat_action_planner.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_controller.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_repository.dart';
+import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
+import 'package:yinling_zhiban_demo/features/chat/chat_publish_action.dart';
 import 'package:yinling_zhiban_demo/features/chat/memory_store.dart';
+import 'package:yinling_zhiban_demo/features/community/community_feed_service.dart';
+import 'package:yinling_zhiban_demo/features/community/mock_posts.dart';
+import 'package:yinling_zhiban_demo/features/elderly/elderly_activities_service.dart';
+import 'package:yinling_zhiban_demo/features/elderly/mock_service_data.dart';
 import 'package:yinling_zhiban_demo/services/audio_playback_service.dart';
 import 'package:yinling_zhiban_demo/services/demo_identity_store.dart';
 import 'package:yinling_zhiban_demo/services/tts_client.dart';
@@ -134,6 +141,106 @@ class _RecordingAudioPlaybackService extends AudioPlaybackService {
   }
 }
 
+class _StubActionPlanner implements ChatActionPlanner {
+  _StubActionPlanner({required this.intent});
+
+  final ChatPublishIntent intent;
+  int calls = 0;
+
+  @override
+  Future<ChatPublishIntent> analyze({
+    required List<ChatMessage> history,
+    required DemoIdentity identity,
+    required String model,
+    ChatPublishIntent? pendingIntent,
+  }) async {
+    calls += 1;
+    return intent;
+  }
+}
+
+class _RecordingCommunityFeedService extends CommunityFeedService {
+  String? lastUsername;
+  String? lastIdentity;
+  String? lastTag;
+  String? lastTitle;
+  String? lastLocation;
+  String? lastSummary;
+  int publishCalls = 0;
+
+  @override
+  Future<CommunityPost> publishPost({
+    required String username,
+    required String identity,
+    required String tag,
+    required String title,
+    required String location,
+    required String summary,
+  }) async {
+    publishCalls += 1;
+    lastUsername = username;
+    lastIdentity = identity;
+    lastTag = tag;
+    lastTitle = title;
+    lastLocation = location;
+    lastSummary = summary;
+    return CommunityPost(
+      id: 'published-community',
+      username: username,
+      identity: identity,
+      tag: tag,
+      title: title,
+      location: location,
+      summary: summary,
+      createdAtEpochMs: 1774922400000,
+      ownerActorId: 'guest-test',
+    );
+  }
+}
+
+class _RecordingActivitiesService extends ElderlyActivitiesService {
+  String? organizerName;
+  String? title;
+  String? location;
+  String? description;
+  String? tag;
+  String? time;
+  ElderlyActivityGroup? group;
+  int publishCalls = 0;
+
+  @override
+  Future<ElderlyActivityItem> publishActivity({
+    required String organizerName,
+    required String title,
+    required String location,
+    required String description,
+    required String tag,
+    required String time,
+    required ElderlyActivityGroup group,
+  }) async {
+    publishCalls += 1;
+    this.organizerName = organizerName;
+    this.title = title;
+    this.location = location;
+    this.description = description;
+    this.tag = tag;
+    this.time = time;
+    this.group = group;
+    return ElderlyActivityItem(
+      id: 'published-activity',
+      time: time,
+      title: title,
+      location: location,
+      description: description,
+      tag: tag,
+      organizerName: organizerName,
+      organizerActorId: 'guest-test',
+      group: group,
+      createdAtEpochMs: 1774922400000,
+    );
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -142,6 +249,9 @@ void main() {
     WebSpeechService? speechService,
     TTSClient? ttsClient,
     AudioPlaybackService? audioPlaybackService,
+    ChatActionPlanner? actionPlanner,
+    CommunityFeedService? communityFeedService,
+    ElderlyActivitiesService? activitiesService,
   }) {
     return ChatController(
       repository: repository,
@@ -149,6 +259,9 @@ void main() {
       ttsClient: ttsClient,
       audioPlaybackService: audioPlaybackService,
       memoryStore: _TestMemoryStore(),
+      actionPlanner: actionPlanner,
+      communityFeedService: communityFeedService,
+      activitiesService: activitiesService,
       identityStore: _FakeIdentityStore(),
     );
   }
@@ -351,6 +464,128 @@ void main() {
     expect(ttsClient.calls, 1);
     expect(audioPlaybackService.playedAudio, isEmpty);
     expect(speechService.spokenTexts, <String>['assistant ok']);
+  });
+
+  test('publish intent creates a pending community draft for confirmation', () async {
+    final planner = _StubActionPlanner(
+      intent: ChatPublishIntent.community(
+        reply: '我已经整理好互助信息，请确认发布。',
+        draft: const CommunityPublishDraft(
+          username: 'Test User',
+          identity: 'Resident',
+          tag: '求助',
+          title: '明天下午门诊陪同',
+          location: '春和社区',
+          summary: '明天下午需要一位邻里陪同去门诊。',
+        ),
+      ),
+    );
+    final controller = createController(
+      repository: _FakeChatRepository(reply: 'unused'),
+      actionPlanner: planner,
+    );
+
+    await controller.sendText('帮我发布一条社区求助，明天下午门诊需要陪同。');
+
+    expect(planner.calls, 1);
+    expect(controller.pendingPublishIntent, isNotNull);
+    expect(controller.pendingPublishIntent?.target, ChatPublishTarget.community);
+    expect(controller.pendingPublishIntent?.isReadyForConfirmation, isTrue);
+    expect(controller.messages.last.content, '我已经整理好互助信息，请确认发布。');
+  });
+
+  test('confirmPendingPublish publishes the pending community draft', () async {
+    final planner = _StubActionPlanner(
+      intent: ChatPublishIntent.community(
+        reply: '草稿已准备好，请确认发布。',
+        draft: const CommunityPublishDraft(
+          username: 'Test User',
+          identity: 'Resident',
+          tag: '互助',
+          title: '周三代买药品',
+          location: '春和社区',
+          summary: '周三下午可以顺路代买常用药。',
+        ),
+      ),
+    );
+    final communityService = _RecordingCommunityFeedService();
+    final controller = createController(
+      repository: _FakeChatRepository(reply: 'unused'),
+      actionPlanner: planner,
+      communityFeedService: communityService,
+    );
+
+    await controller.sendText('帮我发一条社区互助。');
+    await controller.confirmPendingPublish();
+
+    expect(communityService.publishCalls, 1);
+    expect(communityService.lastTitle, '周三代买药品');
+    expect(controller.pendingPublishIntent, isNull);
+    expect(
+      controller.messages.last.content,
+      '已帮您发布社区互助“周三代买药品”，您可以去社区页面查看。',
+    );
+  });
+
+  test('confirmPendingPublish publishes the pending activity draft', () async {
+    final planner = _StubActionPlanner(
+      intent: ChatPublishIntent.activity(
+        reply: '活动草稿已准备好，请确认发布。',
+        draft: const ActivityPublishDraft(
+          organizerName: 'Test User',
+          title: '周五茶话会',
+          location: '社区活动室',
+          description: '欢迎邻里一起聊聊近况和社区新闻。',
+          tag: '社区活动',
+          time: '周五 15:00',
+          group: ElderlyActivityGroup.weekly,
+        ),
+      ),
+    );
+    final activitiesService = _RecordingActivitiesService();
+    final controller = createController(
+      repository: _FakeChatRepository(reply: 'unused'),
+      actionPlanner: planner,
+      activitiesService: activitiesService,
+    );
+
+    await controller.sendText('帮我创建一个社区活动。');
+    await controller.confirmPendingPublish();
+
+    expect(activitiesService.publishCalls, 1);
+    expect(activitiesService.title, '周五茶话会');
+    expect(activitiesService.group, ElderlyActivityGroup.weekly);
+    expect(controller.pendingPublishIntent, isNull);
+    expect(
+      controller.messages.last.content,
+      '已帮您创建社区活动“周五茶话会”，您可以去活动页面查看。',
+    );
+  });
+
+  test('cancelPendingPublish clears the pending draft and appends feedback', () async {
+    final planner = _StubActionPlanner(
+      intent: ChatPublishIntent.community(
+        reply: '我已经整理好互助信息，请确认发布。',
+        draft: const CommunityPublishDraft(
+          username: 'Test User',
+          identity: 'Resident',
+          tag: '求助',
+          title: '需要陪诊',
+          location: '春和社区',
+          summary: '明天下午需要邻里陪诊。',
+        ),
+      ),
+    );
+    final controller = createController(
+      repository: _FakeChatRepository(reply: 'unused'),
+      actionPlanner: planner,
+    );
+
+    await controller.sendText('帮我发一条求助。');
+    await controller.cancelPendingPublish();
+
+    expect(controller.pendingPublishIntent, isNull);
+    expect(controller.messages.last.content, '好的，这次发布草稿已经取消。');
   });
 
   test('can replay last assistant message when speech is enabled', () async {

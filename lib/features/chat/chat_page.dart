@@ -3,10 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:yinling_zhiban_demo/config/config_loader.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_controller.dart';
 import 'package:yinling_zhiban_demo/features/chat/chat_message.dart';
+import 'package:yinling_zhiban_demo/features/chat/chat_publish_action.dart';
+import 'package:yinling_zhiban_demo/features/elderly/mock_service_data.dart';
 import 'package:yinling_zhiban_demo/theme/app_theme.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  const ChatPage({super.key, ChatController? controller})
+      : _controller = controller;
+
+  final ChatController? _controller;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -14,6 +19,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   late final ChatController _controller;
+  late final bool _ownsController;
   final ConfigLoader _configLoader = ConfigLoader();
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -22,7 +28,8 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    _controller = ChatController()
+    _ownsController = widget._controller == null;
+    _controller = (widget._controller ?? ChatController())
       ..addListener(_onControllerChanged)
       ..onInterimText = (text) {
         _applyRecognizedText(text);
@@ -55,9 +62,10 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    _controller
-      ..removeListener(_onControllerChanged)
-      ..dispose();
+    _controller.removeListener(_onControllerChanged);
+    if (_ownsController) {
+      _controller.dispose();
+    }
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -102,6 +110,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final pendingIntent = _controller.pendingPublishIntent;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('AI 助手'),
@@ -167,6 +177,12 @@ class _ChatPageState extends State<ChatPage> {
                 message: _controller.isSpeechPlaybackEnabled
                     ? '已开启助手回复语音播报。'
                     : '语音播报已关闭，可手动重播收听。',
+              ),
+            if (pendingIntent?.isReadyForConfirmation ?? false)
+              _PendingPublishCard(
+                intent: pendingIntent!,
+                onConfirm: _controller.confirmPendingPublish,
+                onCancel: _controller.cancelPendingPublish,
               ),
             Expanded(
               child: ListView.builder(
@@ -362,7 +378,7 @@ class _Banner extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: AppTheme.textStrong),
           const SizedBox(width: 8),
-          Expanded(child: Text(message)),
+          Expanded(child: SelectableText(message)),
         ],
       ),
     );
@@ -402,7 +418,7 @@ class _MessageBubble extends StatelessWidget {
                 color: isUser ? const Color(0xFF2B67C7) : AppTheme.surface,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(
+              child: SelectableText(
                 message.content,
                 style: TextStyle(
                   color: isUser ? Colors.white : AppTheme.textStrong,
@@ -416,6 +432,126 @@ class _MessageBubble extends StatelessWidget {
                 icon: const Icon(Icons.volume_up_rounded, size: 18),
                 label: const Text('重播回复'),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PendingPublishCard extends StatelessWidget {
+  const _PendingPublishCard({
+    required this.intent,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  final ChatPublishIntent intent;
+  final Future<void> Function() onConfirm;
+  final Future<void> Function() onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      key: const Key('chatPendingPublishCard'),
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SelectionArea(
+          child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              intent.target == ChatPublishTarget.community
+                  ? '待发布互助信息'
+                  : '待发布社区活动',
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 10),
+            ..._buildDetails(),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    key: const Key('chatCancelPublishButton'),
+                    onPressed: onCancel,
+                    child: const Text('取消'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    key: const Key('chatConfirmPublishButton'),
+                    onPressed: onConfirm,
+                    child: const Text('确认发布'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildDetails() {
+    switch (intent.target) {
+      case ChatPublishTarget.community:
+        final draft = intent.communityDraft!;
+        return <Widget>[
+          _DraftLine(label: '发起人', value: '${draft.username} / ${draft.identity}'),
+          _DraftLine(label: '标题', value: draft.title),
+          _DraftLine(label: '地点', value: draft.location),
+          _DraftLine(label: '标签', value: draft.tag),
+          _DraftLine(label: '内容', value: draft.summary),
+        ];
+      case ChatPublishTarget.activity:
+        final draft = intent.activityDraft!;
+        final groupLabel =
+            draft.group == ElderlyActivityGroup.today ? '今日活动' : '本周活动';
+        return <Widget>[
+          _DraftLine(label: '组织者', value: draft.organizerName),
+          _DraftLine(label: '标题', value: draft.title),
+          _DraftLine(label: '时间', value: draft.time),
+          _DraftLine(label: '地点', value: draft.location),
+          _DraftLine(label: '标签', value: draft.tag),
+          _DraftLine(label: '分组', value: groupLabel),
+          _DraftLine(label: '介绍', value: draft.description),
+        ];
+      case null:
+        return const <Widget>[];
+    }
+  }
+}
+
+class _DraftLine extends StatelessWidget {
+  const _DraftLine({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: RichText(
+        text: TextSpan(
+          style: theme.textTheme.bodyMedium?.copyWith(color: AppTheme.textStrong),
+          children: [
+            TextSpan(
+              text: '$label：',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textStrong,
+              ),
+            ),
+            TextSpan(text: value),
           ],
         ),
       ),
