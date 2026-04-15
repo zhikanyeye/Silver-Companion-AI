@@ -6,6 +6,7 @@ import 'package:yinling/features/auth/auth_page.dart';
 import 'package:yinling/features/auth/widgets/auth_tabs.dart';
 import 'package:yinling/features/role/role_select_page.dart';
 import 'package:yinling/routes.dart';
+import 'package:yinling/services/auth_session_store.dart';
 import 'package:yinling/theme/app_theme.dart';
 
 void main() {
@@ -63,6 +64,12 @@ void main() {
           tester.element(find.byType(RoleSelectPage)),
         )?.settings.name,
         roleSelectRoute,
+      );
+
+      final preferences = await SharedPreferences.getInstance();
+      expect(
+        preferences.getBool(AuthSessionStore.isLoggedInPreferenceKey),
+        isTrue,
       );
     },
   );

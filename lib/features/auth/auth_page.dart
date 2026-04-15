@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yinling/features/auth/widgets/auth_form.dart';
 import 'package:yinling/features/auth/widgets/auth_tabs.dart';
 import 'package:yinling/routes.dart';
+import 'package:yinling/services/auth_session_store.dart';
 import 'package:yinling/theme/app_theme.dart';
 
 enum AuthTabSelection { login, register }
@@ -39,6 +40,7 @@ class _AuthPageState extends State<AuthPage>
   AuthTabSelection? _noticeTab;
   Timer? _noticeTimer;
   final Set<AuthTabSelection> _noticeChecksInFlight = <AuthTabSelection>{};
+  final AuthSessionStore _sessionStore = AuthSessionStore();
 
   @override
   void initState() {
@@ -168,9 +170,15 @@ class _AuthPageState extends State<AuthPage>
                                       const SizedBox(height: 28),
                                       AuthForm(
                                         tab: selectedTab,
-                                        onSuccess: () => Navigator.of(
-                                          context,
-                                        ).pushNamed(roleSelectRoute),
+                                        onSuccess: () async {
+                                          await _sessionStore.markLoggedIn();
+                                          if (!mounted) {
+                                            return;
+                                          }
+                                          Navigator.of(
+                                            context,
+                                          ).pushNamed(roleSelectRoute);
+                                        },
                                       ),
                                     ],
                                   ),

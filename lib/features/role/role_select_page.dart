@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:yinling/features/role/widgets/role_option_card.dart';
 import 'package:yinling/routes.dart';
+import 'package:yinling/services/auth_session_store.dart';
 import 'package:yinling/theme/app_theme.dart';
 import 'package:yinling/widgets/brand_logo.dart';
 
@@ -17,6 +18,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
   late final AnimationController _animCtrl;
   late final Animation<double> _fadeIn;
   late final Animation<Offset> _slideUp;
+  final AuthSessionStore _sessionStore = AuthSessionStore();
 
   @override
   void initState() {
@@ -180,11 +182,16 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                             color: Color(0xFF0C4A6E),
                           ),
                           tooltip: '退出登录',
-                          onPressed: () =>
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                landingRoute,
-                                (route) => false,
-                              ),
+                          onPressed: () async {
+                            await _sessionStore.clearSession();
+                            if (!mounted) {
+                              return;
+                            }
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              landingRoute,
+                              (route) => false,
+                            );
+                          },
                         ),
                       ),
                     ),

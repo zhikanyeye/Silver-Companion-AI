@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:yinling/app.dart';
+import 'package:yinling/features/child/child_home_page.dart';
+import 'package:yinling/features/elderly/elderly_activities_page.dart';
+import 'package:yinling/features/elderly/elderly_home_page.dart';
 import 'package:yinling/features/landing/landing_page.dart';
 import 'package:yinling/routes.dart';
+import 'package:yinling/services/auth_session_store.dart';
 
 import 'support/app_flow_test_helper.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+  });
+
   testWidgets('respects system text scaling above app minimum',
       (WidgetTester tester) async {
     tester.binding.platformDispatcher.textScaleFactorTestValue = 1.4;
@@ -27,7 +36,7 @@ void main() {
       (WidgetTester tester) async {
     await pumpAppToElderlyHome(tester);
 
-    expect(find.text('长者首页'), findsOneWidget);
+    expect(find.byType(ElderlyHomePage), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 
@@ -35,7 +44,7 @@ void main() {
       (WidgetTester tester) async {
     await pumpAppToChildHome(tester);
 
-    expect(find.text('子女看护看板'), findsOneWidget);
+    expect(find.byType(ChildHomePage), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
   });
 
@@ -49,12 +58,15 @@ void main() {
     await tester.tap(activitiesEntry.hitTestable());
     await tester.pumpAndSettle();
 
-    expect(find.text('活动日程'), findsWidgets);
-    expect(find.text('今日活动'), findsOneWidget);
+    expect(find.byType(ElderlyActivitiesPage), findsOneWidget);
+    expect(find.byKey(const Key('activitiesMySummaryCard')), findsOneWidget);
   });
 
   testWidgets('navigates to platform route when launched on platform route',
       (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      AuthSessionStore.isLoggedInPreferenceKey: true,
+    });
     await tester.pumpWidget(const App(initialRoute: platformRoute));
     await tester.pumpAndSettle();
 
@@ -70,5 +82,18 @@ void main() {
     expect(route?.settings.name, platformRoute);
     expect(find.text('平台服务正在准备中。'), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
+  });
+
+  testWidgets('redirects protected routes back to landing when not logged in',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const App(initialRoute: childRoute));
+    await tester.pumpAndSettle();
+
+    final landingPage = find.byType(LandingPage);
+    expect(landingPage, findsOneWidget);
+    expect(
+      ModalRoute.of(tester.element(landingPage))?.settings.name,
+      landingRoute,
+    );
   });
 }
