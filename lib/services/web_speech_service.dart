@@ -10,6 +10,7 @@ class WebSpeechService {
   WebSpeechService({
     BoolCallback? isWeb,
     BoolCallback? isRecognitionSupportedOnWeb,
+    String Function()? recognitionUnsupportedReasonOnWeb,
     BoolCallback? isPlaybackSupportedOnWeb,
     StartRecognitionCallback? startRecognitionOnWeb,
     VoidCallback0? stopRecognitionOnWeb,
@@ -19,6 +20,9 @@ class WebSpeechService {
        _isRecognitionSupportedOnWeb =
            isRecognitionSupportedOnWeb ??
            speechRecognitionIsSupportedOnWebBridge,
+       _recognitionUnsupportedReasonOnWeb =
+           recognitionUnsupportedReasonOnWeb ??
+           speechRecognitionUnsupportedReasonOnWebBridge,
        _isPlaybackSupportedOnWeb =
            isPlaybackSupportedOnWeb ?? speechPlaybackIsSupportedOnWebBridge,
        _startRecognitionOnWeb =
@@ -30,6 +34,7 @@ class WebSpeechService {
 
   final BoolCallback _isWeb;
   final BoolCallback _isRecognitionSupportedOnWeb;
+  final String Function() _recognitionUnsupportedReasonOnWeb;
   final BoolCallback _isPlaybackSupportedOnWeb;
   final StartRecognitionCallback _startRecognitionOnWeb;
   final VoidCallback0 _stopRecognitionOnWeb;
@@ -41,6 +46,13 @@ class WebSpeechService {
       return false;
     }
     return _isRecognitionSupportedOnWeb();
+  }
+
+  String recognitionUnsupportedReason() {
+    if (!_isWeb()) {
+      return 'unsupported-platform';
+    }
+    return _recognitionUnsupportedReasonOnWeb();
   }
 
   bool isPlaybackSupported() {

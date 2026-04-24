@@ -269,6 +269,7 @@ void main() {
   test('startRecognition keeps recognizing false when unsupported', () {
     final speechService = WebSpeechService(
       isWeb: () => false,
+      recognitionUnsupportedReasonOnWeb: () => 'unsupported-platform',
       startRecognitionOnWeb: () {
         throw StateError('should not be called when unsupported');
       },
@@ -278,6 +279,7 @@ void main() {
     controller.startRecognition();
 
     expect(controller.isRecognizing, isFalse);
+    expect(controller.error, '当前运行环境暂不支持语音输入，请改用 Web 版浏览器。');
   });
 
   test('start and stop recognition toggles recognizing when supported', () {
@@ -346,6 +348,18 @@ void main() {
       '\u6ca1\u6709\u8bc6\u522b\u5230\u8bed\u97f3\uff0c\u8bf7\u9760\u8fd1\u9ea6\u514b\u98ce\u540e\u518d\u8bd5\u4e00\u6b21\u3002',
     );
   });
+
+  test(
+    'speech error callback maps insecure context to deployment guidance',
+    () {
+      final speechService = _RecordingSpeechService();
+      final controller = createController(speechService: speechService);
+
+      speechService.onErrorCallback?.call('insecure-context');
+
+      expect(controller.error, '语音输入需要在 HTTPS 或 localhost 环境下使用，请检查当前访问地址。');
+    },
+  );
 
   test('speech input and output capabilities are separated', () {
     final speechService = _RecordingSpeechService(
@@ -466,33 +480,39 @@ void main() {
     expect(speechService.spokenTexts, <String>['assistant ok']);
   });
 
-  test('publish intent creates a pending community draft for confirmation', () async {
-    final planner = _StubActionPlanner(
-      intent: ChatPublishIntent.community(
-        reply: '我已经整理好互助信息，请确认发布。',
-        draft: const CommunityPublishDraft(
-          username: 'Test User',
-          identity: 'Resident',
-          tag: '求助',
-          title: '明天下午门诊陪同',
-          location: '春和社区',
-          summary: '明天下午需要一位邻里陪同去门诊。',
+  test(
+    'publish intent creates a pending community draft for confirmation',
+    () async {
+      final planner = _StubActionPlanner(
+        intent: ChatPublishIntent.community(
+          reply: '我已经整理好互助信息，请确认发布。',
+          draft: const CommunityPublishDraft(
+            username: 'Test User',
+            identity: 'Resident',
+            tag: '求助',
+            title: '明天下午门诊陪同',
+            location: '春和社区',
+            summary: '明天下午需要一位邻里陪同去门诊。',
+          ),
         ),
-      ),
-    );
-    final controller = createController(
-      repository: _FakeChatRepository(reply: 'unused'),
-      actionPlanner: planner,
-    );
+      );
+      final controller = createController(
+        repository: _FakeChatRepository(reply: 'unused'),
+        actionPlanner: planner,
+      );
 
-    await controller.sendText('帮我发布一条社区求助，明天下午门诊需要陪同。');
+      await controller.sendText('帮我发布一条社区求助，明天下午门诊需要陪同。');
 
-    expect(planner.calls, 1);
-    expect(controller.pendingPublishIntent, isNotNull);
-    expect(controller.pendingPublishIntent?.target, ChatPublishTarget.community);
-    expect(controller.pendingPublishIntent?.isReadyForConfirmation, isTrue);
-    expect(controller.messages.last.content, '我已经整理好互助信息，请确认发布。');
-  });
+      expect(planner.calls, 1);
+      expect(controller.pendingPublishIntent, isNotNull);
+      expect(
+        controller.pendingPublishIntent?.target,
+        ChatPublishTarget.community,
+      );
+      expect(controller.pendingPublishIntent?.isReadyForConfirmation, isTrue);
+      expect(controller.messages.last.content, '我已经整理好互助信息，请确认发布。');
+    },
+  );
 
   test('confirmPendingPublish publishes the pending community draft', () async {
     final planner = _StubActionPlanner(
@@ -521,10 +541,7 @@ void main() {
     expect(communityService.publishCalls, 1);
     expect(communityService.lastTitle, '周三代买药品');
     expect(controller.pendingPublishIntent, isNull);
-    expect(
-      controller.messages.last.content,
-      '已帮您发布社区互助“周三代买药品”，您可以去社区页面查看。',
-    );
+    expect(controller.messages.last.content, '已帮您发布社区互助“周三代买药品”，您可以去社区页面查看。');
   });
 
   test('confirmPendingPublish publishes the pending activity draft', () async {
@@ -556,37 +573,37 @@ void main() {
     expect(activitiesService.title, '周五茶话会');
     expect(activitiesService.group, ElderlyActivityGroup.weekly);
     expect(controller.pendingPublishIntent, isNull);
-    expect(
-      controller.messages.last.content,
-      '已帮您创建社区活动“周五茶话会”，您可以去活动页面查看。',
-    );
+    expect(controller.messages.last.content, '已帮您创建社区活动“周五茶话会”，您可以去活动页面查看。');
   });
 
-  test('cancelPendingPublish clears the pending draft and appends feedback', () async {
-    final planner = _StubActionPlanner(
-      intent: ChatPublishIntent.community(
-        reply: '我已经整理好互助信息，请确认发布。',
-        draft: const CommunityPublishDraft(
-          username: 'Test User',
-          identity: 'Resident',
-          tag: '求助',
-          title: '需要陪诊',
-          location: '春和社区',
-          summary: '明天下午需要邻里陪诊。',
+  test(
+    'cancelPendingPublish clears the pending draft and appends feedback',
+    () async {
+      final planner = _StubActionPlanner(
+        intent: ChatPublishIntent.community(
+          reply: '我已经整理好互助信息，请确认发布。',
+          draft: const CommunityPublishDraft(
+            username: 'Test User',
+            identity: 'Resident',
+            tag: '求助',
+            title: '需要陪诊',
+            location: '春和社区',
+            summary: '明天下午需要邻里陪诊。',
+          ),
         ),
-      ),
-    );
-    final controller = createController(
-      repository: _FakeChatRepository(reply: 'unused'),
-      actionPlanner: planner,
-    );
+      );
+      final controller = createController(
+        repository: _FakeChatRepository(reply: 'unused'),
+        actionPlanner: planner,
+      );
 
-    await controller.sendText('帮我发一条求助。');
-    await controller.cancelPendingPublish();
+      await controller.sendText('帮我发一条求助。');
+      await controller.cancelPendingPublish();
 
-    expect(controller.pendingPublishIntent, isNull);
-    expect(controller.messages.last.content, '好的，这次发布草稿已经取消。');
-  });
+      expect(controller.pendingPublishIntent, isNull);
+      expect(controller.messages.last.content, '好的，这次发布草稿已经取消。');
+    },
+  );
 
   test('can replay last assistant message when speech is enabled', () async {
     final speechService = _RecordingSpeechService();

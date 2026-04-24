@@ -1,21 +1,72 @@
 let speechRecognitionInstance = null;
-let pendingRecognitionText = '';
-let emittedFinalText = false;
 let activeRecognitionToken = 0;
+let finalRecognitionText = '';
+let interimRecognitionText = '';
+let lastEmittedFinalText = '';
+let noSpeechTimeoutId = null;
+
+const NO_SPEECH_TIMEOUT_MS = 8000;
 
 function resolveSpeechRecognitionCtor() {
   if (typeof window === 'undefined') return null;
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
 
+function isRecognitionSecureContext() {
+  if (typeof window === 'undefined') return false;
+  if (window.isSecureContext) return true;
+
+  const hostname = window.location && typeof window.location.hostname === 'string'
+    ? window.location.hostname
+    : '';
+  return hostname === 'localhost' || hostname === '127.0.0.1';
+}
+
+function getCombinedRecognitionText() {
+  return `${finalRecognitionText} ${interimRecognitionText}`.trim();
+}
+
+function resetRecognitionState() {
+  finalRecognitionText = '';
+  interimRecognitionText = '';
+  lastEmittedFinalText = '';
+}
+
+function clearNoSpeechTimeout() {
+  if (noSpeechTimeoutId !== null) {
+    clearTimeout(noSpeechTimeoutId);
+    noSpeechTimeoutId = null;
+  }
+}
+
+function restartNoSpeechTimeout(token) {
+  clearNoSpeechTimeout();
+  noSpeechTimeoutId = setTimeout(() => {
+    if (token !== activeRecognitionToken) {
+      return;
+    }
+
+    if (speechRecognitionInstance !== null) {
+      try {
+        speechRecognitionInstance.stop();
+      } catch (_) {}
+    }
+
+    if (typeof window.onSpeechError === 'function') {
+      window.onSpeechError('no-speech');
+    }
+  }, NO_SPEECH_TIMEOUT_MS);
+}
+
 function emitFinalIfNeeded() {
+  const combinedText = getCombinedRecognitionText();
   if (
-    !emittedFinalText &&
-    pendingRecognitionText &&
+    combinedText &&
+    combinedText !== lastEmittedFinalText &&
     typeof window.onSpeechFinalResult === 'function'
   ) {
-    emittedFinalText = true;
-    window.onSpeechFinalResult(pendingRecognitionText);
+    lastEmittedFinalText = combinedText;
+    window.onSpeechFinalResult(combinedText);
   }
 }
 
@@ -24,9 +75,9 @@ function finishRecognition(token) {
     return;
   }
 
+  clearNoSpeechTimeout();
   emitFinalIfNeeded();
-  pendingRecognitionText = '';
-  emittedFinalText = false;
+  resetRecognitionState();
   speechRecognitionInstance = null;
 
   if (typeof window.onSpeechEnd === 'function') {
@@ -42,7 +93,22 @@ window.speechIsSupported = function() {
 };
 
 window.speechRecognitionIsSupported = function() {
-  return resolveSpeechRecognitionCtor() !== null;
+  return (
+    isRecognitionSecureContext() &&
+    resolveSpeechRecognitionCtor() !== null
+  );
+};
+
+window.speechRecognitionUnsupportedReason = function() {
+  if (!isRecognitionSecureContext()) {
+    return 'insecure-context';
+  }
+
+  if (resolveSpeechRecognitionCtor() === null) {
+    return 'unsupported-browser';
+  }
+
+  return 'supported';
 };
 
 window.speechPlaybackIsSupported = function() {
@@ -55,7 +121,18 @@ window.speechPlaybackIsSupported = function() {
 
 window.speechStartRecognition = function() {
   const SpeechRecognitionCtor = resolveSpeechRecognitionCtor();
-  if (SpeechRecognitionCtor === null) return false;
+  if (!isRecognitionSecureContext()) {
+    if (typeof window.onSpeechError === 'function') {
+      window.onSpeechError('insecure-context');
+    }
+    return false;
+  }
+  if (SpeechRecognitionCtor === null) {
+    if (typeof window.onSpeechError === 'function') {
+      window.onSpeechError('unsupported-browser');
+    }
+    return false;
+  }
 
   activeRecognitionToken += 1;
   const token = activeRecognitionToken;
@@ -68,8 +145,7 @@ window.speechStartRecognition = function() {
 
   const recognition = new SpeechRecognitionCtor();
   speechRecognitionInstance = recognition;
-  pendingRecognitionText = '';
-  emittedFinalText = false;
+  resetRecognitionState();
 
   recognition.continuous = false;
   recognition.interimResults = true;
@@ -83,6 +159,7 @@ window.speechStartRecognition = function() {
     if (typeof window.onSpeechStart === 'function') {
       window.onSpeechStart();
     }
+    restartNoSpeechTimeout(token);
   };
 
   recognition.onresult = function(event) {
@@ -90,34 +167,40 @@ window.speechStartRecognition = function() {
       return;
     }
 
-    let interim = '';
-    let finalText = '';
+    restartNoSpeechTimeout(token);
 
-    for (let i = event.resultIndex; i < event.results.length; i += 1) {
+    const finalParts = [];
+    const interimParts = [];
+
+    for (let i = 0; i < event.results.length; i += 1) {
       const transcript = (event.results[i][0].transcript || '').trim();
       if (!transcript) {
         continue;
       }
 
       if (event.results[i].isFinal) {
-        finalText += transcript;
+        finalParts.push(transcript);
       } else {
-        interim += transcript;
+        interimParts.push(transcript);
       }
     }
 
-    const latestText = (finalText || interim).trim();
-    if (latestText) {
-      pendingRecognitionText = latestText;
+    finalRecognitionText = finalParts.join(' ').trim();
+    interimRecognitionText = interimParts.join(' ').trim();
+
+    const combinedText = getCombinedRecognitionText();
+
+    if (combinedText && typeof window.onSpeechInterimResult === 'function') {
+      window.onSpeechInterimResult(combinedText);
     }
 
-    if (latestText && typeof window.onSpeechInterimResult === 'function') {
-      window.onSpeechInterimResult(latestText);
-    }
-
-    if (finalText && typeof window.onSpeechFinalResult === 'function') {
-      emittedFinalText = true;
-      window.onSpeechFinalResult(finalText.trim());
+    if (
+      finalRecognitionText &&
+      finalRecognitionText !== lastEmittedFinalText &&
+      typeof window.onSpeechFinalResult === 'function'
+    ) {
+      lastEmittedFinalText = finalRecognitionText;
+      window.onSpeechFinalResult(finalRecognitionText);
     }
   };
 
@@ -138,6 +221,7 @@ window.speechStartRecognition = function() {
     const errorCode =
       event && typeof event.error === 'string' ? event.error : 'unknown';
 
+    clearNoSpeechTimeout();
     if (errorCode !== 'aborted') {
       emitFinalIfNeeded();
     }
@@ -155,15 +239,16 @@ window.speechStartRecognition = function() {
     recognition.start();
     return true;
   } catch (_) {
+    clearNoSpeechTimeout();
     speechRecognitionInstance = null;
-    pendingRecognitionText = '';
-    emittedFinalText = false;
+    resetRecognitionState();
     return false;
   }
 };
 
 window.speechStopRecognition = function() {
   if (speechRecognitionInstance === null) return;
+  clearNoSpeechTimeout();
   try {
     speechRecognitionInstance.stop();
   } catch (_) {}

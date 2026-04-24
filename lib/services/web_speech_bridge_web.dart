@@ -16,6 +16,15 @@ bool speechRecognitionIsSupportedOnWebBridge() {
   return _callBool('speechRecognitionIsSupported');
 }
 
+String speechRecognitionUnsupportedReasonOnWebBridge() {
+  try {
+    final result = js.context.callMethod('speechRecognitionUnsupportedReason');
+    return result?.toString() ?? 'unknown';
+  } catch (_) {
+    return 'unknown';
+  }
+}
+
 bool speechPlaybackIsSupportedOnWebBridge() {
   return _callBool('speechPlaybackIsSupported');
 }

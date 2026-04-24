@@ -33,18 +33,17 @@ class ChatController extends ChangeNotifier {
     this.maxHistory = 12,
   }) : _repository = repository ?? ChatRepository(),
        _promptBuilder = promptBuilder ?? const PromptBuilder(),
-        _speechService = speechService ?? WebSpeechService(),
-        _ttsClient = ttsClient ?? TTSClient(),
-        _audioPlaybackService = audioPlaybackService ?? AudioPlaybackService(),
-        _memoryStore = memoryStore ?? MemoryStore(),
-        _actionPlanner =
-            actionPlanner ?? AiChatActionPlanner(repository: repository),
-        _communityFeedService = communityFeedService ?? CommunityFeedService(),
-        _activitiesService =
-            activitiesService ?? ElderlyActivitiesService(),
-        _kvClient = kvClient ?? const KvClient(),
-        _identityStore = identityStore ?? DemoIdentityStore(),
-        _model = model ?? 'openai/gpt-4o-mini' {
+       _speechService = speechService ?? WebSpeechService(),
+       _ttsClient = ttsClient ?? TTSClient(),
+       _audioPlaybackService = audioPlaybackService ?? AudioPlaybackService(),
+       _memoryStore = memoryStore ?? MemoryStore(),
+       _actionPlanner =
+           actionPlanner ?? AiChatActionPlanner(repository: repository),
+       _communityFeedService = communityFeedService ?? CommunityFeedService(),
+       _activitiesService = activitiesService ?? ElderlyActivitiesService(),
+       _kvClient = kvClient ?? const KvClient(),
+       _identityStore = identityStore ?? DemoIdentityStore(),
+       _model = model ?? 'openai/gpt-4o-mini' {
     _bindSpeechCallbacks();
     _loadMemory();
   }
@@ -124,6 +123,9 @@ class ChatController extends ChangeNotifier {
         final normalized = message.trim().toLowerCase();
         if (normalized.isEmpty || normalized == 'no-speech') {
           error = '没有识别到语音，请靠近麦克风后再试一次。';
+        } else if (normalized == 'insecure-context' ||
+            normalized == 'unsupported-browser') {
+          error = _mapSpeechSupportReasonToMessage(normalized);
         } else if (normalized == 'not-allowed' ||
             normalized == 'service-not-allowed') {
           error = '麦克风权限被拒绝，请在浏览器中允许麦克风访问后重试。';
@@ -175,6 +177,30 @@ class ChatController extends ChangeNotifier {
   void applyConfig(AppConfig config) {
     _model = config.modelName.isNotEmpty ? config.modelName : _model;
     notifyListeners();
+  }
+
+  String _mapSpeechSupportReasonToMessage(String reason) {
+    switch (reason.trim().toLowerCase()) {
+      case 'insecure-context':
+        return '语音输入需要在 HTTPS 或 localhost 环境下使用，请检查当前访问地址。';
+      case 'unsupported-browser':
+        return '当前浏览器的语音识别支持不稳定，建议改用最新版 Chrome 或 Edge。';
+      case 'unsupported-platform':
+        return '当前运行环境暂不支持语音输入，请改用 Web 版浏览器。';
+      default:
+        return '当前浏览器暂不支持语音输入，请检查浏览器和麦克风权限。';
+    }
+  }
+
+  String _mapSpeechStartFailureToMessage(String reason) {
+    switch (reason.trim().toLowerCase()) {
+      case 'insecure-context':
+      case 'unsupported-browser':
+      case 'unsupported-platform':
+        return _mapSpeechSupportReasonToMessage(reason);
+      default:
+        return '语音输入启动失败，请检查麦克风权限后重试。';
+    }
   }
 
   String _mapToUserSafeError(Object value) {
@@ -490,7 +516,9 @@ class ChatController extends ChangeNotifier {
   void startRecognition() {
     if (!isSpeechInputSupported) {
       isRecognizing = false;
-      error = '当前浏览器暂不支持语音输入，请检查浏览器和麦克风权限。';
+      error = _mapSpeechSupportReasonToMessage(
+        _speechService.recognitionUnsupportedReason(),
+      );
       notifyListeners();
       return;
     }
@@ -499,7 +527,9 @@ class ChatController extends ChangeNotifier {
     final started = _speechService.startRecognition();
     isRecognizing = started;
     if (!started) {
-      error = '语音输入启动失败，请检查麦克风权限后重试。';
+      error ??= _mapSpeechStartFailureToMessage(
+        _speechService.recognitionUnsupportedReason(),
+      );
     } else {
       error = null;
     }

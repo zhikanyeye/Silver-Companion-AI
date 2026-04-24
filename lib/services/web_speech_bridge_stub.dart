@@ -1,5 +1,8 @@
 bool speechRecognitionIsSupportedOnWebBridge() => false;
 
+String speechRecognitionUnsupportedReasonOnWebBridge() =>
+    'unsupported-platform';
+
 bool speechPlaybackIsSupportedOnWebBridge() => false;
 
 bool speechStartRecognitionOnWebBridge() => false;

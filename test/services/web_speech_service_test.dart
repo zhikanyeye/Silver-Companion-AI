@@ -57,6 +57,15 @@ void main() {
     expect(startCalls, 1);
   });
 
+  test('recognition unsupported reason is injectable for testability', () {
+    final service = WebSpeechService(
+      isWeb: () => true,
+      recognitionUnsupportedReasonOnWeb: () => 'insecure-context',
+    );
+
+    expect(service.recognitionUnsupportedReason(), 'insecure-context');
+  });
+
   test('web speech actions delegate to injected callbacks when web', () {
     var stopCalls = 0;
     String? spokenText;
