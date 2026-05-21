@@ -86,6 +86,7 @@ test('returns readable upstream error details for non-2xx responses', async () =
   const payload = await response.json();
   assert.deepEqual(payload, {
     error: 'invalid api key',
+    errorType: 'upstream_error',
     upstreamStatus: 401,
   });
 });
@@ -112,6 +113,27 @@ test('returns status for non-json upstream errors', async () => {
   const payload = await response.json();
   assert.deepEqual(payload, {
     error: 'AI service returned a non-JSON error',
+    errorType: 'upstream_error',
     upstreamStatus: 502,
+  });
+});
+
+test('marks missing base url as configuration error', async () => {
+  const response = await onRequest(
+    createContext({
+      env: {
+        AI_API_KEY: 'secret',
+        AI_API_BASE_URL: '',
+        AI_MODEL_NAME: 'qwen3-max',
+      },
+      body: {messages: [{role: 'user', content: 'hi'}]},
+    }),
+  );
+
+  assert.equal(response.status, 500);
+  const payload = await response.json();
+  assert.deepEqual(payload, {
+    error: 'AI service URL is not configured (AI_API_BASE_URL)',
+    errorType: 'configuration',
   });
 });

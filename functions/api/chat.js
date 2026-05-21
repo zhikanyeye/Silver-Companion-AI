@@ -314,7 +314,10 @@ export async function onRequest(context) {
   const maxTokens = env.AI_MAX_TOKENS?.trim() ?? '';
 
   if (!baseUrl) {
-    return jsonResponse({error: 'AI service URL is not configured (AI_API_BASE_URL)'}, 500);
+    return jsonResponse({
+      error: 'AI service URL is not configured (AI_API_BASE_URL)',
+      errorType: 'configuration',
+    }, 500);
   }
 
   let requestBody;
@@ -335,7 +338,10 @@ export async function onRequest(context) {
   const mode = inferApiMode(baseUrl, configuredMode);
 
   if (!model) {
-    return jsonResponse({error: 'AI model is not configured'}, 500);
+    return jsonResponse({
+      error: 'AI model is not configured',
+      errorType: 'configuration',
+    }, 500);
   }
 
   if (!messages || messages.length === 0) {
@@ -350,7 +356,10 @@ export async function onRequest(context) {
       body: JSON.stringify(buildUpstreamBody({mode, requestBody, model, messages, maxTokens})),
     });
   } catch (_) {
-    return jsonResponse({error: 'Failed to reach AI service'}, 502);
+    return jsonResponse({
+      error: 'Failed to reach AI service',
+      errorType: 'upstream_unreachable',
+    }, 502);
   }
 
   let responseBody;
@@ -361,6 +370,7 @@ export async function onRequest(context) {
       return jsonResponse(
         {
           error: 'AI service returned a non-JSON error',
+          errorType: 'upstream_error',
           upstreamStatus: upstreamResponse.status,
         },
         upstreamResponse.status,
@@ -373,6 +383,7 @@ export async function onRequest(context) {
     return jsonResponse(
       {
         error: extractUpstreamError(responseBody),
+        errorType: 'upstream_error',
         upstreamStatus: upstreamResponse.status,
       },
       upstreamResponse.status,

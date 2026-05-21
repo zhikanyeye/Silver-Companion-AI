@@ -221,8 +221,10 @@ class ChatController extends ChangeNotifier {
 
     if (raw.contains(' 401 ') ||
         raw.endsWith(' 401') ||
+        raw.contains('401 status') ||
         raw.contains(' 403 ') ||
         raw.endsWith(' 403') ||
+        raw.contains('403 status') ||
         raw.contains('unauthorized') ||
         raw.contains('forbidden') ||
         raw.contains('invalid api key') ||
@@ -244,6 +246,8 @@ class ChatController extends ChangeNotifier {
         raw.endsWith(' 404') ||
         raw.contains(' 405 ') ||
         raw.endsWith(' 405') ||
+        raw.contains('"errortype":"configuration"') ||
+        raw.contains("'errortype': 'configuration'") ||
         raw.contains('not configured') ||
         raw.contains('route missing') ||
         raw.contains('service not configured') ||
@@ -257,6 +261,8 @@ class ChatController extends ChangeNotifier {
         raw.endsWith(' 503') ||
         raw.contains(' 504 ') ||
         raw.endsWith(' 504') ||
+        raw.contains('"errortype":"upstream_error"') ||
+        raw.contains('"errortype":"upstream_unreachable"') ||
         raw.contains('upstream') ||
         raw.contains('timeout') ||
         raw.contains('failed to fetch') ||
