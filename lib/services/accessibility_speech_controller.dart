@@ -140,8 +140,9 @@ class AccessibilitySpeechController extends ChangeNotifier {
     final widget = element.widget;
     switch (widget) {
       case Text(:final data):
-        if (data != null) {
-          labels.add(data);
+        final value = data;
+        if (value != null && value.isNotEmpty) {
+          labels.add(value);
         }
       case SelectableText(:final data):
         labels.add(data);
@@ -153,7 +154,10 @@ class AccessibilitySpeechController extends ChangeNotifier {
           labels.add(label);
         }
       case Tooltip(:final message):
-        labels.add(message);
+        final value = message;
+        if (value != null && value.isNotEmpty) {
+          labels.add(value);
+        }
       case IconButton(:final tooltip):
         if (tooltip != null) {
           labels.add(tooltip);
