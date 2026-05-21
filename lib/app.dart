@@ -27,10 +27,7 @@ class App extends StatelessWidget {
             final scaled = MediaQuery.of(context).copyWith(
               textScaler: TextScaler.linear(math.max(baseScale, minScale)),
             );
-            return MediaQuery(
-              data: scaled,
-              child: SelectionArea(child: materialChild ?? const SizedBox()),
-            );
+            return MediaQuery(data: scaled, child: materialChild ?? const SizedBox());
           },
           routes: appRoutes,
           initialRoute: initialRoute,

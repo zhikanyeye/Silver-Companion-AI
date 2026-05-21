@@ -23,6 +23,5 @@ void main() {
     expect(find.text('观看演示'), findsOneWidget);
     expect(find.byType(AuthPage), findsNothing);
     expect(find.byType(RoleSelectPage), findsNothing);
-    expect(find.byType(SelectionArea), findsOneWidget);
   });
 }
