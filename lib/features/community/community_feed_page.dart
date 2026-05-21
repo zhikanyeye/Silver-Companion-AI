@@ -87,6 +87,20 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
     return items;
   }
 
+  String _friendlyErrorMessage(Object error, {required String fallback}) {
+    final raw = error.toString().trim();
+    if (raw.isEmpty) {
+      return fallback;
+    }
+    if (raw.startsWith('Bad state: ')) {
+      return raw.substring('Bad state: '.length).trim();
+    }
+    if (raw.startsWith('Exception: ')) {
+      return raw.substring('Exception: '.length).trim();
+    }
+    return raw;
+  }
+
   Future<void> _openPublishDialog() async {
     final draft = await showDialog<_CommunityPostDraft>(
       context: context,
@@ -114,12 +128,16 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
         _selectedBucket = CommunityFeedBucket.latest;
         _posts = <CommunityPost>[created, ..._posts];
       });
-    } catch (_) {
+    } catch (error) {
+      final message = _friendlyErrorMessage(
+        error,
+        fallback: '发布失败，请稍后再试。',
+      );
       if (!mounted) {
         return;
       }
       setState(() {
-        _errorMessage = '发布失败，请检查 KV 绑定是否正确。';
+        _errorMessage = message;
       });
     }
   }
@@ -139,12 +157,16 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
             .map((item) => item.id == updated.id ? updated : item)
             .toList(growable: false);
       });
-    } catch (_) {
+    } catch (error) {
+      final message = _friendlyErrorMessage(
+        error,
+        fallback: '响应失败，请稍后再试。',
+      );
       if (!mounted) {
         return;
       }
       setState(() {
-        _errorMessage = '响应失败，请稍后再试。';
+        _errorMessage = message;
       });
     }
   }

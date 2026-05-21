@@ -135,8 +135,12 @@ export async function onRequest(context) {
     participantNames: [],
     createdAtEpochMs: Date.now(),
   };
-  await saveItem(context.env.SILVER_KV, 'activities', item);
-  await prependItemId(context.env.SILVER_KV, 'activities', item.id);
+  try {
+    await saveItem(context.env.SILVER_KV, 'activities', item);
+    await prependItemId(context.env.SILVER_KV, 'activities', item.id);
+  } catch (_) {
+    return jsonResponse({ error: 'Failed to persist activity to KV' }, 500);
+  }
 
   return jsonResponse({ item: { ...item, joinedByMe: false } }, 201);
 }

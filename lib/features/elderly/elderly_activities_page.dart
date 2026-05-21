@@ -72,6 +72,20 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
   List<ElderlyActivityItem> get _myJoinedItems =>
       _items.where((item) => item.joinedByMe).toList(growable: false);
 
+  String _friendlyErrorMessage(Object error, {required String fallback}) {
+    final raw = error.toString().trim();
+    if (raw.isEmpty) {
+      return fallback;
+    }
+    if (raw.startsWith('Bad state: ')) {
+      return raw.substring('Bad state: '.length).trim();
+    }
+    if (raw.startsWith('Exception: ')) {
+      return raw.substring('Exception: '.length).trim();
+    }
+    return raw;
+  }
+
   Future<void> _joinActivity(ElderlyActivityItem item) async {
     if (item.joinedByMe) {
       return;
@@ -87,12 +101,16 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
             .map((entry) => entry.id == updated.id ? updated : entry)
             .toList(growable: false);
       });
-    } catch (_) {
+    } catch (error) {
+      final message = _friendlyErrorMessage(
+        error,
+        fallback: '报名失败，请稍后再试。',
+      );
       if (!mounted) {
         return;
       }
       setState(() {
-        _errorMessage = '报名失败，请稍后再试。';
+        _errorMessage = message;
       });
     }
   }
@@ -124,12 +142,16 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
         _identity = identity;
         _items = <ElderlyActivityItem>[created, ..._items];
       });
-    } catch (_) {
+    } catch (error) {
+      final message = _friendlyErrorMessage(
+        error,
+        fallback: '发布失败，请稍后再试。',
+      );
       if (!mounted) {
         return;
       }
       setState(() {
-        _errorMessage = '发布失败，请检查活动服务配置。';
+        _errorMessage = message;
       });
     }
   }

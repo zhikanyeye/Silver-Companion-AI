@@ -1,87 +1,183 @@
-let speechRecognitionInstance = null;
+let mediaRecorderInstance = null;
+let mediaStreamInstance = null;
 let activeRecognitionToken = 0;
-let finalRecognitionText = '';
-let interimRecognitionText = '';
-let lastEmittedFinalText = '';
-let noSpeechTimeoutId = null;
-
-const NO_SPEECH_TIMEOUT_MS = 8000;
-
-function resolveSpeechRecognitionCtor() {
-  if (typeof window === 'undefined') return null;
-  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-}
+let recordedChunks = [];
+let recordingMimeType = '';
+let uploadInFlight = false;
 
 function isRecognitionSecureContext() {
   if (typeof window === 'undefined') return false;
   if (window.isSecureContext) return true;
 
-  const hostname = window.location && typeof window.location.hostname === 'string'
-    ? window.location.hostname
-    : '';
+  const hostname =
+    window.location && typeof window.location.hostname === 'string'
+      ? window.location.hostname
+      : '';
   return hostname === 'localhost' || hostname === '127.0.0.1';
 }
 
-function getCombinedRecognitionText() {
-  return `${finalRecognitionText} ${interimRecognitionText}`.trim();
+function hasRecordingSupport() {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.MediaRecorder !== 'undefined' &&
+    typeof navigator !== 'undefined' &&
+    navigator.mediaDevices &&
+    typeof navigator.mediaDevices.getUserMedia === 'function'
+  );
+}
+
+function resolveRecordingMimeType() {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.MediaRecorder === 'undefined' ||
+    typeof window.MediaRecorder.isTypeSupported !== 'function'
+  ) {
+    return '';
+  }
+
+  const candidates = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/mp4',
+    'audio/ogg;codecs=opus',
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      if (window.MediaRecorder.isTypeSupported(candidate)) {
+        return candidate;
+      }
+    } catch (_) {}
+  }
+
+  return '';
+}
+
+function stopActiveStream() {
+  if (mediaStreamInstance === null) return;
+  try {
+    const tracks = mediaStreamInstance.getTracks();
+    for (const track of tracks) {
+      track.stop();
+    }
+  } catch (_) {}
+  mediaStreamInstance = null;
 }
 
 function resetRecognitionState() {
-  finalRecognitionText = '';
-  interimRecognitionText = '';
-  lastEmittedFinalText = '';
+  mediaRecorderInstance = null;
+  recordedChunks = [];
+  recordingMimeType = '';
+  stopActiveStream();
 }
 
-function clearNoSpeechTimeout() {
-  if (noSpeechTimeoutId !== null) {
-    clearTimeout(noSpeechTimeoutId);
-    noSpeechTimeoutId = null;
+function emitSpeechError(errorCode) {
+  if (typeof window.onSpeechError === 'function') {
+    window.onSpeechError(errorCode);
   }
 }
 
-function restartNoSpeechTimeout(token) {
-  clearNoSpeechTimeout();
-  noSpeechTimeoutId = setTimeout(() => {
-    if (token !== activeRecognitionToken) {
-      return;
-    }
-
-    if (speechRecognitionInstance !== null) {
-      try {
-        speechRecognitionInstance.stop();
-      } catch (_) {}
-    }
-
-    if (typeof window.onSpeechError === 'function') {
-      window.onSpeechError('no-speech');
-    }
-  }, NO_SPEECH_TIMEOUT_MS);
+function emitSpeechStart() {
+  if (typeof window.onSpeechStart === 'function') {
+    window.onSpeechStart();
+  }
 }
 
-function emitFinalIfNeeded() {
-  const combinedText = getCombinedRecognitionText();
+function emitSpeechEnd() {
+  if (typeof window.onSpeechEnd === 'function') {
+    window.onSpeechEnd();
+  }
+}
+
+function emitSpeechFinalResult(text) {
+  if (typeof window.onSpeechFinalResult === 'function') {
+    window.onSpeechFinalResult(text);
+  }
+}
+
+function mapGetUserMediaError(error) {
+  const name =
+    error && typeof error.name === 'string' ? error.name.toLowerCase() : '';
+
+  if (name === 'notallowederror' || name === 'securityerror') {
+    return 'not-allowed';
+  }
   if (
-    combinedText &&
-    combinedText !== lastEmittedFinalText &&
-    typeof window.onSpeechFinalResult === 'function'
+    name === 'notfounderror' ||
+    name === 'devicesnotfounderror' ||
+    name === 'notreadableerror' ||
+    name === 'trackstarterror'
   ) {
-    lastEmittedFinalText = combinedText;
-    window.onSpeechFinalResult(combinedText);
+    return 'audio-capture';
   }
+
+  return 'audio-capture';
 }
 
-function finishRecognition(token) {
+async function uploadRecordedAudio(token) {
   if (token !== activeRecognitionToken) {
+    resetRecognitionState();
+    emitSpeechEnd();
     return;
   }
 
-  clearNoSpeechTimeout();
-  emitFinalIfNeeded();
-  resetRecognitionState();
-  speechRecognitionInstance = null;
+  const blob = new Blob(recordedChunks, {
+    type: recordingMimeType || 'audio/webm',
+  });
 
-  if (typeof window.onSpeechEnd === 'function') {
-    window.onSpeechEnd();
+  resetRecognitionState();
+
+  if (blob.size === 0) {
+    emitSpeechError('no-speech');
+    emitSpeechEnd();
+    return;
+  }
+
+  uploadInFlight = true;
+
+  try {
+    const formData = new FormData();
+    formData.append('file', blob, 'voice-input.webm');
+
+    const response = await fetch('/api/stt', {
+      method: 'POST',
+      body: formData,
+    });
+
+    let payload = null;
+    try {
+      payload = await response.json();
+    } catch (_) {}
+
+    if (!response.ok) {
+      const upstreamError =
+        payload && typeof payload.error === 'string' ? payload.error : '';
+      const normalized = upstreamError.trim().toLowerCase();
+      if (
+        normalized.includes('not configured') ||
+        normalized.includes('missing')
+      ) {
+        emitSpeechError('stt-unavailable');
+      } else {
+        emitSpeechError('network');
+      }
+      return;
+    }
+
+    const text =
+      payload && typeof payload.text === 'string' ? payload.text.trim() : '';
+
+    if (!text) {
+      emitSpeechError('no-speech');
+      return;
+    }
+
+    emitSpeechFinalResult(text);
+  } catch (_) {
+    emitSpeechError('network');
+  } finally {
+    uploadInFlight = false;
+    emitSpeechEnd();
   }
 }
 
@@ -93,10 +189,7 @@ window.speechIsSupported = function() {
 };
 
 window.speechRecognitionIsSupported = function() {
-  return (
-    isRecognitionSecureContext() &&
-    resolveSpeechRecognitionCtor() !== null
-  );
+  return isRecognitionSecureContext() && hasRecordingSupport();
 };
 
 window.speechRecognitionUnsupportedReason = function() {
@@ -104,7 +197,7 @@ window.speechRecognitionUnsupportedReason = function() {
     return 'insecure-context';
   }
 
-  if (resolveSpeechRecognitionCtor() === null) {
+  if (!hasRecordingSupport()) {
     return 'unsupported-browser';
   }
 
@@ -120,138 +213,100 @@ window.speechPlaybackIsSupported = function() {
 };
 
 window.speechStartRecognition = function() {
-  const SpeechRecognitionCtor = resolveSpeechRecognitionCtor();
   if (!isRecognitionSecureContext()) {
-    if (typeof window.onSpeechError === 'function') {
-      window.onSpeechError('insecure-context');
-    }
+    emitSpeechError('insecure-context');
     return false;
   }
-  if (SpeechRecognitionCtor === null) {
-    if (typeof window.onSpeechError === 'function') {
-      window.onSpeechError('unsupported-browser');
-    }
+
+  if (!hasRecordingSupport()) {
+    emitSpeechError('unsupported-browser');
+    return false;
+  }
+
+  if (uploadInFlight || mediaRecorderInstance !== null) {
+    emitSpeechError('busy');
     return false;
   }
 
   activeRecognitionToken += 1;
   const token = activeRecognitionToken;
 
-  if (speechRecognitionInstance !== null) {
-    try {
-      speechRecognitionInstance.abort();
-    } catch (_) {}
-  }
-
-  const recognition = new SpeechRecognitionCtor();
-  speechRecognitionInstance = recognition;
-  resetRecognitionState();
-
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.maxAlternatives = 1;
-  recognition.lang = 'zh-CN';
-
-  recognition.onstart = function() {
-    if (token !== activeRecognitionToken) {
-      return;
-    }
-    if (typeof window.onSpeechStart === 'function') {
-      window.onSpeechStart();
-    }
-    restartNoSpeechTimeout(token);
-  };
-
-  recognition.onresult = function(event) {
-    if (token !== activeRecognitionToken) {
-      return;
-    }
-
-    restartNoSpeechTimeout(token);
-
-    const finalParts = [];
-    const interimParts = [];
-
-    for (let i = 0; i < event.results.length; i += 1) {
-      const transcript = (event.results[i][0].transcript || '').trim();
-      if (!transcript) {
-        continue;
+  navigator.mediaDevices
+    .getUserMedia({audio: true})
+    .then((stream) => {
+      if (token !== activeRecognitionToken) {
+        try {
+          const tracks = stream.getTracks();
+          for (const track of tracks) {
+            track.stop();
+          }
+        } catch (_) {}
+        return;
       }
 
-      if (event.results[i].isFinal) {
-        finalParts.push(transcript);
-      } else {
-        interimParts.push(transcript);
+      mediaStreamInstance = stream;
+      recordedChunks = [];
+      recordingMimeType = resolveRecordingMimeType();
+
+      const options = recordingMimeType ? {mimeType: recordingMimeType} : {};
+      const recorder = new MediaRecorder(stream, options);
+      mediaRecorderInstance = recorder;
+
+      recorder.ondataavailable = function(event) {
+        if (event && event.data && event.data.size > 0) {
+          recordedChunks.push(event.data);
+        }
+      };
+
+      recorder.onerror = function() {
+        resetRecognitionState();
+        emitSpeechError('audio-capture');
+        emitSpeechEnd();
+      };
+
+      recorder.onstop = function() {
+        uploadRecordedAudio(token);
+      };
+
+      try {
+        recorder.start();
+        emitSpeechStart();
+      } catch (_) {
+        resetRecognitionState();
+        emitSpeechError('audio-capture');
+        emitSpeechEnd();
       }
-    }
+    })
+    .catch((error) => {
+      if (token !== activeRecognitionToken) {
+        return;
+      }
 
-    finalRecognitionText = finalParts.join(' ').trim();
-    interimRecognitionText = interimParts.join(' ').trim();
+      resetRecognitionState();
+      emitSpeechError(mapGetUserMediaError(error));
+      emitSpeechEnd();
+    });
 
-    const combinedText = getCombinedRecognitionText();
-
-    if (combinedText && typeof window.onSpeechInterimResult === 'function') {
-      window.onSpeechInterimResult(combinedText);
-    }
-
-    if (
-      finalRecognitionText &&
-      finalRecognitionText !== lastEmittedFinalText &&
-      typeof window.onSpeechFinalResult === 'function'
-    ) {
-      lastEmittedFinalText = finalRecognitionText;
-      window.onSpeechFinalResult(finalRecognitionText);
-    }
-  };
-
-  recognition.onnomatch = function() {
-    if (token !== activeRecognitionToken) {
-      return;
-    }
-    if (typeof window.onSpeechError === 'function') {
-      window.onSpeechError('no-speech');
-    }
-  };
-
-  recognition.onerror = function(event) {
-    if (token !== activeRecognitionToken) {
-      return;
-    }
-
-    const errorCode =
-      event && typeof event.error === 'string' ? event.error : 'unknown';
-
-    clearNoSpeechTimeout();
-    if (errorCode !== 'aborted') {
-      emitFinalIfNeeded();
-    }
-
-    if (typeof window.onSpeechError === 'function') {
-      window.onSpeechError(errorCode);
-    }
-  };
-
-  recognition.onend = function() {
-    finishRecognition(token);
-  };
-
-  try {
-    recognition.start();
-    return true;
-  } catch (_) {
-    clearNoSpeechTimeout();
-    speechRecognitionInstance = null;
-    resetRecognitionState();
-    return false;
-  }
+  return true;
 };
 
 window.speechStopRecognition = function() {
-  if (speechRecognitionInstance === null) return;
-  clearNoSpeechTimeout();
+  if (mediaRecorderInstance === null) {
+    activeRecognitionToken += 1;
+    resetRecognitionState();
+    emitSpeechEnd();
+    return;
+  }
+
   try {
-    speechRecognitionInstance.stop();
-  } catch (_) {}
+    if (mediaRecorderInstance.state !== 'inactive') {
+      mediaRecorderInstance.stop();
+    }
+  } catch (_) {
+    resetRecognitionState();
+    emitSpeechError('audio-capture');
+    emitSpeechEnd();
+  }
 };
 
 window.speechSpeakText = function(text) {

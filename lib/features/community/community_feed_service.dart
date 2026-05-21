@@ -29,6 +29,29 @@ class CommunityFeedService {
     return Uri.base.resolveUri(configured);
   }
 
+  StateError _buildRequestError(
+    String fallbackLabel,
+    http.Response response,
+  ) {
+    try {
+      final payload = jsonDecode(response.body);
+      if (payload is Map<String, dynamic>) {
+        final error = payload['error'];
+        if (error is String && error.trim().isNotEmpty) {
+          return StateError('$fallbackLabel: ${error.trim()}');
+        }
+      }
+    } catch (_) {
+      // Fall back to raw body below.
+    }
+
+    final rawBody = response.body.trim();
+    if (rawBody.isNotEmpty) {
+      return StateError('$fallbackLabel: $rawBody');
+    }
+    return StateError('$fallbackLabel: ${response.statusCode}');
+  }
+
   Future<List<CommunityPost>> loadPosts() async {
     try {
       final identity = await loadIdentity();
@@ -85,7 +108,7 @@ class CommunityFeedService {
       body: jsonEncode(payload),
     );
     if (response.statusCode != 201) {
-      throw StateError('Community publish failed: ${response.statusCode}');
+      throw _buildRequestError('Community publish failed', response);
     }
 
     await _identityStore.save(
@@ -114,7 +137,7 @@ class CommunityFeedService {
       }),
     );
     if (response.statusCode != 200) {
-      throw StateError('Community respond failed: ${response.statusCode}');
+      throw _buildRequestError('Community respond failed', response);
     }
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     return CommunityPost.fromJson(

@@ -361,6 +361,24 @@ void main() {
     },
   );
 
+  test('speech error callback maps stt unavailable to config guidance', () {
+    final speechService = _RecordingSpeechService();
+    final controller = createController(speechService: speechService);
+
+    speechService.onErrorCallback?.call('stt-unavailable');
+
+    expect(controller.error, '语音转写服务暂未配置，请检查 /api/stt 的后端环境变量。');
+  });
+
+  test('speech error callback maps busy to retry guidance', () {
+    final speechService = _RecordingSpeechService();
+    final controller = createController(speechService: speechService);
+
+    speechService.onErrorCallback?.call('busy');
+
+    expect(controller.error, '上一段语音还在转写，请稍等一下再试。');
+  });
+
   test('speech input and output capabilities are separated', () {
     final speechService = _RecordingSpeechService(
       recognitionSupported: false,

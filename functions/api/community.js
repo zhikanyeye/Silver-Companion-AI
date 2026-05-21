@@ -102,8 +102,12 @@ export async function onRequest(context) {
     responseCount: 0,
     helperNames: [],
   };
-  await saveItem(context.env.SILVER_KV, 'community', item);
-  await prependItemId(context.env.SILVER_KV, 'community', item.id);
+  try {
+    await saveItem(context.env.SILVER_KV, 'community', item);
+    await prependItemId(context.env.SILVER_KV, 'community', item.id);
+  } catch (_) {
+    return jsonResponse({ error: 'Failed to persist community post to KV' }, 500);
+  }
 
   return jsonResponse({ item: { ...item, respondedByMe: false } }, 201);
 }

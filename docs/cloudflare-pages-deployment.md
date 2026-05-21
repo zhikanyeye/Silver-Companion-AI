@@ -20,6 +20,7 @@ The following backend files must be deployed together with the frontend:
 
 - `functions/api/chat.js`
 - `functions/api/tts.js`
+- `functions/api/stt.js`
 - `functions/api/kv/[key].js`
 - `functions/api/community.js`
 - `functions/api/community/[postId]/respond.js`
@@ -76,12 +77,17 @@ Configure these in `Settings -> Environment variables` for both Preview and Prod
 
 ### AI
 
-- `AI_API_KEY`
+- `AI_API_KEY`（如果中转站不需要鉴权，可以留空）
 - `AI_MODEL_NAME`
 - `AI_API_BASE_URL`
+- `AI_API_MODE`（可选：`chat`、`messages`、`responses`、`auto`）
+- `AI_AUTH_HEADER`（可选，默认 `authorization`）
+- `AI_AUTH_SCHEME`（可选，默认 `Bearer`；如果只想发送原始 key，可设为空）
+- `AI_ANTHROPIC_VERSION`（可选，Anthropic Messages 使用，默认 `2023-06-01`）
+- `AI_MAX_TOKENS`（可选，部分上游接口会用到）
 
-`AI_API_BASE_URL` 只能填 API 基础地址，不要包含 `/chat/completions`。  
-`AI_API_BASE_URL` should be the API base only. Do not include `/chat/completions`.
+`AI_API_BASE_URL` 可以填写 OpenAI 兼容基础地址，也可以直接填写完整的 chat completions / messages / responses 地址。  
+`AI_API_BASE_URL` may be an OpenAI-compatible base URL, or the full chat completions / messages / responses URL.
 
 例如 / Examples:
 
@@ -93,10 +99,65 @@ https://api.openai.com/v1
 https://openrouter.ai/api/v1
 ```
 
+```text
+https://your-relay.example.com/v1/chat/completions
+```
+
+```text
+https://your-relay.example.com/v1/messages
+```
+
+```text
+https://your-relay.example.com/v1/responses
+```
+
 ### TTS
 
 - `TTS_API_BASE_URL`
 - `TTS_API_KEY`
+
+### STT
+
+- `STT_PROVIDER` (`openai`, `vosk`, or `cloudflare`)
+- `STT_API_BASE_URL` (`cloudflare` mode does not need this)
+- `STT_API_KEY` (`cloudflare` mode and self-hosted `vosk` can omit this)
+- `STT_MODEL_NAME` (Cloudflare Workers AI defaults to `@cf/openai/whisper`)
+
+`STT_API_BASE_URL` 应填写 API 基础地址，不要包含 `/audio/transcriptions`。  
+`STT_API_BASE_URL` should be the API base only. Do not include `/audio/transcriptions`.
+
+如果你使用自建 `Vosk` 服务，推荐设置：  
+If you use a self-hosted `Vosk` service, set:
+
+```text
+STT_PROVIDER=vosk
+STT_API_BASE_URL=https://your-vosk-server.example.com
+```
+
+这时 `/api/stt` 会把浏览器录音转发到你的 `Vosk` 服务的 `/transcribe` 接口，并期望返回：
+In that case `/api/stt` forwards browser audio to your `Vosk` service `/transcribe` endpoint and expects:
+
+```json
+{"text":"识别后的文字"}
+```
+
+如果你使用 Cloudflare Workers AI 语音转文字，推荐设置：  
+If you use Cloudflare Workers AI for speech-to-text, set:
+
+```text
+STT_PROVIDER=cloudflare
+STT_MODEL_NAME=@cf/openai/whisper
+```
+
+同时在 Pages 项目的 Functions 设置里添加 Workers AI binding，变量名必须是：
+Also add a Workers AI binding in the Pages Functions settings with this variable name:
+
+```text
+AI
+```
+
+这时 `/api/stt` 会调用 Cloudflare Workers AI binding，不需要 `STT_API_BASE_URL` 或 `STT_API_KEY`。
+In this mode `/api/stt` calls the Cloudflare Workers AI binding and does not need `STT_API_BASE_URL` or `STT_API_KEY`.
 
 ## KV 绑定 / KV Binding
 
@@ -158,6 +219,7 @@ In browser devtools, confirm the frontend uses:
 ```text
 /api/chat
 /api/tts
+/api/stt
 /api/kv
 ```
 
@@ -173,6 +235,8 @@ The browser should not expose:
   send one chat message successfully
 - 如已配置语音服务，确认 `/api/tts` 可用  
   speech route responds when configured
+- 如已配置语音转写服务，确认 `/api/stt` 可返回识别文本  
+  speech-to-text route returns transcribed text when configured
 - 设置页能读到模型值  
   settings page loads model value
 - 社区页能加载  

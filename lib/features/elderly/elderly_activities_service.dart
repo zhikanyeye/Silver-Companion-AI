@@ -29,6 +29,29 @@ class ElderlyActivitiesService {
     return Uri.base.resolveUri(configured);
   }
 
+  StateError _buildRequestError(
+    String fallbackLabel,
+    http.Response response,
+  ) {
+    try {
+      final payload = jsonDecode(response.body);
+      if (payload is Map<String, dynamic>) {
+        final error = payload['error'];
+        if (error is String && error.trim().isNotEmpty) {
+          return StateError('$fallbackLabel: ${error.trim()}');
+        }
+      }
+    } catch (_) {
+      // Fall back to raw body below.
+    }
+
+    final rawBody = response.body.trim();
+    if (rawBody.isNotEmpty) {
+      return StateError('$fallbackLabel: $rawBody');
+    }
+    return StateError('$fallbackLabel: ${response.statusCode}');
+  }
+
   Future<List<ElderlyActivityItem>> loadActivities() async {
     try {
       final identity = await loadIdentity();
@@ -87,7 +110,7 @@ class ElderlyActivitiesService {
       body: jsonEncode(payload),
     );
     if (response.statusCode != 201) {
-      throw StateError('Activity publish failed: ${response.statusCode}');
+      throw _buildRequestError('Activity publish failed', response);
     }
 
     await _identityStore.save(
@@ -113,7 +136,7 @@ class ElderlyActivitiesService {
       }),
     );
     if (response.statusCode != 200) {
-      throw StateError('Activity join failed: ${response.statusCode}');
+      throw _buildRequestError('Activity join failed', response);
     }
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     return ElderlyActivityItem.fromJson(

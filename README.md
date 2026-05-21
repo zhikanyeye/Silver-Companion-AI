@@ -18,10 +18,12 @@ This project is a Flutter Web demo focused on elder care and family support scen
   Child side: dashboard overview, charts, reminder timeline
 - 设置页：模型显示、关怀模式切换  
   Settings page: model display and care-mode toggle
-- 语音能力：浏览器语音识别与回复播放  
-  Speech support: browser speech recognition and reply playback
-- 服务端代理：`/api/chat`、`/api/tts`、`/api/kv`  
-  Server-side API proxy: `/api/chat`, `/api/tts`, `/api/kv`
+- 语音能力：浏览器录音转写与回复播放  
+  Speech support: browser audio capture transcription and reply playback
+- 服务端代理：`/api/chat`、`/api/tts`、`/api/stt`、`/api/kv`  
+  Server-side API proxy: `/api/chat`, `/api/tts`, `/api/stt`, `/api/kv`
+- 语音输入：浏览器录音后通过 `/api/stt` 转写  
+  Voice input: browser audio capture transcribed through `/api/stt`
 
 ## 本地开发 / Local Development
 
@@ -58,6 +60,7 @@ This project should not be deployed as a static `build/web` upload only.
 
 - 聊天依赖 `functions/api/chat.js`
 - 语音依赖 `functions/api/tts.js`
+- 语音转写依赖 `functions/api/stt.js`
 - KV 持久化依赖 `functions/api/kv/[key].js`
 
 推荐部署方式 / Recommended deployment mode:
@@ -77,14 +80,26 @@ This project should not be deployed as a static `build/web` upload only.
 
 ### AI
 
-- `AI_API_KEY`
+- `AI_API_KEY`（如果自建中转站不需要鉴权，可以留空）
 - `AI_MODEL_NAME`
-- `AI_API_BASE_URL`
+- `AI_API_BASE_URL`（支持基础地址或完整 `/chat/completions`、`/v1/messages`、`/v1/responses` 地址）
+- `AI_API_MODE`（可选：`chat`、`messages`、`responses`、`auto`）
+- `AI_AUTH_HEADER`（可选，默认 `authorization`）
+- `AI_AUTH_SCHEME`（可选，默认 `Bearer`）
+- `AI_ANTHROPIC_VERSION`（可选，Anthropic Messages 使用，默认 `2023-06-01`）
+- `AI_MAX_TOKENS`（可选，部分上游接口会用到）
 
 ### TTS
 
 - `TTS_API_BASE_URL`
 - `TTS_API_KEY`
+
+### STT
+
+- `STT_PROVIDER` (`openai`、`vosk` 或 `cloudflare`)
+- `STT_API_BASE_URL`（`cloudflare` 模式不需要）
+- `STT_API_KEY`（`cloudflare` 和自建 `vosk` 可不需要）
+- `STT_MODEL_NAME`（Cloudflare Workers AI 默认 `@cf/openai/whisper`）
 
 ### KV
 

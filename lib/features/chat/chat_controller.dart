@@ -123,9 +123,13 @@ class ChatController extends ChangeNotifier {
         final normalized = message.trim().toLowerCase();
         if (normalized.isEmpty || normalized == 'no-speech') {
           error = '没有识别到语音，请靠近麦克风后再试一次。';
+        } else if (normalized == 'busy') {
+          error = '上一段语音还在转写，请稍等一下再试。';
         } else if (normalized == 'insecure-context' ||
             normalized == 'unsupported-browser') {
           error = _mapSpeechSupportReasonToMessage(normalized);
+        } else if (normalized == 'stt-unavailable') {
+          error = '语音转写服务暂未配置，请检查 /api/stt 的后端环境变量。';
         } else if (normalized == 'not-allowed' ||
             normalized == 'service-not-allowed') {
           error = '麦克风权限被拒绝，请在浏览器中允许麦克风访问后重试。';

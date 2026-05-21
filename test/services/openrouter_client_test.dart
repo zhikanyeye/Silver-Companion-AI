@@ -42,7 +42,7 @@ void main() {
     expect(capturedRequest.url.toString(), 'https://example.com/api/chat');
     final payload = jsonDecode(capturedRequest.body) as Map<String, dynamic>;
     expect(payload['messages'], isA<List<dynamic>>());
-    expect(payload.containsKey('model'), isFalse);
+    expect(payload['model'], 'test-model');
     final firstMessage = payload['messages'][0] as Map<String, dynamic>;
     expect(firstMessage['role'], 'user');
     expect(firstMessage['content'], 'hi');
