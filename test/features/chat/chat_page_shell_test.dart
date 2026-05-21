@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:yinling/features/chat/chat_controller.dart';
 import 'package:yinling/features/chat/chat_page.dart';
 import 'package:yinling/theme/app_theme.dart';
 
@@ -19,5 +20,23 @@ void main() {
     expect(find.byKey(const Key('chatInputField')), findsOneWidget);
     expect(find.byKey(const Key('sendMessageButton')), findsOneWidget);
     expect(find.byKey(const Key('chatReplayLastAssistantButton')), findsNothing);
+  });
+
+  testWidgets('chat messages expose copy actions', (WidgetTester tester) async {
+    final controller = ChatController();
+    controller.debugAddAssistantMessage('这是一条可以复制的回复');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.highContrast(),
+        home: ChatPage(controller: controller),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('这是一条可以复制的回复'), findsOneWidget);
+    expect(find.byType(SelectableText), findsWidgets);
+    expect(find.byKey(const Key('chatCopyLastAssistantButton')), findsOneWidget);
+    expect(find.byKey(const Key('chatReplayLastAssistantButton')), findsOneWidget);
   });
 }

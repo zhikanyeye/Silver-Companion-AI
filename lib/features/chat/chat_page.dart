@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:yinling/config/config_loader.dart';
 import 'package:yinling/features/chat/chat_controller.dart';
@@ -201,6 +202,7 @@ class _ChatPageState extends State<ChatPage> {
                             _controller.messages.lastIndexWhere(
                               (entry) => entry.role == ChatRole.assistant,
                             ),
+                    onCopy: () => _copyMessage(message.content),
                     onReplay: _controller.isSpeechOutputSupported
                         ? _controller.replayLastAssistantMessage
                         : null,
@@ -355,6 +357,24 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
+
+  Future<void> _copyMessage(String content) async {
+    final text = content.trim();
+    if (text.isEmpty) {
+      return;
+    }
+
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(content: Text('已复制消息内容')),
+      );
+  }
 }
 
 class _Banner extends StatelessWidget {
@@ -390,12 +410,14 @@ class _MessageBubble extends StatelessWidget {
     required this.message,
     required this.isUser,
     required this.showReplay,
+    required this.onCopy,
     required this.onReplay,
   });
 
   final ChatMessage message;
   final bool isUser;
   final bool showReplay;
+  final VoidCallback onCopy;
   final Future<void> Function()? onReplay;
 
   @override
@@ -426,11 +448,31 @@ class _MessageBubble extends StatelessWidget {
               ),
             ),
             if (showReplay)
+              Wrap(
+                spacing: 8,
+                children: [
+                  TextButton.icon(
+                    key: const Key('chatCopyLastAssistantButton'),
+                    onPressed: onCopy,
+                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    label: const Text('复制'),
+                  ),
+                  TextButton.icon(
+                    key: const Key('chatReplayLastAssistantButton'),
+                    onPressed: onReplay,
+                    icon: const Icon(Icons.volume_up_rounded, size: 18),
+                    label: const Text('重播回复'),
+                  ),
+                ],
+              )
+            else
               TextButton.icon(
-                key: const Key('chatReplayLastAssistantButton'),
-                onPressed: onReplay,
-                icon: const Icon(Icons.volume_up_rounded, size: 18),
-                label: const Text('重播回复'),
+                key: isUser
+                    ? const Key('chatCopyUserMessageButton')
+                    : const Key('chatCopyAssistantMessageButton'),
+                onPressed: onCopy,
+                icon: const Icon(Icons.copy_rounded, size: 18),
+                label: const Text('复制'),
               ),
           ],
         ),
