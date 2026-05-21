@@ -219,11 +219,35 @@ class ChatController extends ChangeNotifier {
       return 'Request content is invalid. Please revise it and try again.';
     }
 
+    if (raw.contains(' 401 ') ||
+        raw.endsWith(' 401') ||
+        raw.contains(' 403 ') ||
+        raw.endsWith(' 403') ||
+        raw.contains('unauthorized') ||
+        raw.contains('forbidden') ||
+        raw.contains('invalid api key') ||
+        raw.contains('incorrect api key') ||
+        raw.contains('authentication') ||
+        raw.contains('permission')) {
+      return 'AI service authentication failed. Please check the API key and model permissions.';
+    }
+
+    if (raw.contains(' 429 ') ||
+        raw.endsWith(' 429') ||
+        raw.contains('rate limit') ||
+        raw.contains('quota') ||
+        raw.contains('too many requests')) {
+      return 'AI service is rate limited or out of quota. Please try again later.';
+    }
+
     if (raw.contains(' 404 ') ||
         raw.endsWith(' 404') ||
+        raw.contains(' 405 ') ||
+        raw.endsWith(' 405') ||
         raw.contains('not configured') ||
         raw.contains('route missing') ||
-        raw.contains('service not configured')) {
+        raw.contains('service not configured') ||
+        raw.contains('invalid json shape')) {
       return 'AI service configuration is unavailable. Please try again later.';
     }
 
@@ -234,7 +258,11 @@ class ChatController extends ChangeNotifier {
         raw.contains(' 504 ') ||
         raw.endsWith(' 504') ||
         raw.contains('upstream') ||
-        raw.contains('timeout')) {
+        raw.contains('timeout') ||
+        raw.contains('failed to fetch') ||
+        raw.contains('xmlhttprequest') ||
+        raw.contains('clientexception') ||
+        raw.contains('network')) {
       return 'AI service is temporarily unavailable. Please try again later.';
     }
 

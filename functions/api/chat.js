@@ -266,6 +266,38 @@ function normalizeChatResponse(responseBody, mode) {
   return responseBody;
 }
 
+function extractUpstreamError(responseBody) {
+  if (typeof responseBody === 'string' && responseBody.trim()) {
+    return responseBody.trim();
+  }
+
+  if (!responseBody || typeof responseBody !== 'object') {
+    return 'AI service returned an error';
+  }
+
+  const error = responseBody.error;
+  if (typeof error === 'string' && error.trim()) {
+    return error.trim();
+  }
+  if (error && typeof error === 'object') {
+    if (typeof error.message === 'string' && error.message.trim()) {
+      return error.message.trim();
+    }
+    if (typeof error.code === 'string' && error.code.trim()) {
+      return error.code.trim();
+    }
+  }
+
+  for (const key of ['message', 'detail', 'msg']) {
+    const value = responseBody[key];
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return 'AI service returned an error';
+}
+
 export async function onRequest(context) {
   if (context.request.method !== 'POST') {
     return jsonResponse({error: 'Method not allowed'}, 405);
@@ -325,7 +357,26 @@ export async function onRequest(context) {
   try {
     responseBody = await upstreamResponse.json();
   } catch (_) {
+    if (!upstreamResponse.ok) {
+      return jsonResponse(
+        {
+          error: 'AI service returned a non-JSON error',
+          upstreamStatus: upstreamResponse.status,
+        },
+        upstreamResponse.status,
+      );
+    }
     return jsonResponse({error: 'AI service returned invalid JSON'}, 502);
+  }
+
+  if (!upstreamResponse.ok) {
+    return jsonResponse(
+      {
+        error: extractUpstreamError(responseBody),
+        upstreamStatus: upstreamResponse.status,
+      },
+      upstreamResponse.status,
+    );
   }
 
   const normalizedResponse = normalizeChatResponse(responseBody, mode);

@@ -63,3 +63,55 @@ test('falls back to request body model when env model is absent', async () => {
   assert.equal(response.status, 200);
   assert.equal(forwardedBody.model, 'qwen3-max');
 });
+
+test('returns readable upstream error details for non-2xx responses', async () => {
+  globalThis.fetch = async () =>
+    new Response(
+      JSON.stringify({error: {message: 'invalid api key'}}),
+      {status: 401, headers: {'content-type': 'application/json'}},
+    );
+
+  const response = await onRequest(
+    createContext({
+      env: {
+        AI_API_KEY: 'bad-secret',
+        AI_API_BASE_URL: 'https://apis.iflow.cn/v1',
+        AI_MODEL_NAME: 'qwen3-max',
+      },
+      body: {messages: [{role: 'user', content: 'hi'}]},
+    }),
+  );
+
+  assert.equal(response.status, 401);
+  const payload = await response.json();
+  assert.deepEqual(payload, {
+    error: 'invalid api key',
+    upstreamStatus: 401,
+  });
+});
+
+test('returns status for non-json upstream errors', async () => {
+  globalThis.fetch = async () =>
+    new Response('gateway error', {
+      status: 502,
+      headers: {'content-type': 'text/plain'},
+    });
+
+  const response = await onRequest(
+    createContext({
+      env: {
+        AI_API_KEY: 'secret',
+        AI_API_BASE_URL: 'https://apis.iflow.cn/v1',
+        AI_MODEL_NAME: 'qwen3-max',
+      },
+      body: {messages: [{role: 'user', content: 'hi'}]},
+    }),
+  );
+
+  assert.equal(response.status, 502);
+  const payload = await response.json();
+  assert.deepEqual(payload, {
+    error: 'AI service returned a non-JSON error',
+    upstreamStatus: 502,
+  });
+});

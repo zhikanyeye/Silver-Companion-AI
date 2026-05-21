@@ -456,6 +456,77 @@ void main() {
     },
   );
 
+  test(
+    'sendText maps authentication failures to API key guidance',
+    () async {
+      final controller = createController(
+        repository: _FakeChatRepository(
+          errorToThrow: StateError(
+            'AI Proxy request failed: 401 {"error":"invalid api key"}',
+          ),
+        ),
+      );
+
+      await controller.sendText('hello');
+
+      expect(
+        controller.error,
+        'AI service authentication failed. Please check the API key and model permissions.',
+      );
+      expect(controller.error, isNot(contains('invalid api key')));
+      expect(controller.error, isNot(contains('401')));
+    },
+  );
+
+  test('sendText maps rate limit failures to quota guidance', () async {
+    final controller = createController(
+      repository: _FakeChatRepository(
+        errorToThrow: StateError(
+          'AI Proxy request failed: 429 {"error":"rate limit exceeded"}',
+        ),
+      ),
+    );
+
+    await controller.sendText('hello');
+
+    expect(
+      controller.error,
+      'AI service is rate limited or out of quota. Please try again later.',
+    );
+    expect(controller.error, isNot(contains('rate limit exceeded')));
+    expect(controller.error, isNot(contains('429')));
+  });
+
+  test('sendText maps invalid JSON proxy responses to config guidance', () async {
+    final controller = createController(
+      repository: _FakeChatRepository(
+        errorToThrow: StateError('AI Proxy response invalid JSON shape'),
+      ),
+    );
+
+    await controller.sendText('hello');
+
+    expect(
+      controller.error,
+      'AI service configuration is unavailable. Please try again later.',
+    );
+  });
+
+  test('sendText maps network failures to temporary service guidance', () async {
+    final controller = createController(
+      repository: _FakeChatRepository(
+        errorToThrow: StateError('ClientException: Failed to fetch'),
+      ),
+    );
+
+    await controller.sendText('hello');
+
+    expect(
+      controller.error,
+      'AI service is temporarily unavailable. Please try again later.',
+    );
+  });
+
   test('sendText keeps success behavior intact', () async {
     final speechService = _RecordingSpeechService();
     final ttsClient = _FakeTTSClient();
