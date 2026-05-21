@@ -140,28 +140,17 @@ class AccessibilitySpeechController extends ChangeNotifier {
     final widget = element.widget;
     switch (widget) {
       case Text(:final data):
-        final value = data;
-        if (value != null && value.isNotEmpty) {
-          labels.add(value);
-        }
+        _addReadableLabel(labels, data);
       case SelectableText(:final data):
-        labels.add(data);
+        _addReadableLabel(labels, data);
       case RichText(:final text):
-        labels.add(text.toPlainText());
+        _addReadableLabel(labels, text.toPlainText());
       case Semantics(:final properties):
-        final label = properties.label;
-        if (label != null && label.isNotEmpty) {
-          labels.add(label);
-        }
+        _addReadableLabel(labels, properties.label);
       case Tooltip(:final message):
-        final value = message;
-        if (value != null && value.isNotEmpty) {
-          labels.add(value);
-        }
+        _addReadableLabel(labels, message);
       case IconButton(:final tooltip):
-        if (tooltip != null) {
-          labels.add(tooltip);
-        }
+        _addReadableLabel(labels, tooltip);
       default:
         break;
     }
@@ -169,6 +158,13 @@ class AccessibilitySpeechController extends ChangeNotifier {
     element.visitChildElements((child) {
       _collectReadableLabels(child, labels, depth: depth + 1);
     });
+  }
+
+  void _addReadableLabel(List<String> labels, String? value) {
+    final normalized = value == null ? '' : _normalizeText(value);
+    if (normalized.isNotEmpty) {
+      labels.add(normalized);
+    }
   }
 
   String _normalizeText(String text) {
