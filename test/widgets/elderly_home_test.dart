@@ -17,17 +17,18 @@ void main() {
     expect(find.text('今日重点服务'), findsOneWidget);
     expect(find.text('今天想先使用哪项服务？'), findsOneWidget);
     expect(find.text('常用服务'), findsOneWidget);
-    expect(find.text('AI陪伴'), findsOneWidget);
+    expect(find.text('小灵 AI 陪伴'), findsOneWidget);
     expect(find.text('求助'), findsOneWidget);
     expect(find.text('社区'), findsOneWidget);
     expect(find.text('活动'), findsOneWidget);
-    expect(find.text('小灵在线'), findsOneWidget);
-    expect(find.byKey(const Key('childAvatarEntry')), findsOneWidget);
+    expect(find.text('小灵在线'), findsNothing);
+    expect(find.text('家政服务'), findsOneWidget);
+    expect(find.text('医疗陪护'), findsOneWidget);
 
-    final avatarEntry = find.byKey(const Key('childAvatarEntry'));
-    await tester.ensureVisible(avatarEntry);
+    final aiEntry = find.byKey(const Key('elderlyAiCompanionEntry'));
+    await tester.ensureVisible(aiEntry);
     await tester.pumpAndSettle();
-    await tester.tap(avatarEntry.hitTestable());
+    await tester.tap(aiEntry.hitTestable());
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('chatInputField')), findsOneWidget);
@@ -72,7 +73,9 @@ void main() {
       expect(find.text('今日重点服务'), findsOneWidget);
       expect(find.text('常用服务'), findsOneWidget);
       expect(find.text('求助'), findsOneWidget);
-      expect(find.text('小灵在线'), findsOneWidget);
+      expect(find.text('小灵 AI 陪伴'), findsOneWidget);
+      expect(find.text('家政服务'), findsOneWidget);
+      expect(find.text('医疗陪护'), findsOneWidget);
       expect(
         find.byKey(const Key('elderlyServiceGridSingleColumn')),
         findsOneWidget,
@@ -87,7 +90,9 @@ void main() {
       expect(find.text('今日重点服务'), findsOneWidget);
       expect(find.text('常用服务'), findsOneWidget);
       expect(find.text('求助'), findsOneWidget);
-      expect(find.text('小灵在线'), findsOneWidget);
+      expect(find.text('小灵 AI 陪伴'), findsOneWidget);
+      expect(find.text('家政服务'), findsOneWidget);
+      expect(find.text('医疗陪护'), findsOneWidget);
       expect(
         find.byKey(const Key('elderlyServiceGridSingleColumn')),
         findsNothing,
@@ -113,6 +118,31 @@ void main() {
     expect(find.byKey(const Key('chatInputField')), findsOneWidget);
     expect(find.byKey(const Key('sendMessageButton')), findsOneWidget);
   });
+
+  testWidgets(
+    'elderly care service entry opens service sheet and copies phone',
+    (WidgetTester tester) async {
+      await pumpAppToElderlyHome(tester);
+
+      final serviceEntry = find.byKey(const Key('elderlyCareService家政服务'));
+      await tester.ensureVisible(serviceEntry);
+      await tester.pumpAndSettle();
+      await tester.tap(serviceEntry.hitTestable());
+      await tester.pumpAndSettle();
+
+      expect(find.text('春和社区家政站'), findsOneWidget);
+      expect(find.text('021-5600-2231'), findsOneWidget);
+      expect(find.text('复制电话'), findsOneWidget);
+
+      final copyButton = find.widgetWithText(OutlinedButton, '复制电话');
+      final copyAction = tester.widget<OutlinedButton>(copyButton).onPressed;
+      expect(copyAction, isNotNull);
+      copyAction!.call();
+      await tester.pumpAndSettle();
+
+      expect(find.text('联系电话已复制'), findsOneWidget);
+    },
+  );
 
   testWidgets(
     'elderly help action opens support sheet and copies contact number',

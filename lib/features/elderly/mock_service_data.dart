@@ -16,6 +16,26 @@ class ElderlySupportContact {
   final IconData icon;
 }
 
+class ElderlyCareService {
+  const ElderlyCareService({
+    required this.title,
+    required this.description,
+    required this.providerName,
+    required this.phone,
+    required this.serviceHours,
+    required this.icon,
+    required this.tag,
+  });
+
+  final String title;
+  final String description;
+  final String providerName;
+  final String phone;
+  final String serviceHours;
+  final IconData icon;
+  final String tag;
+}
+
 enum ElderlyActivityGroup { today, weekly }
 
 class ElderlyActivityItem {
@@ -156,6 +176,45 @@ const List<ElderlySupportContact> elderlySupportContacts =
         icon: Icons.support_agent_rounded,
       ),
     ];
+
+const List<ElderlyCareService> elderlyCareServices = <ElderlyCareService>[
+  ElderlyCareService(
+    title: '家政服务',
+    description: '预约保洁、换洗、整理收纳等上门服务，适合日常居家照护。',
+    providerName: '春和社区家政站',
+    phone: '021-5600-2231',
+    serviceHours: '每日 08:00-18:00',
+    icon: Icons.cleaning_services_rounded,
+    tag: '上门',
+  ),
+  ElderlyCareService(
+    title: '医疗陪护',
+    description: '协助挂号、陪同就医、取药提醒，必要时联系家属确认安排。',
+    providerName: '安心陪诊服务队',
+    phone: '021-5600-2232',
+    serviceHours: '工作日 08:00-17:30',
+    icon: Icons.medical_services_rounded,
+    tag: '就医',
+  ),
+  ElderlyCareService(
+    title: '助餐送餐',
+    description: '对接社区长者餐、送餐到家和特殊饮食备注。',
+    providerName: '银龄助餐点',
+    phone: '021-5600-2233',
+    serviceHours: '每日 10:00-13:00',
+    icon: Icons.restaurant_rounded,
+    tag: '餐食',
+  ),
+  ElderlyCareService(
+    title: '代买代办',
+    description: '协助购买日用品、药品跑腿、缴费咨询等便民事项。',
+    providerName: '邻里便民志愿队',
+    phone: '021-5600-2234',
+    serviceHours: '每日 09:00-19:00',
+    icon: Icons.shopping_bag_rounded,
+    tag: '便民',
+  ),
+];
 
 const List<ElderlyActivityItem> todayRecommendedActivities =
     <ElderlyActivityItem>[

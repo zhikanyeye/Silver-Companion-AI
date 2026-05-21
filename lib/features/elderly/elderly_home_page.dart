@@ -88,6 +88,130 @@ class ElderlyHomePage extends StatelessWidget {
     );
   }
 
+  Future<void> _showCareServiceSheet(
+    BuildContext context,
+    ElderlyCareService service,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: const Color(0xFFFFFBF7),
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        var copied = false;
+
+        return SafeArea(
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEAF3FF),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Icon(
+                            service.icon,
+                            color: AppTheme.primary,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                service.title,
+                                style: theme.textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                service.tag,
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: AppTheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Text(service.description, style: theme.textTheme.bodyLarge),
+                    const SizedBox(height: 14),
+                    _ServiceSheetLine(
+                      label: '服务方',
+                      value: service.providerName,
+                    ),
+                    _ServiceSheetLine(label: '联系电话', value: service.phone),
+                    _ServiceSheetLine(
+                      label: '服务时间',
+                      value: service.serviceHours,
+                    ),
+                    if (copied) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEAF7EA),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          '联系电话已复制',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(text: service.phone),
+                              );
+                              setModalState(() {
+                                copied = true;
+                              });
+                            },
+                            icon: const Icon(Icons.copy_rounded),
+                            label: const Text('复制电话'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: const Icon(Icons.check_rounded),
+                            label: const Text('知道了'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,8 +250,8 @@ class ElderlyHomePage extends StatelessWidget {
               final services = [
                 _ElderlyServiceItem(
                   key: const Key('elderlyAiCompanionEntry'),
-                  title: 'AI陪伴',
-                  description: '说说近况和心情，让陪伴更自然。',
+                  title: '小灵 AI 陪伴',
+                  description: '一个入口继续聊天、语音陪伴和生活提醒。',
                   icon: Icons.chat_bubble_outline_rounded,
                   accent: const Color(0xFFE9F2FF),
                   iconColor: const Color(0xFF2563EB),
@@ -162,15 +286,16 @@ class ElderlyHomePage extends StatelessWidget {
                   onTap: () =>
                       Navigator.of(context).pushNamed(elderlyActivitiesRoute),
                 ),
-                _ElderlyServiceItem(
-                  key: const Key('childAvatarEntry'),
-                  title: '小灵在线',
-                  description: '像家人一样陪您聊几句，也能继续进入聊天。',
-                  icon: Icons.child_care_outlined,
-                  accent: const Color(0xFFEAF3FF),
-                  iconColor: const Color(0xFF2563EB),
-                  onTap: () => Navigator.of(context).pushNamed(chatRoute),
-                ),
+                for (final service in elderlyCareServices)
+                  _ElderlyServiceItem(
+                    key: Key('elderlyCareService${service.title}'),
+                    title: service.title,
+                    description: service.description,
+                    icon: service.icon,
+                    accent: const Color(0xFFF1F8F4),
+                    iconColor: const Color(0xFF15803D),
+                    onTap: () => _showCareServiceSheet(context, service),
+                  ),
               ];
 
               return Center(
@@ -197,7 +322,7 @@ class ElderlyHomePage extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              '把最常用的陪伴、求助和社区入口放到更显眼的位置。',
+                              '把陪伴、求助、社区和生活照护入口放到更显眼的位置。',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -216,6 +341,32 @@ class ElderlyHomePage extends StatelessWidget {
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ServiceSheetLine extends StatelessWidget {
+  const _ServiceSheetLine({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 84,
+            child: Text(label, style: theme.textTheme.titleSmall),
+          ),
+          Expanded(child: Text(value, style: theme.textTheme.bodyLarge)),
+        ],
       ),
     );
   }
