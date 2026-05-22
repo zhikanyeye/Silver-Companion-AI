@@ -294,7 +294,7 @@ class _ChatPageState extends State<ChatPage> {
                   border: Border.all(color: AppTheme.borderSoft),
                 ),
                 child: IconButton(
-                  key: const Key('chatReplayLastAssistantButton'),
+                  key: const Key('chatReplayLastAssistantToolbarButton'),
                   onPressed: _controller.isSpeechOutputSupported
                       ? _controller.replayLastAssistantMessage
                       : null,

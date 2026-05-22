@@ -27,10 +27,11 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage>
     with SingleTickerProviderStateMixin {
-  static const _testNoticeDuration = Duration(seconds: 5);
-  static const _testNoticeAnimationDuration = Duration(milliseconds: 240);
-  static const _loginNoticePreferenceKey = 'auth_test_notice_seen_login';
-  static const _registerNoticePreferenceKey = 'auth_test_notice_seen_register';
+  static const _noticeDuration = Duration(seconds: 5);
+  static const _noticeAnimationDuration = Duration(milliseconds: 240);
+  static const _loginNoticePreferenceKey = 'auth_access_notice_seen_login';
+  static const _registerNoticePreferenceKey =
+      'auth_access_notice_seen_register';
 
   late final AnimationController _animCtrl;
   late final Animation<double> _fadeIn;
@@ -172,7 +173,7 @@ class _AuthPageState extends State<AuthPage>
                                         tab: selectedTab,
                                         onSuccess: () async {
                                           await _sessionStore.markLoggedIn();
-                                          if (!mounted) {
+                                          if (!context.mounted) {
                                             return;
                                           }
                                           Navigator.of(
@@ -224,11 +225,11 @@ class _AuthPageState extends State<AuthPage>
                             offset: _noticeTab == null
                                 ? const Offset(0, -0.08)
                                 : Offset.zero,
-                            duration: _testNoticeAnimationDuration,
+                            duration: _noticeAnimationDuration,
                             curve: Curves.easeOutCubic,
                             child: AnimatedOpacity(
                               opacity: _noticeTab == null ? 0 : 1,
-                              duration: _testNoticeAnimationDuration,
+                              duration: _noticeAnimationDuration,
                               curve: Curves.easeOut,
                               child: _noticeTab == null
                                   ? const SizedBox.shrink()
@@ -307,7 +308,7 @@ class _AuthPageState extends State<AuthPage>
 
     _noticeTimer?.cancel();
     setState(() => _noticeTab = tab);
-    _noticeTimer = Timer(_testNoticeDuration, _hideTestNotice);
+    _noticeTimer = Timer(_noticeDuration, _hideTestNotice);
   }
 
   void _hideTestNotice() {
@@ -357,10 +358,10 @@ class _AuthTestStageNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = tab == AuthTabSelection.login ? '登录测试提醒' : '注册测试提醒';
+    final title = tab == AuthTabSelection.login ? '登录提示' : '注册提示';
     final message = tab == AuthTabSelection.login
-        ? '当前页面仍处于测试阶段，账号和密码可随意填写，提交后即可继续体验。'
-        : '当前页面仍处于测试阶段，注册信息可随意填写，提交后即可继续体验。';
+        ? '填写手机号和密码即可进入，稍后可在家庭资料中继续完善信息。'
+        : '先创建账号进入银聆，之后可以绑定长辈、子女和常用服务信息。';
 
     return Semantics(
       container: true,

@@ -13,9 +13,9 @@ void main() {
     await pumpAppToElderlyHome(tester);
 
     expect(find.text('长辈首页'), findsOneWidget);
-    expect(find.text('今日服务大厅'), findsOneWidget);
-    expect(find.text('今日重点服务'), findsOneWidget);
-    expect(find.text('今天想先使用哪项服务？'), findsOneWidget);
+    expect(find.text('第三方服务聚合广场'), findsOneWidget);
+    expect(find.text('今日推荐入口'), findsOneWidget);
+    expect(find.text('今天想找哪类服务？'), findsOneWidget);
     expect(find.text('常用服务'), findsOneWidget);
     expect(find.text('小灵 AI 陪伴'), findsOneWidget);
     expect(find.text('求助'), findsOneWidget);
@@ -24,6 +24,8 @@ void main() {
     expect(find.text('小灵在线'), findsNothing);
     expect(find.text('家政服务'), findsOneWidget);
     expect(find.text('医疗陪护'), findsOneWidget);
+    expect(find.text('12 家接入'), findsOneWidget);
+    expect(find.text('查看服务商'), findsWidgets);
 
     final aiEntry = find.byKey(const Key('elderlyAiCompanionEntry'));
     await tester.ensureVisible(aiEntry);
@@ -69,8 +71,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await pumpAt(const Size(390, 844));
-      expect(find.text('今日服务大厅'), findsOneWidget);
-      expect(find.text('今日重点服务'), findsOneWidget);
+      expect(find.text('第三方服务聚合广场'), findsOneWidget);
+      expect(find.text('今日推荐入口'), findsOneWidget);
       expect(find.text('常用服务'), findsOneWidget);
       expect(find.text('求助'), findsOneWidget);
       expect(find.text('小灵 AI 陪伴'), findsOneWidget);
@@ -86,8 +88,8 @@ void main() {
       );
 
       await pumpAt(const Size(1280, 900));
-      expect(find.text('今日服务大厅'), findsOneWidget);
-      expect(find.text('今日重点服务'), findsOneWidget);
+      expect(find.text('第三方服务聚合广场'), findsOneWidget);
+      expect(find.text('今日推荐入口'), findsOneWidget);
       expect(find.text('常用服务'), findsOneWidget);
       expect(find.text('求助'), findsOneWidget);
       expect(find.text('小灵 AI 陪伴'), findsOneWidget);
@@ -130,11 +132,13 @@ void main() {
       await tester.tap(serviceEntry.hitTestable());
       await tester.pumpAndSettle();
 
-      expect(find.text('春和社区家政站'), findsOneWidget);
+      expect(find.text('春和家政、安心到家等'), findsOneWidget);
+      expect(find.text('12 家服务商'), findsOneWidget);
+      expect(find.text('社区 3 公里内'), findsWidgets);
       expect(find.text('021-5600-2231'), findsOneWidget);
-      expect(find.text('复制电话'), findsOneWidget);
+      expect(find.text('复制转接电话'), findsOneWidget);
 
-      final copyButton = find.widgetWithText(OutlinedButton, '复制电话');
+      final copyButton = find.widgetWithText(OutlinedButton, '复制转接电话');
       final copyAction = tester.widget<OutlinedButton>(copyButton).onPressed;
       expect(copyAction, isNotNull);
       copyAction!.call();

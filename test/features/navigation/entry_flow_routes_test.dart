@@ -1,41 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:yinling/app.dart';
-import 'package:yinling/features/auth/auth_page.dart';
 import 'package:yinling/features/child/child_home_page.dart';
 import 'package:yinling/features/elderly/elderly_home_page.dart';
-import 'package:yinling/features/landing/landing_page.dart';
 import 'package:yinling/features/role/role_select_page.dart';
 import 'package:yinling/routes.dart';
+
+import '../../widgets/support/app_flow_test_helper.dart';
 
 void main() {
   testWidgets('navigates from landing to auth to role selection', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const App());
-
-    final landingPage = find.byType(LandingPage);
-
-    expect(landingPage, findsOneWidget);
-    expect(
-      ModalRoute.of(tester.element(landingPage))?.settings.name,
-      landingRoute,
-    );
-
-    await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
-    await tester.pumpAndSettle();
-
-    final authPage = find.byType(AuthPage);
-
-    expect(authPage, findsOneWidget);
-    expect(ModalRoute.of(tester.element(authPage))?.settings.name, authRoute);
-    expect(find.text('欢迎回来'), findsOneWidget);
-
-    await tester.enterText(find.byType(TextFormField).at(0), '13800138000');
-    await tester.enterText(find.byType(TextFormField).at(1), 'password123');
-    await tester.tap(find.widgetWithText(ElevatedButton, '进入角色选择'));
-    await tester.pumpAndSettle();
+    await pumpAppToRoleSelect(tester);
 
     final roleSelectPage = find.byType(RoleSelectPage);
 
@@ -44,24 +21,17 @@ void main() {
       ModalRoute.of(tester.element(roleSelectPage))?.settings.name,
       roleSelectRoute,
     );
-    expect(find.widgetWithText(ElevatedButton, '我是长者'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, '我是子女'), findsOneWidget);
-    expect(find.text('平台服务'), findsNothing);
+    expect(find.text('我是长辈'), findsOneWidget);
+    expect(find.text('我是子女'), findsOneWidget);
+    expect(find.text('我是运营人员'), findsOneWidget);
   });
 
   testWidgets('keeps elderly and child routes reachable from role selection', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const App());
+    await pumpAppToRoleSelect(tester);
 
-    await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField).at(0), '13800138000');
-    await tester.enterText(find.byType(TextFormField).at(1), 'password123');
-    await tester.tap(find.widgetWithText(ElevatedButton, '进入角色选择'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.widgetWithText(ElevatedButton, '我是长者'));
+    await tester.tap(find.text('我是长辈'));
     await tester.pumpAndSettle();
 
     final elderlyPage = find.byType(ElderlyHomePage);
@@ -75,7 +45,7 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, '我是子女'));
+    await tester.tap(find.text('我是子女'));
     await tester.pumpAndSettle();
 
     final childPage = find.byType(ChildHomePage);

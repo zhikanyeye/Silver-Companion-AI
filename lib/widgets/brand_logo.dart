@@ -9,18 +9,14 @@ class BrandLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final image = Image.asset(
       'web/assets/branding/yinling-app-logo.png',
-      semanticLabel: '银聆项目品牌标识',
+      semanticLabel: '银聆品牌标识',
       fit: BoxFit.contain,
       filterQuality: FilterQuality.medium,
     );
 
     switch (variant) {
       case BrandLogoVariant.header:
-        return SizedBox(
-          height: 36,
-          width: 120,
-          child: image,
-        );
+        return SizedBox(height: 36, width: 120, child: image);
       case BrandLogoVariant.hero:
         return SizedBox(
           width: 58,
@@ -34,7 +30,4 @@ class BrandLogo extends StatelessWidget {
   }
 }
 
-enum BrandLogoVariant {
-  header,
-  hero,
-}
+enum BrandLogoVariant { header, hero }

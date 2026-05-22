@@ -14,26 +14,26 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
   });
 
-  testWidgets('login tab shows two fields and the test-stage notice', (
+  testWidgets('login tab shows two fields and the access notice', (
     WidgetTester tester,
   ) async {
     await pumpAuthPage(tester);
 
     expect(find.byType(AuthPage), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
-    expect(find.text('登录测试提醒'), findsOneWidget);
-    expect(find.textContaining('账号和密码可随意填写'), findsOneWidget);
+    expect(find.text('登录提示'), findsOneWidget);
+    expect(find.textContaining('填写手机号和密码即可进入'), findsOneWidget);
   });
 
-  testWidgets('register tab shows three fields and the test-stage notice', (
+  testWidgets('register tab shows three fields and the access notice', (
     WidgetTester tester,
   ) async {
     await pumpAuthPage(tester, initialTab: AuthTabSelection.register);
 
     expect(find.byType(AuthPage), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(3));
-    expect(find.text('注册测试提醒'), findsOneWidget);
-    expect(find.textContaining('注册信息可随意填写'), findsOneWidget);
+    expect(find.text('注册提示'), findsOneWidget);
+    expect(find.textContaining('之后可以绑定长辈'), findsOneWidget);
   });
 
   testWidgets('auth page adapts to small and wide screens', (
@@ -74,31 +74,31 @@ void main() {
     },
   );
 
-  testWidgets('test-stage notice auto dismisses after five seconds', (
+  testWidgets('access notice auto dismisses after five seconds', (
     WidgetTester tester,
   ) async {
     await pumpAuthPage(tester);
 
-    expect(find.text('登录测试提醒'), findsOneWidget);
+    expect(find.text('登录提示'), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 5));
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('登录测试提醒'), findsNothing);
+    expect(find.text('登录提示'), findsNothing);
   });
 
-  testWidgets('test-stage notice only appears once for each auth tab', (
+  testWidgets('access notice only appears once for each auth tab', (
     WidgetTester tester,
   ) async {
     await pumpAuthPage(tester);
 
-    expect(find.text('登录测试提醒'), findsOneWidget);
+    expect(find.text('登录提示'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
 
     await pumpAuthPage(tester);
-    expect(find.text('登录测试提醒'), findsNothing);
+    expect(find.text('登录提示'), findsNothing);
 
     final registerTabButton = find
         .descendant(
@@ -111,13 +111,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('注册测试提醒'), findsOneWidget);
+    expect(find.text('注册提示'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
 
     await pumpAuthPage(tester, initialTab: AuthTabSelection.register);
-    expect(find.text('注册测试提醒'), findsNothing);
+    expect(find.text('注册提示'), findsNothing);
   });
 }
 

@@ -129,7 +129,7 @@ class ChatController extends ChangeNotifier {
             normalized == 'unsupported-browser') {
           error = _mapSpeechSupportReasonToMessage(normalized);
         } else if (normalized == 'stt-unavailable') {
-          error = '语音转写服务暂未配置，请检查 /api/stt 的后端环境变量。';
+          error = '语音转写服务暂时不可用，请稍后再试或改用文字输入。';
         } else if (normalized == 'not-allowed' ||
             normalized == 'service-not-allowed') {
           error = '麦克风权限被拒绝，请在浏览器中允许麦克风访问后重试。';
@@ -200,8 +200,8 @@ class ChatController extends ChangeNotifier {
     switch (reason.trim().toLowerCase()) {
       case 'insecure-context':
       case 'unsupported-browser':
-      case 'unsupported-platform':
         return _mapSpeechSupportReasonToMessage(reason);
+      case 'unsupported-platform':
       default:
         return '语音输入启动失败，请检查麦克风权限后重试。';
     }

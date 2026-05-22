@@ -32,7 +32,7 @@ class ElderlyHomePage extends StatelessWidget {
                       Text('您需要哪类帮助？', style: theme.textTheme.titleLarge),
                       const SizedBox(height: 6),
                       Text(
-                        '可先联系家人或社区服务，如需产品协助也可以联系平台客服。',
+                        '平台优先帮您连到家人、社区或客服，不替代线下紧急救助。',
                         style: theme.textTheme.bodyMedium,
                       ),
                       if (copiedMessage.isNotEmpty) ...[
@@ -94,8 +94,9 @@ class ElderlyHomePage extends StatelessWidget {
   ) async {
     await showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       showDragHandle: true,
-      backgroundColor: const Color(0xFFFFFBF7),
+      backgroundColor: const Color(0xFFF8FBFF),
       builder: (sheetContext) {
         final theme = Theme.of(sheetContext);
         var copied = false;
@@ -103,8 +104,13 @@ class ElderlyHomePage extends StatelessWidget {
         return SafeArea(
           child: StatefulBuilder(
             builder: (context, setModalState) {
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+              return SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  8,
+                  16,
+                  MediaQuery.of(context).viewInsets.bottom + 20,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +143,8 @@ class ElderlyHomePage extends StatelessWidget {
                               Text(
                                 service.tag,
                                 style: theme.textTheme.labelLarge?.copyWith(
-                                  color: AppTheme.primary,
+                                  color: AppTheme.serviceBluePrimary,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
                             ],
@@ -148,13 +155,44 @@ class ElderlyHomePage extends StatelessWidget {
                     const SizedBox(height: 14),
                     Text(service.description, style: theme.textTheme.bodyLarge),
                     const SizedBox(height: 14),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppTheme.borderSoft),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.hub_outlined,
+                            color: AppTheme.serviceBluePrimary,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              '银聆只提供聚合入口和转接能力，具体报价、排班和服务履约由已接入的第三方服务商完成。',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     _ServiceSheetLine(
-                      label: '服务方',
+                      label: '接入商',
                       value: service.providerName,
                     ),
+                    _ServiceSheetLine(
+                      label: '接入数量',
+                      value: '${service.providerCount} 家服务商',
+                    ),
+                    _ServiceSheetLine(label: '覆盖范围', value: service.coverage),
                     _ServiceSheetLine(label: '联系电话', value: service.phone),
                     _ServiceSheetLine(
-                      label: '服务时间',
+                      label: '转接时间',
                       value: service.serviceHours,
                     ),
                     if (copied) ...[
@@ -189,7 +227,7 @@ class ElderlyHomePage extends StatelessWidget {
                               });
                             },
                             icon: const Icon(Icons.copy_rounded),
-                            label: const Text('复制电话'),
+                            label: const Text('复制转接电话'),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -251,38 +289,42 @@ class ElderlyHomePage extends StatelessWidget {
                 _ElderlyServiceItem(
                   key: const Key('elderlyAiCompanionEntry'),
                   title: '小灵 AI 陪伴',
-                  description: '一个入口继续聊天、语音陪伴和生活提醒。',
+                  description: '平台自有 AI 陪伴入口，继续聊天、语音播报和提醒。',
                   icon: Icons.chat_bubble_outline_rounded,
                   accent: const Color(0xFFE9F2FF),
                   iconColor: const Color(0xFF2563EB),
+                  badge: '平台自有',
                   onTap: () => Navigator.of(context).pushNamed(chatRoute),
                 ),
                 _ElderlyServiceItem(
                   key: const Key('elderlyHelpEntry'),
                   title: '求助',
-                  description: '遇到需要帮助的时候，快速联系支持。',
+                  description: '快速连到家人、社区和平台客服，减少老人自己查找。',
                   icon: Icons.support_agent_rounded,
                   accent: const Color(0xFFFFF0E8),
                   iconColor: const Color(0xFFDA6A2A),
+                  badge: '转接入口',
                   emphasize: true,
                   onTap: () => _showHelpSheet(context),
                 ),
                 _ElderlyServiceItem(
                   key: const Key('elderlyCommunityEntry'),
                   title: '社区',
-                  description: '看看邻里今天有哪些互助信息。',
+                  description: '聚合邻里互助、社区通知和服务站消息。',
                   icon: Icons.groups_2_outlined,
                   accent: const Color(0xFFEEF7FF),
                   iconColor: const Color(0xFF1D4ED8),
+                  badge: '信息聚合',
                   onTap: () => Navigator.of(context).pushNamed(communityRoute),
                 ),
                 _ElderlyServiceItem(
                   key: const Key('elderlyActivitiesEntry'),
                   title: '活动',
-                  description: '查看适合今天参加的社区活动。',
+                  description: '查看社区、机构和志愿团队发布的活动。',
                   icon: Icons.event_available_outlined,
                   accent: const Color(0xFFFFF6EA),
                   iconColor: const Color(0xFFB45309),
+                  badge: '机构发布',
                   onTap: () =>
                       Navigator.of(context).pushNamed(elderlyActivitiesRoute),
                 ),
@@ -292,8 +334,10 @@ class ElderlyHomePage extends StatelessWidget {
                     title: service.title,
                     description: service.description,
                     icon: service.icon,
-                    accent: const Color(0xFFF1F8F4),
-                    iconColor: const Color(0xFF15803D),
+                    accent: const Color(0xFFEFF6FF),
+                    iconColor: const Color(0xFF1D4ED8),
+                    badge: '${service.providerCount} 家接入',
+                    meta: service.coverage,
                     onTap: () => _showCareServiceSheet(context, service),
                   ),
               ];
@@ -322,7 +366,7 @@ class ElderlyHomePage extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              '把陪伴、求助、社区和生活照护入口放到更显眼的位置。',
+                              '平台像便民信息集市一样聚合服务资源，老人点入口后再转接到合适服务商。',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -470,7 +514,7 @@ class _ServiceHallHero extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
-              '今日服务大厅',
+              '第三方服务聚合广场',
               style: theme.textTheme.labelLarge?.copyWith(
                 color: const Color(0xFF1D4ED8),
                 fontWeight: FontWeight.w800,
@@ -478,14 +522,14 @@ class _ServiceHallHero extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Text('今天想先使用哪项服务？', style: theme.textTheme.headlineMedium),
+          Text('今天想找哪类服务？', style: theme.textTheme.headlineMedium),
           const SizedBox(height: 8),
           Text(
-            '聊天、求助、社区和活动入口都已经整理好，点击更直接，辨认也更轻松。',
+            '银聆负责聚合服务资源、整理信息和辅助转接，家政、陪诊、助餐等服务由第三方公司或社区机构完成。',
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 18),
-          Text('今日重点服务', style: theme.textTheme.titleMedium),
+          Text('今日推荐入口', style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           Container(
             width: double.infinity,
@@ -514,10 +558,10 @@ class _ServiceHallHero extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('建议优先熟悉求助入口', style: theme.textTheme.titleMedium),
+                      Text('先选品类，再转接服务商', style: theme.textTheme.titleMedium),
                       const SizedBox(height: 4),
                       Text(
-                        '需要帮助时可以更快联系家人、社区或平台支持。',
+                        '类似便民分类平台，减少老人自己查找电话和比对信息的成本。',
                         style: theme.textTheme.bodyMedium,
                       ),
                     ],
@@ -531,9 +575,9 @@ class _ServiceHallHero extends StatelessWidget {
             spacing: 10,
             runSpacing: 10,
             children: [
-              _HallTag(label: '字更清楚'),
-              _HallTag(label: '入口更直观'),
-              _HallTag(label: '操作更轻松'),
+              _HallTag(label: '平台聚合'),
+              _HallTag(label: '服务商履约'),
+              _HallTag(label: '一键转接'),
             ],
           ),
         ],
@@ -617,6 +661,8 @@ class _ElderlyServiceItem {
     required this.accent,
     required this.iconColor,
     required this.onTap,
+    this.badge,
+    this.meta,
     this.emphasize = false,
   });
 
@@ -627,6 +673,8 @@ class _ElderlyServiceItem {
   final Color accent;
   final Color iconColor;
   final VoidCallback onTap;
+  final String? badge;
+  final String? meta;
   final bool emphasize;
 }
 
@@ -642,45 +690,122 @@ class _ElderlyServiceCard extends StatelessWidget {
     return Card(
       key: item.key,
       elevation: item.emphasize ? 1 : 0,
-      color: item.emphasize ? const Color(0xFFFFF5EE) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      color: item.emphasize ? const Color(0xFFFFF7F0) : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: item.emphasize
+              ? const Color(0xFFFFC7A3)
+              : const Color(0xFFD9E6F7),
+        ),
+      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
         onTap: item.onTap,
         child: Padding(
           padding: const EdgeInsets.all(18),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  color: item.accent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(item.icon, color: item.iconColor, size: 30),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: item.accent,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Icon(item.icon, color: item.iconColor, size: 29),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(item.title, style: theme.textTheme.titleLarge),
+                            if (item.badge != null)
+                              _ServiceBadge(
+                                label: item.badge!,
+                                color: item.iconColor,
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          item.description,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item.title, style: theme.textTheme.titleLarge),
-                    const SizedBox(height: 6),
-                    Text(item.description, style: theme.textTheme.bodyMedium),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_rounded,
-                color: item.emphasize
-                    ? const Color(0xFFDA6A2A)
-                    : AppTheme.primary,
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.meta ?? '点击查看',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: AppTheme.textMuted,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    item.meta == null ? '进入' : '查看服务商',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: item.emphasize
+                          ? const Color(0xFFDA6A2A)
+                          : AppTheme.serviceBluePrimary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 20,
+                    color: item.emphasize
+                        ? const Color(0xFFDA6A2A)
+                        : AppTheme.serviceBluePrimary,
+                  ),
+                ],
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ServiceBadge extends StatelessWidget {
+  const _ServiceBadge({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );

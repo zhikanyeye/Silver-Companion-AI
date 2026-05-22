@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -109,7 +108,9 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(minButtonHeight),
           textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(

@@ -5,18 +5,18 @@ import 'package:yinling/features/role/role_select_page.dart';
 import 'package:yinling/routes.dart';
 
 void main() {
-  testWidgets('shows cleaner role selection copy with exactly two options', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: RoleSelectPage()),
-    );
+  testWidgets(
+    'shows cleaner role selection copy with user and operations options',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: RoleSelectPage()));
 
-    expect(find.text('选择您的身份'), findsOneWidget);
-    expect(find.text('我是长辈'), findsOneWidget);
-    expect(find.text('我是子女'), findsOneWidget);
-    expect(find.byType(RoleSelectPage), findsOneWidget);
-  });
+      expect(find.text('选择您的身份'), findsOneWidget);
+      expect(find.text('我是长辈'), findsOneWidget);
+      expect(find.text('我是子女'), findsOneWidget);
+      expect(find.text('我是运营人员'), findsOneWidget);
+      expect(find.byType(RoleSelectPage), findsOneWidget);
+    },
+  );
 
   testWidgets('routes elderly option to its existing destination', (
     WidgetTester tester,
@@ -26,7 +26,8 @@ void main() {
         initialRoute: roleSelectRoute,
         routes: {
           roleSelectRoute: (context) => const RoleSelectPage(),
-          elderlyRoute: (context) => const Scaffold(body: Text('elderly target')),
+          elderlyRoute: (context) =>
+              const Scaffold(body: Text('elderly target')),
         },
       ),
     );
@@ -56,5 +57,26 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('child target'), findsOneWidget);
+  });
+
+  testWidgets('routes operations option to platform workspace', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        initialRoute: roleSelectRoute,
+        routes: {
+          roleSelectRoute: (context) => const RoleSelectPage(),
+          platformRoute: (context) =>
+              const Scaffold(body: Text('platform target')),
+        },
+      ),
+    );
+
+    final platformCard = find.text('我是运营人员');
+    await tester.tap(platformCard);
+    await tester.pumpAndSettle();
+
+    expect(find.text('platform target'), findsOneWidget);
   });
 }

@@ -58,7 +58,11 @@ class _BrandHeroState extends State<BrandHero> {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFFFFFCF8), Color(0xFFFFE7D3), Color(0xFFFFD8BC)],
+                  colors: [
+                    Color(0xFFFFFCF8),
+                    Color(0xFFFFE7D3),
+                    Color(0xFFFFD8BC),
+                  ],
                 ),
                 border: Border.all(color: const Color(0xFFF1D3BE)),
                 boxShadow: const [
@@ -108,13 +112,10 @@ class _BrandHeroState extends State<BrandHero> {
                         ),
                       ),
                       SizedBox(height: isCompact ? 18 : 24),
-                      Text(
-                        '听得见孤独，触得到温度。',
-                        style: heroTitleStyle,
-                      ),
+                      Text('听得见孤独，触得到温度。', style: heroTitleStyle),
                       SizedBox(height: isCompact ? 10 : 12),
                       Text(
-                        '中国首个AI情感养老社区化实践者，把 AI 情感陪伴、健康提醒与社区互助整合到同一条清晰可达的服务路径中。',
+                        '把 AI 陪伴、家庭关怀、社区互助和第三方生活服务整合到一条清晰可达的路径中。',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           height: isCompact ? 1.55 : 1.6,
                         ),
@@ -223,20 +224,27 @@ class _StatChip extends StatelessWidget {
         horizontal: compact ? 12 : 14,
         vertical: compact ? 10 : 12,
       ),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.82),
-          borderRadius: BorderRadius.circular(compact ? 16 : 18),
-          border: Border.all(color: const Color(0xFFF1D3BE)),
-        ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(compact ? 16 : 18),
+        border: Border.all(color: const Color(0xFFF1D3BE)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+          Text(
+            title,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
           const SizedBox(height: 2),
           Text(
             subtitle,
-            style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textMuted),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppTheme.textMuted,
+            ),
           ),
         ],
       ),
@@ -285,14 +293,23 @@ class _CapabilityBadge extends StatelessWidget {
                   color: const Color(0xFFFFF1E6),
                   borderRadius: BorderRadius.circular(compact ? 12 : 14),
                 ),
-                child: Icon(icon, color: AppTheme.primary, size: compact ? 18 : 20),
+                child: Icon(
+                  icon,
+                  color: AppTheme.primary,
+                  size: compact ? 18 : 20,
+                ),
               ),
               SizedBox(width: compact ? 8 : 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,

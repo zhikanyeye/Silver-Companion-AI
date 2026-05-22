@@ -21,6 +21,8 @@ class ElderlyCareService {
     required this.title,
     required this.description,
     required this.providerName,
+    required this.providerCount,
+    required this.coverage,
     required this.phone,
     required this.serviceHours,
     required this.icon,
@@ -30,6 +32,8 @@ class ElderlyCareService {
   final String title;
   final String description;
   final String providerName;
+  final int providerCount;
+  final String coverage;
   final String phone;
   final String serviceHours;
   final IconData icon;
@@ -180,39 +184,47 @@ const List<ElderlySupportContact> elderlySupportContacts =
 const List<ElderlyCareService> elderlyCareServices = <ElderlyCareService>[
   ElderlyCareService(
     title: '家政服务',
-    description: '预约保洁、换洗、整理收纳等上门服务，适合日常居家照护。',
-    providerName: '春和社区家政站',
+    description: '聚合保洁、换洗、整理收纳等上门服务，按社区位置转接合适服务商。',
+    providerName: '春和家政、安心到家等',
+    providerCount: 12,
+    coverage: '社区 3 公里内',
     phone: '021-5600-2231',
     serviceHours: '每日 08:00-18:00',
     icon: Icons.cleaning_services_rounded,
-    tag: '上门',
+    tag: '第三方上门',
   ),
   ElderlyCareService(
     title: '医疗陪护',
-    description: '协助挂号、陪同就医、取药提醒，必要时联系家属确认安排。',
-    providerName: '安心陪诊服务队',
+    description: '接入陪诊、取药、复诊提醒服务商，平台协助比选和转接。',
+    providerName: '安心陪诊、仁爱陪护等',
+    providerCount: 8,
+    coverage: '三甲医院周边',
     phone: '021-5600-2232',
     serviceHours: '工作日 08:00-17:30',
     icon: Icons.medical_services_rounded,
-    tag: '就医',
+    tag: '陪诊转接',
   ),
   ElderlyCareService(
     title: '助餐送餐',
-    description: '对接社区长者餐、送餐到家和特殊饮食备注。',
-    providerName: '银龄助餐点',
+    description: '汇总社区长者餐、助餐点和配送团队，支持特殊饮食备注转达。',
+    providerName: '银龄助餐点、邻里厨房等',
+    providerCount: 6,
+    coverage: '街道助餐网络',
     phone: '021-5600-2233',
     serviceHours: '每日 10:00-13:00',
     icon: Icons.restaurant_rounded,
-    tag: '餐食',
+    tag: '餐食聚合',
   ),
   ElderlyCareService(
     title: '代买代办',
-    description: '协助购买日用品、药品跑腿、缴费咨询等便民事项。',
-    providerName: '邻里便民志愿队',
+    description: '对接跑腿、药品代买、缴费咨询等便民服务，由第三方完成履约。',
+    providerName: '邻里便民、快帮跑腿等',
+    providerCount: 10,
+    coverage: '附近生活圈',
     phone: '021-5600-2234',
     serviceHours: '每日 09:00-19:00',
     icon: Icons.shopping_bag_rounded,
-    tag: '便民',
+    tag: '便民转接',
   ),
 ];
 

@@ -13,41 +13,47 @@ void main() {
 
     final scaffold = find.byType(Scaffold).first;
 
-    expect(ModalRoute.of(tester.element(scaffold))?.settings.name, landingRoute);
+    expect(
+      ModalRoute.of(tester.element(scaffold))?.settings.name,
+      landingRoute,
+    );
     expect(find.text('银聆'), findsOneWidget);
     expect(find.text('立即开始'), findsOneWidget);
-    expect(find.text('观看演示'), findsOneWidget);
-    expect(find.text('用户心声'), findsOneWidget);
+    expect(find.text('登录使用'), findsOneWidget);
+    expect(find.text('家庭反馈'), findsOneWidget);
   });
 
-  testWidgets('landing keeps a single hero and auth actions on small and wide screens', (
+  testWidgets(
+    'landing keeps a single hero and auth actions on small and wide screens',
+    (WidgetTester tester) async {
+      Future<void> pumpAt(Size size) async {
+        tester.view.devicePixelRatio = 1.0;
+        tester.view.physicalSize = size;
+        await tester.pumpWidget(const App());
+        await tester.pumpAndSettle();
+      }
+
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await pumpAt(const Size(375, 812));
+      expect(find.text('银聆'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, '立即开始'), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, '登录使用'), findsOneWidget);
+
+      await pumpAt(const Size(1280, 900));
+      expect(find.text('银聆'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, '立即开始'), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, '登录使用'), findsOneWidget);
+    },
+  );
+
+  testWidgets('landing login action routes to auth', (
     WidgetTester tester,
   ) async {
-    Future<void> pumpAt(Size size) async {
-      tester.view.devicePixelRatio = 1.0;
-      tester.view.physicalSize = size;
-      await tester.pumpWidget(const App());
-      await tester.pumpAndSettle();
-    }
-
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    await pumpAt(const Size(375, 812));
-    expect(find.text('银聆'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, '立即开始'), findsOneWidget);
-    expect(find.widgetWithText(OutlinedButton, '观看演示'), findsOneWidget);
-
-    await pumpAt(const Size(1280, 900));
-    expect(find.text('银聆'), findsOneWidget);
-    expect(find.widgetWithText(ElevatedButton, '立即开始'), findsOneWidget);
-    expect(find.widgetWithText(OutlinedButton, '观看演示'), findsOneWidget);
-  });
-
-  testWidgets('landing login action routes to auth', (WidgetTester tester) async {
     await tester.pumpWidget(const App());
 
-    await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
+    await tester.tap(find.widgetWithText(OutlinedButton, '登录使用'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AuthPage), findsOneWidget);

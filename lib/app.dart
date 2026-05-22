@@ -59,6 +59,8 @@ class _AccessibilitySpeechLayer extends StatelessWidget {
     required this.child,
   });
 
+  static const double _buttonBottomOffset = 96;
+
   final AccessibilitySpeechController controller;
   final Widget child;
 
@@ -84,23 +86,26 @@ class _AccessibilitySpeechLayer extends StatelessWidget {
             ),
             Positioned(
               left: 16,
-              bottom: 24,
+              bottom: _buttonBottomOffset,
               child: SafeArea(
-                child: FloatingActionButton.small(
-                  key: const Key('accessibilitySpeechToggle'),
-                  heroTag: 'accessibilitySpeechToggle',
-                  onPressed: controller.toggle,
-                  tooltip: controller.enabled ? '关闭点击播报' : '开启点击播报',
-                  backgroundColor: controller.enabled
-                      ? AppTheme.serviceBluePrimary
-                      : AppTheme.surface,
-                  foregroundColor: controller.enabled
-                      ? Colors.white
-                      : AppTheme.serviceBluePrimary,
-                  child: Icon(
-                    controller.enabled
-                        ? Icons.record_voice_over_rounded
-                        : Icons.volume_up_outlined,
+                child: Semantics(
+                  label: controller.enabled ? '关闭点击播报' : '开启点击播报',
+                  button: true,
+                  child: FloatingActionButton.small(
+                    key: const Key('accessibilitySpeechToggle'),
+                    heroTag: 'accessibilitySpeechToggle',
+                    onPressed: controller.toggle,
+                    backgroundColor: controller.enabled
+                        ? AppTheme.serviceBluePrimary
+                        : AppTheme.surface,
+                    foregroundColor: controller.enabled
+                        ? Colors.white
+                        : AppTheme.serviceBluePrimary,
+                    child: Icon(
+                      controller.enabled
+                          ? Icons.record_voice_over_rounded
+                          : Icons.volume_up_outlined,
+                    ),
                   ),
                 ),
               ),

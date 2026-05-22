@@ -169,7 +169,7 @@ class _HeroSection extends StatelessWidget {
               Icon(Icons.verified_rounded, size: 18, color: Color(0xFF0369A1)),
               SizedBox(width: 6),
               Text(
-                'AI情感养老社区化实践',
+                '家庭照护与生活服务平台',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -181,7 +181,7 @@ class _HeroSection extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          '中国首个AI情感养老社区化实践者',
+          '把陪伴、照护和生活服务放在一个入口',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: isCompact ? 28 : 40,
@@ -195,7 +195,7 @@ class _HeroSection extends StatelessWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: Text(
-            '听得见孤独，触得到温度。银聆把 AI 情感陪伴、健康提醒与社区互助整合到同一条简单清晰的服务路径中。',
+            '银聆帮长辈更容易找到陪伴、求助、社区活动和第三方生活服务，也让子女随时了解家里的近况。',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: isCompact ? 16 : 18,
@@ -235,7 +235,7 @@ class _HeroSection extends StatelessWidget {
               ).pushNamed(authRoute, arguments: AuthTabSelection.login),
               icon: const Icon(Icons.play_circle_outline_rounded, size: 20),
               label: const Text(
-                '观看演示',
+                '登录使用',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               style: OutlinedButton.styleFrom(
@@ -255,9 +255,9 @@ class _HeroSection extends StatelessWidget {
           spacing: 24,
           runSpacing: 8,
           children: [
-            _QuickStat(icon: Icons.people_rounded, text: '10,000+ 用户信赖'),
-            _QuickStat(icon: Icons.schedule_rounded, text: '全天候 AI 响应'),
-            _QuickStat(icon: Icons.security_rounded, text: '数据安全加密'),
+            _QuickStat(icon: Icons.people_rounded, text: '长辈和家人共同使用'),
+            _QuickStat(icon: Icons.schedule_rounded, text: '全天候陪伴与提醒'),
+            _QuickStat(icon: Icons.security_rounded, text: '重要信息及时同步'),
           ],
         ),
       ],
@@ -311,14 +311,14 @@ class _FeatureCards extends StatelessWidget {
         iconBg: Color(0xFFF0FDF4),
         iconColor: Color(0xFF16A34A),
         title: '健康守护管家',
-        description: '用药提醒、作息监测、血压/血糖趋势，子女远程实时了解。',
+        description: '日常提醒、状态记录和趋势汇总，子女远程了解更安心。',
       ),
       const _FeatureCardData(
         icon: Icons.groups_rounded,
         iconBg: Color(0xFFFEF3C7),
         iconColor: Color(0xFFD97706),
         title: '社区互助网络',
-        description: '邻里互帮，紧急代购、陪诊就医、情感支持，一键发起。',
+        description: '聚合邻里互助、社区活动和第三方服务入口，少走弯路。',
       ),
     ];
 
@@ -432,7 +432,7 @@ class _SocialProofSection extends StatelessWidget {
     return Column(
       children: [
         const Text(
-          '用户心声',
+          '家庭反馈',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
@@ -441,7 +441,7 @@ class _SocialProofSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          '来自真实家庭的温暖反馈',
+          '来自长辈和家人的使用感受',
           style: TextStyle(fontSize: 16, color: Color(0xFF64748B)),
         ),
         const SizedBox(height: 24),
@@ -451,7 +451,7 @@ class _SocialProofSection extends StatelessWidget {
           alignment: WrapAlignment.center,
           children: const [
             _TestimonialCard(
-              quote: '妈妈现在每天都会跟 AI 聊天，说比打电话还方便。我们做子女的也能随时看到她的状态，放心多了。',
+              quote: '妈妈可以自己找服务、看活动，我这边也能知道她最近需要什么，沟通顺了很多。',
               name: '张女士',
               role: '北京 · 女儿',
               avatarColor: Color(0xFF2563EB),
@@ -463,7 +463,7 @@ class _SocialProofSection extends StatelessWidget {
               avatarColor: Color(0xFF16A34A),
             ),
             _TestimonialCard(
-              quote: '社区互助功能太好了！上次感冒，邻居帮我代购了药，不到一小时就送到了。',
+              quote: '以前找家政和陪诊要翻很多电话，现在先看分类，再让平台帮我转接，清楚多了。',
               name: '王阿姨',
               role: '广州 · 72 岁用户',
               avatarColor: Color(0xFFD97706),

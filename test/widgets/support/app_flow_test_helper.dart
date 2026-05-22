@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:yinling/app.dart';
 
 Future<void> pumpAppToRoleSelect(WidgetTester tester) async {
+  SharedPreferences.setMockInitialValues(<String, Object>{});
+
   await tester.pumpWidget(const App());
   await tester.pumpAndSettle();
 
-  await tester.tap(find.widgetWithText(OutlinedButton, '观看演示'));
+  await tester.tap(find.widgetWithText(OutlinedButton, '登录使用'));
   await tester.pumpAndSettle();
 
   await tester.enterText(

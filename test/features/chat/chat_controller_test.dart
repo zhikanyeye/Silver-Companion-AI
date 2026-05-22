@@ -367,7 +367,7 @@ void main() {
 
     speechService.onErrorCallback?.call('stt-unavailable');
 
-    expect(controller.error, '语音转写服务暂未配置，请检查 /api/stt 的后端环境变量。');
+    expect(controller.error, '语音转写服务暂时不可用，请稍后再试或改用文字输入。');
   });
 
   test('speech error callback maps busy to retry guidance', () {
@@ -456,47 +456,41 @@ void main() {
     },
   );
 
-  test(
-    'sendText maps authentication failures to API key guidance',
-    () async {
-      final controller = createController(
-        repository: _FakeChatRepository(
-          errorToThrow: StateError(
-            'AI Proxy request failed: 401 {"error":"invalid api key"}',
-          ),
+  test('sendText maps authentication failures to API key guidance', () async {
+    final controller = createController(
+      repository: _FakeChatRepository(
+        errorToThrow: StateError(
+          'AI Proxy request failed: 401 {"error":"invalid api key"}',
         ),
-      );
+      ),
+    );
 
-      await controller.sendText('hello');
+    await controller.sendText('hello');
 
-      expect(
-        controller.error,
-        'AI service authentication failed. Please check the API key and model permissions.',
-      );
-      expect(controller.error, isNot(contains('invalid api key')));
-      expect(controller.error, isNot(contains('401')));
-    },
-  );
+    expect(
+      controller.error,
+      'AI service authentication failed. Please check the API key and model permissions.',
+    );
+    expect(controller.error, isNot(contains('invalid api key')));
+    expect(controller.error, isNot(contains('401')));
+  });
 
-  test(
-    'sendText maps wrapped upstream 401 failures to API key guidance',
-    () async {
-      final controller = createController(
-        repository: _FakeChatRepository(
-          errorToThrow: StateError(
-            'AI Proxy request failed: 500 {"error":"401 status code (no body)","upstreamStatus":500}',
-          ),
+  test('sendText maps wrapped upstream 401 failures to API key guidance', () async {
+    final controller = createController(
+      repository: _FakeChatRepository(
+        errorToThrow: StateError(
+          'AI Proxy request failed: 500 {"error":"401 status code (no body)","upstreamStatus":500}',
         ),
-      );
+      ),
+    );
 
-      await controller.sendText('hello');
+    await controller.sendText('hello');
 
-      expect(
-        controller.error,
-        'AI service authentication failed. Please check the API key and model permissions.',
-      );
-    },
-  );
+    expect(
+      controller.error,
+      'AI service authentication failed. Please check the API key and model permissions.',
+    );
+  });
 
   test('sendText maps rate limit failures to quota guidance', () async {
     final controller = createController(
@@ -517,20 +511,23 @@ void main() {
     expect(controller.error, isNot(contains('429')));
   });
 
-  test('sendText maps invalid JSON proxy responses to config guidance', () async {
-    final controller = createController(
-      repository: _FakeChatRepository(
-        errorToThrow: StateError('AI Proxy response invalid JSON shape'),
-      ),
-    );
+  test(
+    'sendText maps invalid JSON proxy responses to config guidance',
+    () async {
+      final controller = createController(
+        repository: _FakeChatRepository(
+          errorToThrow: StateError('AI Proxy response invalid JSON shape'),
+        ),
+      );
 
-    await controller.sendText('hello');
+      await controller.sendText('hello');
 
-    expect(
-      controller.error,
-      'AI service configuration is unavailable. Please try again later.',
-    );
-  });
+      expect(
+        controller.error,
+        'AI service configuration is unavailable. Please try again later.',
+      );
+    },
+  );
 
   test('sendText maps explicit config errors to config guidance', () async {
     final controller = createController(
@@ -549,37 +546,43 @@ void main() {
     );
   });
 
-  test('sendText maps explicit upstream errors to temporary guidance', () async {
-    final controller = createController(
-      repository: _FakeChatRepository(
-        errorToThrow: StateError(
-          'AI Proxy request failed: 500 {"errorType":"upstream_error"}',
+  test(
+    'sendText maps explicit upstream errors to temporary guidance',
+    () async {
+      final controller = createController(
+        repository: _FakeChatRepository(
+          errorToThrow: StateError(
+            'AI Proxy request failed: 500 {"errorType":"upstream_error"}',
+          ),
         ),
-      ),
-    );
+      );
 
-    await controller.sendText('hello');
+      await controller.sendText('hello');
 
-    expect(
-      controller.error,
-      'AI service is temporarily unavailable. Please try again later.',
-    );
-  });
+      expect(
+        controller.error,
+        'AI service is temporarily unavailable. Please try again later.',
+      );
+    },
+  );
 
-  test('sendText maps network failures to temporary service guidance', () async {
-    final controller = createController(
-      repository: _FakeChatRepository(
-        errorToThrow: StateError('ClientException: Failed to fetch'),
-      ),
-    );
+  test(
+    'sendText maps network failures to temporary service guidance',
+    () async {
+      final controller = createController(
+        repository: _FakeChatRepository(
+          errorToThrow: StateError('ClientException: Failed to fetch'),
+        ),
+      );
 
-    await controller.sendText('hello');
+      await controller.sendText('hello');
 
-    expect(
-      controller.error,
-      'AI service is temporarily unavailable. Please try again later.',
-    );
-  });
+      expect(
+        controller.error,
+        'AI service is temporarily unavailable. Please try again later.',
+      );
+    },
+  );
 
   test('sendText keeps success behavior intact', () async {
     final speechService = _RecordingSpeechService();

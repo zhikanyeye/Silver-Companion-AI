@@ -132,6 +132,17 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                                     context,
                                   ).pushNamed(childRoute),
                                 ),
+                                const SizedBox(height: 16),
+                                RoleOptionCard(
+                                  title: '我是运营人员',
+                                  subtitle: '服务商管理 · 需求转接 · 回访跟进',
+                                  icon: Icons.manage_accounts_rounded,
+                                  iconColor: const Color(0xFF059669),
+                                  iconBg: const Color(0xFFEAF7EA),
+                                  onPressed: () => Navigator.of(
+                                    context,
+                                  ).pushNamed(platformRoute),
+                                ),
                                 const SizedBox(height: 28),
                                 Row(
                                   children: [
@@ -184,7 +195,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                           tooltip: '退出登录',
                           onPressed: () async {
                             await _sessionStore.clearSession();
-                            if (!mounted) {
+                            if (!context.mounted) {
                               return;
                             }
                             Navigator.of(context).pushNamedAndRemoveUntil(

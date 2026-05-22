@@ -7,6 +7,7 @@ import 'package:yinling/features/community/community_feed_page.dart';
 import 'package:yinling/features/elderly/elderly_activities_page.dart';
 import 'package:yinling/features/elderly/elderly_home_page.dart';
 import 'package:yinling/features/landing/landing_page.dart';
+import 'package:yinling/features/platform/platform_operations_page.dart';
 import 'package:yinling/features/role/role_select_page.dart';
 import 'package:yinling/features/settings/settings_page.dart';
 import 'package:yinling/services/auth_session_store.dart';
@@ -28,25 +29,13 @@ final Map<String, WidgetBuilder> appRoutes = {
   roleSelectRoute: (context) => const _AuthGuard(child: RoleSelectPage()),
   elderlyRoute: (context) => const _AuthGuard(child: ElderlyHomePage()),
   childRoute: (context) => const _AuthGuard(child: ChildHomePage()),
-  platformRoute: (context) => const _AuthGuard(child: PlatformPlaceholderPage()),
+  platformRoute: (context) => const _AuthGuard(child: PlatformOperationsPage()),
   chatRoute: (context) => const _AuthGuard(child: ChatPage()),
   communityRoute: (context) => const _AuthGuard(child: CommunityFeedPage()),
   elderlyActivitiesRoute: (context) =>
       const _AuthGuard(child: ElderlyActivitiesPage()),
   settingsRoute: (context) => const _AuthGuard(child: SettingsPage()),
 };
-
-class PlatformPlaceholderPage extends StatelessWidget {
-  const PlatformPlaceholderPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('平台服务')),
-      body: const Center(child: Text('平台服务正在准备中。')),
-    );
-  }
-}
 
 class _AuthGuard extends StatefulWidget {
   const _AuthGuard({required this.child});

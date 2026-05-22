@@ -20,9 +20,16 @@ void main() {
       landingRoute,
     );
     expect(find.text('立即开始'), findsOneWidget);
-    expect(find.text('观看演示'), findsOneWidget);
+    expect(find.text('登录使用'), findsOneWidget);
     expect(find.byType(AuthPage), findsNothing);
     expect(find.byType(RoleSelectPage), findsNothing);
     expect(find.byKey(const Key('accessibilitySpeechToggle')), findsOneWidget);
+
+    final viewportHeight =
+        tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    final speechToggleRect = tester.getRect(
+      find.byKey(const Key('accessibilitySpeechToggle')),
+    );
+    expect(speechToggleRect.bottom, lessThan(viewportHeight - 72));
   });
 }
