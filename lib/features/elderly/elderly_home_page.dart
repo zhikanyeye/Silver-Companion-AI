@@ -32,7 +32,7 @@ class ElderlyHomePage extends StatelessWidget {
                       Text('您需要哪类帮助？', style: theme.textTheme.titleLarge),
                       const SizedBox(height: 6),
                       Text(
-                        '平台优先帮您连到家人、社区或客服，不替代线下紧急救助。',
+                        '需要紧急救助时，请直接联系家人、社区工作人员或当地急救电话。',
                         style: theme.textTheme.bodyMedium,
                       ),
                       if (copiedMessage.isNotEmpty) ...[
@@ -173,7 +173,7 @@ class ElderlyHomePage extends StatelessWidget {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              '银聆只提供聚合入口和转接能力，具体报价、排班和服务履约由已接入的第三方服务商完成。',
+                              '银聆会协助整理需求并联系服务方，具体报价、排班和服务内容以服务方确认为准。',
                               style: theme.textTheme.bodyMedium,
                             ),
                           ),
@@ -289,11 +289,11 @@ class ElderlyHomePage extends StatelessWidget {
                 _ElderlyServiceItem(
                   key: const Key('elderlyAiCompanionEntry'),
                   title: '小灵 AI 陪伴',
-                  description: '平台自有 AI 陪伴入口，继续聊天、语音播报和提醒。',
+                  description: '继续聊天、语音播报和日常提醒。',
                   icon: Icons.chat_bubble_outline_rounded,
                   accent: const Color(0xFFE9F2FF),
                   iconColor: const Color(0xFF2563EB),
-                  badge: '平台自有',
+                  badge: 'AI陪伴',
                   onTap: () => Navigator.of(context).pushNamed(chatRoute),
                 ),
                 _ElderlyServiceItem(
@@ -514,7 +514,7 @@ class _ServiceHallHero extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
-              '第三方服务聚合广场',
+              '社区与便民服务',
               style: theme.textTheme.labelLarge?.copyWith(
                 color: const Color(0xFF1D4ED8),
                 fontWeight: FontWeight.w800,
@@ -525,7 +525,7 @@ class _ServiceHallHero extends StatelessWidget {
           Text('今天想找哪类服务？', style: theme.textTheme.headlineMedium),
           const SizedBox(height: 8),
           Text(
-            '银聆负责聚合服务资源、整理信息和辅助转接，家政、陪诊、助餐等服务由第三方公司或社区机构完成。',
+            '家政、陪诊、助餐等服务由社区机构或合作服务方提供，银聆协助您查看信息并发起联系。',
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 18),
@@ -752,7 +752,7 @@ class _ElderlyServiceCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      item.meta ?? '点击查看',
+                      item.meta ?? '查看详情',
                       style: theme.textTheme.labelLarge?.copyWith(
                         color: AppTheme.textMuted,
                         fontWeight: FontWeight.w700,

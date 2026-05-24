@@ -112,10 +112,10 @@ class _BrandHeroState extends State<BrandHero> {
                         ),
                       ),
                       SizedBox(height: isCompact ? 18 : 24),
-                      Text('听得见孤独，触得到温度。', style: heroTitleStyle),
+                      Text('银聆——“AI+社区”养老双引擎实践者', style: heroTitleStyle),
                       SizedBox(height: isCompact ? 10 : 12),
                       Text(
-                        '把 AI 陪伴、家庭关怀、社区互助和第三方生活服务整合到一条清晰可达的路径中。',
+                        '连接 AI 陪伴、家庭关怀、社区互助和便民服务，让日常照护更容易被看见、被响应。',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           height: isCompact ? 1.55 : 1.6,
                         ),
@@ -150,7 +150,7 @@ class _BrandHeroState extends State<BrandHero> {
                           children: const [
                             _CapabilityBadge(
                               title: 'AI陪伴',
-                              subtitle: '暖心对话与情绪关怀',
+                              subtitle: '对话、提醒与情绪记录',
                               icon: Icons.chat_bubble_rounded,
                               compact: true,
                             ),
@@ -177,7 +177,7 @@ class _BrandHeroState extends State<BrandHero> {
                           children: [
                             _CapabilityBadge(
                               title: 'AI陪伴',
-                              subtitle: '暖心对话与情绪关怀',
+                              subtitle: '对话、提醒与情绪记录',
                               icon: Icons.chat_bubble_rounded,
                             ),
                             _CapabilityBadge(

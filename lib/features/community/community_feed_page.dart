@@ -129,10 +129,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
         _posts = <CommunityPost>[created, ..._posts];
       });
     } catch (error) {
-      final message = _friendlyErrorMessage(
-        error,
-        fallback: '发布失败，请稍后再试。',
-      );
+      final message = _friendlyErrorMessage(error, fallback: '发布失败，请稍后再试。');
       if (!mounted) {
         return;
       }
@@ -158,10 +155,7 @@ class _CommunityFeedPageState extends State<CommunityFeedPage> {
             .toList(growable: false);
       });
     } catch (error) {
-      final message = _friendlyErrorMessage(
-        error,
-        fallback: '响应失败，请稍后再试。',
-      );
+      final message = _friendlyErrorMessage(error, fallback: '响应失败，请稍后再试。');
       if (!mounted) {
         return;
       }
@@ -286,10 +280,10 @@ class _CommunityHeroCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            Text('看看今天社区里谁需要帮助', style: theme.textTheme.headlineMedium),
+            Text('社区互助与邻里消息', style: theme.textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              '既能查看附近求助，也能发布新的互助信息，让关怀在社区里流动起来。',
+              '查看附近求助、社区公告和已发布的互助信息，也可以发起新的互助请求。',
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 16),
@@ -368,7 +362,7 @@ class _MyCommunitySummaryCard extends StatelessWidget {
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 6),
-            Text('这里会汇总您发布和已响应的互助信息。', style: theme.textTheme.bodyMedium),
+            Text('您发布和已响应的互助信息会集中显示在这里。', style: theme.textTheme.bodyMedium),
             const SizedBox(height: 14),
             Row(
               children: [

@@ -118,7 +118,7 @@ class PlatformOperationsPage extends StatelessWidget {
                       const SizedBox(height: 18),
                       _SectionHeader(
                         title: '服务商接入',
-                        subtitle: '平台负责审核、排序和转接，具体服务由第三方履约。',
+                        subtitle: '查看服务商资质、响应状态和转接进度。',
                       ),
                       const SizedBox(height: 12),
                       _CategoryGrid(
@@ -179,10 +179,10 @@ class _OperationsHero extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Text('把老人需求分派给合适的服务商', style: theme.textTheme.headlineMedium),
+          Text('把长辈需求分派给合适的服务方', style: theme.textTheme.headlineMedium),
           const SizedBox(height: 8),
           Text(
-            '运营人员在这里查看需求、服务商状态和回访任务，保证每一次转接都有人跟进。',
+            '集中查看待处理需求、服务方状态和回访任务，确保每一次转接都有跟进记录。',
             style: theme.textTheme.bodyLarge,
           ),
         ],

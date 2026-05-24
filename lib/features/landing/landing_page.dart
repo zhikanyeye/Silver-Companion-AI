@@ -181,7 +181,7 @@ class _HeroSection extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          '把陪伴、照护和生活服务放在一个入口',
+          '银聆——“AI+社区”养老双引擎实践者',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: isCompact ? 28 : 40,
@@ -195,7 +195,7 @@ class _HeroSection extends StatelessWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: Text(
-            '银聆帮长辈更容易找到陪伴、求助、社区活动和第三方生活服务，也让子女随时了解家里的近况。',
+            '以 AI 陪伴回应日常需求，以社区服务承接线下照护，让长辈、家人和服务人员在同一入口协同。',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: isCompact ? 16 : 18,
@@ -303,14 +303,14 @@ class _FeatureCards extends StatelessWidget {
         icon: Icons.smart_toy_rounded,
         iconBg: Color(0xFFEFF6FF),
         iconColor: Color(0xFF2563EB),
-        title: 'AI 暖心陪伴',
-        description: '像家人一样聊天，倾听情绪、陪伴日常，24 小时不间断。',
+        title: 'AI 日常陪伴',
+        description: '语音聊天、用药提醒和情绪记录，帮助长辈把需求说出来。',
       ),
       const _FeatureCardData(
         icon: Icons.monitor_heart_rounded,
         iconBg: Color(0xFFF0FDF4),
         iconColor: Color(0xFF16A34A),
-        title: '健康守护管家',
+        title: '家庭远程关怀',
         description: '日常提醒、状态记录和趋势汇总，子女远程了解更安心。',
       ),
       const _FeatureCardData(
@@ -318,7 +318,7 @@ class _FeatureCards extends StatelessWidget {
         iconBg: Color(0xFFFEF3C7),
         iconColor: Color(0xFFD97706),
         title: '社区互助网络',
-        description: '聚合邻里互助、社区活动和第三方服务入口，少走弯路。',
+        description: '连接邻里互助、社区活动和便民服务，让线下支持更容易找到。',
       ),
     ];
 
@@ -432,7 +432,7 @@ class _SocialProofSection extends StatelessWidget {
     return Column(
       children: [
         const Text(
-          '家庭反馈',
+          '常用场景',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
@@ -441,7 +441,7 @@ class _SocialProofSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          '来自长辈和家人的使用感受',
+          '围绕长辈每天真正会遇到的事',
           style: TextStyle(fontSize: 16, color: Color(0xFF64748B)),
         ),
         const SizedBox(height: 24),
@@ -451,21 +451,21 @@ class _SocialProofSection extends StatelessWidget {
           alignment: WrapAlignment.center,
           children: const [
             _TestimonialCard(
-              quote: '妈妈可以自己找服务、看活动，我这边也能知道她最近需要什么，沟通顺了很多。',
-              name: '张女士',
-              role: '北京 · 女儿',
+              quote: '长辈想找人说话、记录心情或设置提醒时，可以先从 AI 陪伴入口开始。',
+              name: '陪伴',
+              role: '聊天 · 提醒 · 记录',
               avatarColor: Color(0xFF2563EB),
             ),
             _TestimonialCard(
-              quote: '老伴走后最怕孤单，现在有了银聆，每天都有人陪我说说话，感觉日子也没那么难了。',
-              name: '李大爷',
-              role: '上海 · 78 岁用户',
+              quote: '家人需要了解近况时，可以查看提醒、互动和服务记录，减少反复追问。',
+              name: '关怀',
+              role: '状态 · 记录 · 同步',
               avatarColor: Color(0xFF16A34A),
             ),
             _TestimonialCard(
-              quote: '以前找家政和陪诊要翻很多电话，现在先看分类，再让平台帮我转接，清楚多了。',
-              name: '王阿姨',
-              role: '广州 · 72 岁用户',
+              quote: '遇到助餐、陪诊、活动和邻里互助需求时，可以从社区入口找到可对接资源。',
+              name: '社区',
+              role: '互助 · 活动 · 服务',
               avatarColor: Color(0xFFD97706),
             ),
           ],
@@ -597,7 +597,7 @@ class _CTASection extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            '让关爱，跨越距离',
+            '从一次陪伴开始',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: isCompact ? 24 : 30,
@@ -608,7 +608,7 @@ class _CTASection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const Text(
-            '无论您身在何方，银聆帮您守护长辈的每一天。',
+            '进入银聆，连接 AI 陪伴、家庭关怀和社区服务。',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Colors.white70, height: 1.5),
           ),
@@ -630,7 +630,7 @@ class _CTASection extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            child: const Text('免费注册体验'),
+            child: const Text('创建账号'),
           ),
         ],
       ),

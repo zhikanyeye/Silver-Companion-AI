@@ -102,10 +102,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
             .toList(growable: false);
       });
     } catch (error) {
-      final message = _friendlyErrorMessage(
-        error,
-        fallback: '报名失败，请稍后再试。',
-      );
+      final message = _friendlyErrorMessage(error, fallback: '报名失败，请稍后再试。');
       if (!mounted) {
         return;
       }
@@ -143,10 +140,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
         _items = <ElderlyActivityItem>[created, ..._items];
       });
     } catch (error) {
-      final message = _friendlyErrorMessage(
-        error,
-        fallback: '发布失败，请稍后再试。',
-      );
+      final message = _friendlyErrorMessage(error, fallback: '发布失败，请稍后再试。');
       if (!mounted) {
         return;
       }
@@ -190,7 +184,7 @@ class _ElderlyActivitiesPageState extends State<ElderlyActivitiesPage> {
                 else ...[
                   _ActivitySection(
                     title: '今日推荐',
-                    subtitle: '优先看看今天就能参加的活动与服务。',
+                    subtitle: '优先显示今天可参加的活动与服务。',
                     items: _todayItems,
                     onJoin: _joinActivity,
                   ),
@@ -260,9 +254,9 @@ class _ActivitiesHeroCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            Text('把今天和本周活动排得更清楚', style: theme.textTheme.headlineMedium),
+            Text('今天和本周的社区活动', style: theme.textTheme.headlineMedium),
             const SizedBox(height: 8),
-            Text('既能查看活动安排，也能直接报名或发布新的活动邀请。', style: theme.textTheme.bodyLarge),
+            Text('查看活动安排，报名参加，也可以发布新的活动邀请。', style: theme.textTheme.bodyLarge),
           ],
         ),
       ),
@@ -295,7 +289,7 @@ class _MyActivitiesSummaryCard extends StatelessWidget {
           children: [
             Text(displayName, style: theme.textTheme.titleLarge),
             const SizedBox(height: 6),
-            Text('这里会汇总您发起和已报名的活动。', style: theme.textTheme.bodyMedium),
+            Text('您发起和已报名的活动会集中显示在这里。', style: theme.textTheme.bodyMedium),
             const SizedBox(height: 14),
             Row(
               children: [

@@ -104,7 +104,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                                 ),
                                 const SizedBox(height: 8),
                                 const Text(
-                                  '我们将为您打开专属的服务入口',
+                                  '请选择要进入的服务入口',
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Color(0xFF64748B),

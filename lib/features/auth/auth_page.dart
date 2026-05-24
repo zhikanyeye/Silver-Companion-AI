@@ -138,7 +138,7 @@ class _AuthPageState extends State<AuthPage>
                                 ),
                                 const SizedBox(height: 6),
                                 const Text(
-                                  '听得见孤独，触得到温度。',
+                                  '“AI+社区”养老双引擎实践者',
                                   style: TextStyle(
                                     fontSize: 15,
                                     color: Color(0xFF64748B),
